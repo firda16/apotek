@@ -45,7 +45,8 @@ Route::middleware(['auth'])->group(function(){
     Route::resource('roles',RoleController::class);
     Route::resource('suppliers',SupplierController::class);
     Route::resource('categories',CategoryController::class)->only(['index','store','destroy']);
-    Route::put('categories',[CategoryController::class,'update'])->name('categories.update');
+    // Route::put('categories',[CategoryController::class,'update'])->name('categories.update');
+    Route::post('/categories/update', [CategoryController::class, 'update'])->name('categories.update');
     Route::resource('purchases',PurchaseController::class)->except('show');
     Route::get('purchases/reports',[PurchaseController::class,'reports'])->name('purchases.report');
     Route::post('purchases/reports',[PurchaseController::class,'generateReport']);

@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class CategoryController extends Controller
 {
+     use ValidatesRequests;
     /**
      * Display a listing of the resource.
      *
@@ -17,32 +18,8 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $title = 'categories';
-        if($request->ajax()){
-            $categories = Category::get();
-            return DataTables::of($categories)
-                    ->addIndexColumn()
-                    ->addColumn('created_at',function($category){
-                        return date_format(date_create($category->created_at),"d M,Y");
-                    })
-                    ->addColumn('action',function ($row){
-                        $editbtn = '<a data-id="'.$row->id.'" data-name="'.$row->name.'" href="javascript:void(0)" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                        $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('categories.destroy',$row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                        if(!auth()->user()->hasPermissionTo('edit-category')){
-                            $editbtn = '';
-                        }
-                        if(!auth()->user()->hasPermissionTo('destroy-category')){
-                            $deletebtn = '';
-                        }
-                        $btn = $editbtn.' '.$deletebtn;
-                        return $btn;
-                    })
-                    ->rawColumns(['action'])
-                    ->make(true);
-        }
-        return view('admin.products.categories',compact(
-            'title'
-        ));
+        $categories = Category::get();
+        return view('admin.products.categories', compact('categories'));
     }
 
    
@@ -54,14 +31,18 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $this->validate($request,[
-            'name'=>'required|max:100',
-        ]);
-        Category::create($request->all());
-        $notification=array("Category has been added");
-        return back()->with($notification);
-    }
+{
+    $request->validate([
+        'name' => 'required|max:100',
+    ]);
+
+    Category::create([
+        'name' => $request->name,
+    ]);
+
+    return back()->with('success', 'Category has been added');
+}
+
 
     
 
@@ -73,15 +54,18 @@ class CategoryController extends Controller
      * 
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
-        $this->validate($request,['name'=>'required|max:100']);
-        $category = Category::find($request->id);
-        $category->update([
-            'name'=>$request->name,
+        $this->validate($request, [
+            'name' => 'required|max:100',
         ]);
-        $notification = notify("Category has been updated");
-        return back()->with($notification);
+
+        $category = Category::findOrFail($id);
+        $category->update([
+            'name' => $request->name,
+        ]);
+
+        return back()->with('success', 'Category has been updated');
     }
 
     /**
