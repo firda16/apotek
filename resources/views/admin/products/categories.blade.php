@@ -24,6 +24,17 @@
 	<div class="col-sm-12">
 		<div class="card">
 			<div class="card-body">
+<form method="GET" action="{{ route('categories.index') }}" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Cari kategori..."
+               value="{{ request('search') }}">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">Cari</button>
+        </div>
+    </div>
+</form>
+
+
 				<div class="table-responsive">
 					<table id="category-table" class="datatable table table-striped table-bordered table-hover table-center mb-0">
 						<thead>
@@ -115,16 +126,16 @@
 @push('page-js')
 <script>
     $(document).ready(function() {
-        var table = $('#category-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{route('categories.index')}}",
-            columns: [
-                {data: 'name', name: 'name'},
-                {data: 'created_at',name: 'created_at'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
-            ]
-        });
+        // var table = $('#category-table').DataTable({
+        //     processing: true,
+        //     serverSide: true,
+        //     ajax: "{{route('categories.index')}}",
+        //     columns: [
+        //         {data: 'name', name: 'name'},
+        //         {data: 'created_at',name: 'created_at'},
+        //         {data: 'action', name: 'action', orderable: false, searchable: false},
+        //     ]
+        // });
        $('#category-table').on('click', '.editbtn', function () {
     const id = $(this).data('id');
     const name = $(this).data('name');

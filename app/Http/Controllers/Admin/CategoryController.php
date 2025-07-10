@@ -16,11 +16,19 @@ class CategoryController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
-        $categories = Category::get();
-        return view('admin.products.categories', compact('categories'));
+   public function index(Request $request)
+{
+    $query = Category::query();
+
+    if ($request->has('search') && $request->search != '') {
+        $query->where('name', 'like', '%' . $request->search . '%');
     }
+
+    $categories = $query->orderBy('created_at', 'desc')->get();
+
+    return view('admin.products.categories', compact('categories'));
+}
+
 
    
 
