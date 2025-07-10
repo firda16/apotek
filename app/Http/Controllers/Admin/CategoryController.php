@@ -54,19 +54,20 @@ class CategoryController extends Controller
      * 
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        $this->validate($request, [
-            'name' => 'required|max:100',
-        ]);
+    public function update(Request $request)
+{
+    $request->validate([
+        'name' => 'required|max:100',
+    ]);
 
-        $category = Category::findOrFail($id);
-        $category->update([
-            'name' => $request->name,
-        ]);
+    $category = Category::findOrFail($request->id);
+    $category->update([
+        'name' => $request->name,
+    ]);
 
-        return back()->with('success', 'Category has been updated');
-    }
+    return back()->with('success', 'Category has been updated');
+}
+
 
     /**
      * Remove the specified resource from storage.

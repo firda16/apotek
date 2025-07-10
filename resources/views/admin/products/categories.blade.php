@@ -92,10 +92,10 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{ route('categories.update') }}">
+				<form method="POST" action="{{ route('categories.update') }}">
     @csrf
     <input type="hidden" name="id" id="edit_id">
-    
+
     <div class="form-group">
         <label>Category</label>
         <input type="text" class="form-control edit_name" name="name">
@@ -103,6 +103,7 @@
 
     <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
 </form>
+
 
 			</div>
 		</div>
@@ -112,7 +113,7 @@
 @endsection
 
 @push('page-js')
-{{-- <script>
+<script>
     $(document).ready(function() {
         var table = $('#category-table').DataTable({
             processing: true,
@@ -124,14 +125,17 @@
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ]
         });
-        $('#category-table').on('click','.editbtn',function (){
-            $('#edit_category').modal('show');
-            var id = $(this).data('id');
-            var name = $(this).data('name');
-            $('#edit_id').val(id);
-            $('.edit_name').val(name);
-        });
+       $('#category-table').on('click', '.editbtn', function () {
+    const id = $(this).data('id');
+    const name = $(this).data('name');
+
+    $('#edit_id').val(id);
+    $('.edit_name').val(name);
+
+    $('#edit_category').modal('show');
+});
+
         //
     });
-</script>  --}}
+</script> 
 @endpush
