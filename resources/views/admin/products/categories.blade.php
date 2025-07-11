@@ -24,6 +24,17 @@
 	<div class="col-sm-12">
 		<div class="card">
 			<div class="card-body">
+<form method="GET" action="{{ route('categories.index') }}" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Cari kategori..."
+               value="{{ request('search') }}">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">Cari</button>
+        </div>
+    </div>
+</form>
+
+
 				<div class="table-responsive">
 					<table id="category-table" class="datatable table table-striped table-bordered table-hover table-center mb-0">
 						<thead>
@@ -34,7 +45,16 @@
 							</tr>
 						</thead>
 						<tbody>
-												
+							@foreach($categories as $category)
+								<tr>
+									<td>{{ $category->name }}</td>
+									<td>{{ date_format(date_create($category->created_at),"d M,Y") }}</td>
+									<td class="text-center">
+										<a data-id="{{ $category->id }}" data-name="{{ $category->name }}" href="javascript:void(0)" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>
+										<a data-id="{{ $category->id }}" data-route="{{ route('categories.destroy',$category->id) }}" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>
+									</td>
+								</tr>
+							@endforeach
 						</tbody>
 					</table>
 				</div>
@@ -83,21 +103,19 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{route('categories.update')}}">
-					@csrf
-					@method("PUT")
-					<div class="row form-row">
-						<div class="col-12">
-							<input type="hidden" name="id" id="edit_id">
-							<div class="form-group">
-								<label>Category</label>
-								<input type="text" class="form-control edit_name" name="name">
-							</div>
-						</div>
-						
-					</div>
-					<button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-				</form>
+				<form method="POST" action="{{ route('categories.update') }}">
+    @csrf
+    <input type="hidden" name="id" id="edit_id">
+
+    <div class="form-group">
+        <label>Category</label>
+        <input type="text" class="form-control edit_name" name="name">
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+</form>
+
+
 			</div>
 		</div>
 	</div>
@@ -108,23 +126,26 @@
 @push('page-js')
 <script>
     $(document).ready(function() {
-        var table = $('#category-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{route('categories.index')}}",
-            columns: [
-                {data: 'name', name: 'name'},
-                {data: 'created_at',name: 'created_at'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
-            ]
-        });
-        $('#category-table').on('click','.editbtn',function (){
-            $('#edit_category').modal('show');
-            var id = $(this).data('id');
-            var name = $(this).data('name');
-            $('#edit_id').val(id);
-            $('.edit_name').val(name);
-        });
+        // var table = $('#category-table').DataTable({
+        //     processing: true,
+        //     serverSide: true,
+        //     ajax: "{{route('categories.index')}}",
+        //     columns: [
+        //         {data: 'name', name: 'name'},
+        //         {data: 'created_at',name: 'created_at'},
+        //         {data: 'action', name: 'action', orderable: false, searchable: false},
+        //     ]
+        // });
+       $('#category-table').on('click', '.editbtn', function () {
+    const id = $(this).data('id');
+    const name = $(this).data('name');
+
+    $('#edit_id').val(id);
+    $('.edit_name').val(name);
+
+    $('#edit_category').modal('show');
+});
+
         //
     });
 </script> 

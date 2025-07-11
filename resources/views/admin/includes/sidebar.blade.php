@@ -2,7 +2,6 @@
 <div class="sidebar" id="sidebar">
 	<div class="sidebar-inner slimscroll">
 		<div id="sidebar-menu" class="sidebar-menu">
-
 			<ul>
 				<li class="menu-title">
 					<span>Menu Utama</span>
@@ -17,7 +16,7 @@
 				</li>
 
 				<li class="submenu">
-					<a href="#"><i class="fe fe-document"></i> <span> Produk</span> <span class="menu-arrow"></span></a>
+					<a href="#"><i class="fe fe-document"></i> <span>Produk</span> <span class="menu-arrow"></span></a>
 					<ul style="display: none;">
 						<li><a class="{{ route_is('products.*') ? 'active' : '' }}" href="{{ route('products.index') }}">Data Produk</a></li>
 						<li><a class="{{ route_is('products.create') ? 'active' : '' }}" href="{{ route('products.create') }}">Tambah Produk</a></li>
@@ -27,7 +26,7 @@
 				</li>
 
 				<li class="submenu">
-					<a href="#"><i class="fe fe-star-o"></i> <span> Pembelian</span> <span class="menu-arrow"></span></a>
+					<a href="#"><i class="fe fe-star-o"></i> <span>Pembelian</span> <span class="menu-arrow"></span></a>
 					<ul style="display: none;">
 						<li><a class="{{ route_is('purchases.*') ? 'active' : '' }}" href="{{ route('purchases.index') }}">Data Pembelian</a></li>
 						<li><a class="{{ route_is('purchases.create') ? 'active' : '' }}" href="{{ route('purchases.create') }}">Tambah Pembelian</a></li>
@@ -35,7 +34,7 @@
 				</li>
 
 				<li class="submenu">
-					<a href="#"><i class="fe fe-activity"></i> <span> Penjualan</span> <span class="menu-arrow"></span></a>
+					<a href="#"><i class="fe fe-activity"></i> <span>Penjualan</span> <span class="menu-arrow"></span></a>
 					<ul style="display: none;">
 						<li><a class="{{ route_is('sales.*') ? 'active' : '' }}" href="{{ route('sales.index') }}">Data Penjualan</a></li>
 						<li><a class="{{ route_is('sales.create') ? 'active' : '' }}" href="{{ route('sales.create') }}">Tambah Penjualan</a></li>
@@ -43,7 +42,7 @@
 				</li>
 
 				<li class="submenu">
-					<a href="#"><i class="fe fe-user"></i> <span> Pemasok</span> <span class="menu-arrow"></span></a>
+					<a href="#"><i class="fe fe-user"></i> <span>Pemasok</span> <span class="menu-arrow"></span></a>
 					<ul style="display: none;">
 						<li><a class="{{ route_is('suppliers.*') ? 'active' : '' }}" href="{{ route('suppliers.index') }}">Data Pemasok</a></li>
 						<li><a class="{{ route_is('suppliers.create') ? 'active' : '' }}" href="{{ route('suppliers.create') }}">Tambah Pemasok</a></li>
@@ -51,7 +50,7 @@
 				</li>
 
 				<li class="submenu">
-					<a href="#"><i class="fe fe-document"></i> <span> Laporan</span> <span class="menu-arrow"></span></a>
+					<a href="#"><i class="fe fe-document"></i> <span>Laporan</span> <span class="menu-arrow"></span></a>
 					<ul style="display: none;">
 						<li><a class="{{ route_is('sales.report') ? 'active' : '' }}" href="{{ route('sales.report') }}">Laporan Penjualan</a></li>
 						<li><a class="{{ route_is('purchases.report') ? 'active' : '' }}" href="{{ route('purchases.report') }}">Laporan Pembelian</a></li>
@@ -59,7 +58,7 @@
 				</li>
 
 				<li class="submenu">
-					<a href="#"><i class="fe fe-lock"></i> <span> Kontrol Akses</span> <span class="menu-arrow"></span></a>
+					<a href="#"><i class="fe fe-lock"></i> <span>Kontrol Akses</span> <span class="menu-arrow"></span></a>
 					<ul style="display: none;">
 						<li><a class="{{ route_is('permissions.index') ? 'active' : '' }}" href="{{ route('permissions.index') }}">Hak Akses</a></li>
 						<li><a class="{{ route_is('roles.*') ? 'active' : '' }}" href="{{ route('roles.index') }}">Peran</a></li>
