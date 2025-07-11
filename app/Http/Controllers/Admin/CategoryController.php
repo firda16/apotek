@@ -34,7 +34,7 @@ class CategoryController extends Controller
     return view('admin.products.categories', compact('categories'));
 }
 
-   
+
 
     /**
      * Store a newly created resource in storage.
@@ -56,14 +56,14 @@ class CategoryController extends Controller
 }
 
 
-    
 
-    
+
+
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)

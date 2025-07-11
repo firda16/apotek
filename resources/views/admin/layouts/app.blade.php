@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- csrf token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ucfirst(AppSettings::get('app_name', 'App'))}} - {{ucfirst($title ?? '')}}</title>
+    <title>{{ config('app.name') }} - {{ ucfirst($title ?? '') }}</title>
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="{{!empty(AppSettings::get('favicon')) ? asset('storage/'.AppSettings::get('favicon')) : asset('assets/img/favicon.png')}}">
     <!-- Bootstrap CSS -->
@@ -75,7 +75,7 @@
 
     </div>
     <!-- /Main Wrapper -->
-    
+
 </body>
 <!-- jQuery -->
 <script src="{{asset('assets/plugins/jquery/jquery.min.js')}}"></script>
@@ -132,7 +132,7 @@
                     }
                 }
             ]).catch(swal.noop);
-        }); 
+        });
     });
     @if(Session::has('message'))
         var type = "{{ Session::get('alert-type', 'info') }}";
