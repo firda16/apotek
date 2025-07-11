@@ -38,7 +38,9 @@
 							</tr>
 						</thead>
 						<tbody>
-							
+							@foreach ($title as $data)
+								
+							@endforeach
 						</tbody>
 					</table>
 				</div>
