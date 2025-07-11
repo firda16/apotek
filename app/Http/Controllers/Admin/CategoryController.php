@@ -45,7 +45,7 @@ class CategoryController extends Controller
         ));
     }
 
-   
+
 
     /**
      * Store a newly created resource in storage.
@@ -63,14 +63,14 @@ class CategoryController extends Controller
         return back()->with($notification);
     }
 
-    
 
-    
+
+
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)

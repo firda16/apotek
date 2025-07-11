@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $total_suppliers = Supplier::count();
         $total_sales = Sale::count();
 
-        // ✅ Buat chart dengan benar
+       
         $pieChart = new Chart;
         $pieChart->labels(['Total Purchases', 'Total Suppliers', 'Total Sales']);
         $pieChart->dataset('Data Summary', 'pie', [

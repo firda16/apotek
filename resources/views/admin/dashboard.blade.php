@@ -8,9 +8,9 @@
 
 @push('page-header')
 <div class="col-sm-12">
-	<h3 class="page-title">Welcome {{ auth()->user()->name }}!</h3>
+	<h3 class="page-title">Selamat Datang {{ auth()->user()->name }}!</h3>
 	<ul class="breadcrumb">
-		<li class="breadcrumb-item active">Dashboard</li>
+		<li class="breadcrumb-item active">Beranda</li>
 	</ul>
 </div>
 @endpush
@@ -25,11 +25,11 @@
                         <i class="fe fe-money"></i>
                     </span>
                     <div class="dash-count">
-                        <h3>{{ AppSettings::get('app_currency', '$') }} {{ $today_sales }}</h3>
+                        <h3>{{ AppSettings::get('app_currency', 'Rp') }} {{ $today_sales }}</h3>
                     </div>
                 </div>
                 <div class="dash-widget-info">
-                    <h6 class="text-muted">Today Sales Cash</h6>
+                    <h6 class="text-muted">Total Penjualan Hari Ini</h6>
                     <div class="progress progress-sm">
                         <div class="progress-bar bg-primary w-50"></div>
                     </div>
@@ -50,7 +50,7 @@
                     </div>
                 </div>
                 <div class="dash-widget-info">
-                    <h6 class="text-muted">Product Categories</h6>
+                    <h6 class="text-muted">Kategori Produk</h6>
                     <div class="progress progress-sm">
                         <div class="progress-bar bg-success w-50"></div>
                     </div>
@@ -71,7 +71,7 @@
                     </div>
                 </div>
                 <div class="dash-widget-info">
-                    <h6 class="text-muted">Expired Products</h6>
+                    <h6 class="text-muted">Produk Kedaluwarsa</h6>
                     <div class="progress progress-sm">
                         <div class="progress-bar bg-danger w-50"></div>
                     </div>
@@ -92,7 +92,7 @@
                     </div>
                 </div>
                 <div class="dash-widget-info">
-                    <h6 class="text-muted">System Users</h6>
+                    <h6 class="text-muted">Pengguna Sistem</h6>
                     <div class="progress progress-sm">
                         <div class="progress-bar bg-warning w-50"></div>
                     </div>
@@ -107,21 +107,21 @@
     <div class="col-md-12 col-lg-6">
         <div class="card card-table p-3">
             <div class="card-header">
-                <h4 class="card-title">Today Sales</h4>
+                <h4 class="card-title">Penjualan Hari Ini</h4>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table id="sales-table" class="datatable table table-hover table-center mb-0">
                         <thead>
                             <tr>
-                                <th>Medicine</th>
-                                <th>Quantity</th>
-                                <th>Total Price</th>
-                                <th>Date</th>
+                                <th>Nama Obat</th>
+                                <th>Jumlah</th>
+                                <th>Total Harga</th>
+                                <th>Tanggal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- DataTables will populate this --}}
+                            {{-- DataTables akan diisi otomatis --}}
                         </tbody>
                     </table>
                 </div>
@@ -129,17 +129,17 @@
         </div>
     </div>
 
-    <!-- Pie Chart -->
+    <!-- Diagram Pie -->
     <div class="col-md-12 col-lg-6">
         <div class="card card-chart">
             <div class="card-header">
-                <h4 class="card-title text-center">Resources</h4>
+                <h4 class="card-title text-center">Sumber Daya</h4>
             </div>
             <div class="card-body">
                 @if(isset($pieChart))
                     {!! $pieChart->container() !!}
                 @else
-                    <p class="text-muted text-center">Chart not available</p>
+                    <p class="text-muted text-center">Diagram tidak tersedia</p>
                 @endif
             </div>
         </div>
@@ -153,7 +153,7 @@
         $('#sales-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('sales.index') }}",
+            ajax: "{{ route('sales.data') }}",
             columns: [
                 { data: 'product', name: 'product' },
                 { data: 'quantity', name: 'quantity' },
