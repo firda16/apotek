@@ -38,9 +38,26 @@
 							</tr>
 						</thead>
 						<tbody>
-							@foreach ($title as $data)
-								
-							@endforeach
+							@foreach ($users as $user)
+    <tr>
+        <td>{{ $user->name }}</td>
+        <td>{{ $user->email }}</td>
+        <td>{{ $user->role }}</td>
+		<td>{{ $user->avatar }}</td>
+        <td>{{ $user->created_at->format('d M Y') }}</td>
+		<td>
+    <a href="{{ route('users.edit', $user->id) }}" class="editbtn">
+        <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
+    </a>
+</td>
+<td>
+    <a data-id="{{ $user->id }}" data-route="{{ route('users.destroy', $user->id) }}" href="javascript:void(0)" id="deletebtn">
+        <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+    </a>
+</td>
+    </tr>
+@endforeach
+
 						</tbody>
 					</table>
 				</div>

@@ -44,4 +44,29 @@ class DashboardController extends Controller
             'total_categories'
         ));
     }
+
+    public function kasirDashboard()
+    {
+        $title = 'kasir-dashboard';
+
+        $total_purchases = Purchase::where('expiry_date', '!=', Carbon::now())->count();
+        $total_categories = Category::count();
+        $total_suppliers = Supplier::count();
+        $total_sales = Sale::count();
+
+        $pieChart = new Chart;
+        $pieChart->labels(['Total Purchases', 'Total Suppliers', 'Total Sales']);
+        $pieChart->dataset('Data Summary', 'pie', [
+            $total_purchases,
+            $total_suppliers,
+            $total_sales
+        ])->backgroundColor(['#FF6384', '#36A2EB', '#7bb13c']);
+
+        return view('kasir.dashboard', compact(
+            'title',
+            'pieChart',
+            'total_categories'
+        ));
+    }
+    
 }

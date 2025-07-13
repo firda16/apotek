@@ -23,45 +23,50 @@ class UserController extends Controller
     // halaman users
     public function index(Request $request)
     {
-        $title = 'users';
-        if ($request->ajax()) {
-            $users = User::get();
-            return DataTables::of($users)
-                ->addIndexColumn()
-                ->addColumn('created_at', function ($category) {
-                    return date_format(date_create($category->created_at), "d M,Y");
-                })
-                ->addColumn('avatar', function ($user) {
-                    $src = asset('assets/img/avatar.png');
-                    if (!empty($user->avatar)) {
-                        $src = asset('storage/users/'.$user->avatar);
-                    }
-                    return '<img src="'.$src.'" class="avatar-img rounded-circle" width="50" />';
-                })
-                ->addColumn('role', function ($row) {
-                    foreach ($row->getRoleNames() as $role) {
-                        return '<span>'.$role.'</span>';
-                    }
-                })
-                ->addColumn('action', function ($row) {
-                    $editbtn = '<a href="'.route("users.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('users.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                    $user = Auth::user();                    
-                        if ($user && $user->hasPermissionTo('edit-user')) {
-                        $editbtn = '';
-                    }
-                    if (!Auth::user()->hasPermissionTo('destroy-user')) {
-                        $deletebtn = '';
-                    }
-                    $btn = $editbtn.' '.$deletebtn;
-                    return $btn;
-                })
-                ->rawColumns(['avatar','role','action'])
-                ->make(true);
-        }
+        
+        $users = User::get();
         return view('admin.users.index', compact(
-            'title'
+             'users'
         ));
+        // $title = 'users';
+        // if ($request->ajax()) {
+        //     $users = User::get();
+        //     return DataTables::of($users)
+        //         ->addIndexColumn()
+        //         ->addColumn('created_at', function ($category) {
+        //             return date_format(date_create($category->created_at), "d M,Y");
+        //         })
+        //         ->addColumn('avatar', function ($user) {
+        //             $src = asset('assets/img/avatar.png');
+        //             if (!empty($user->avatar)) {
+        //                 $src = asset('storage/users/'.$user->avatar);
+        //             }
+        //             return '<img src="'.$src.'" class="avatar-img rounded-circle" width="50" />';
+        //         })
+        //         ->addColumn('role', function ($row) {
+        //             foreach ($row->getRoleNames() as $role) {
+        //                 return '<span>'.$role.'</span>';
+        //             }
+        //         })
+        //         ->addColumn('action', function ($row) {
+        //             $editbtn = '<a href="'.route("users.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
+        //             $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('users.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
+        //             $user = Auth::user();                    
+        //                 if ($user && $user->hasPermissionTo('edit-user')) {
+        //                 $editbtn = '';
+        //             }
+        //             if (!Auth::user()->hasPermissionTo('destroy-user')) {
+        //                 $deletebtn = '';
+        //             }
+        //             $btn = $editbtn.' '.$deletebtn;
+        //             return $btn;
+        //         })
+        //         ->rawColumns(['avatar','role','action'])
+        //         ->make(true);
+        // }
+        // return view('admin.users.index', compact(
+        //     'title'
+        // ));
     }
 
     /**

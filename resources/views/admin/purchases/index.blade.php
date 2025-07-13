@@ -40,7 +40,17 @@
 							</tr>
 						</thead>
 						<tbody>
-														
+									@foreach ($pembelians as $pembelian)
+<tr>
+    <td>{{ $pembelian->product->name ?? '-' }}</td>
+    <td>{{ $pembelian->category->name ?? '-' }}</td>
+    <td>{{ $pembelian->supplier->name ?? '-' }}</td>
+    <td>{{ $pembelian->cost_price }}</td>
+    <td>{{ $pembelian->quantity }}</td>
+    <td>{{ $pembelian->expiry_date }}</td>
+</tr>
+@endforeach
+
 						</tbody>
 					</table>
 				</div>
@@ -52,7 +62,7 @@
 </div>
 @endsection	
 
-@push('page-js')
+{{-- @push('page-js')
 <script>
     $(document).ready(function() {
         var table = $('#purchase-table').DataTable({
@@ -72,4 +82,4 @@
         
     });
 </script> 
-@endpush
+@endpush --}}

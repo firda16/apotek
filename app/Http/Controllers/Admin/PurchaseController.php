@@ -21,50 +21,10 @@ class PurchaseController extends Controller
      */
     public function index(Request $request)
     {
-        $title = 'purchases';
-        if($request->ajax()){
-            $purchases = Purchase::get();
-            return DataTables::of($purchases)
-                ->addColumn('product',function($purchase){
-                    $image = '';
-                    if(!empty($purchase->image)){
-                        $image = '<span class="avatar avatar-sm mr-2">
-						<img class="avatar-img" src="'.asset("storage/purchases/".$purchase->image).'" alt="product">
-					    </span>';
-                    }                 
-                    return $purchase->product.' ' . $image;
-                })
-                ->addColumn('category',function($purchase){
-                    if(!empty($purchase->category)){
-                        return $purchase->category->name;
-                    }
-                })
-                ->addColumn('cost_price',function($purchase){
-                    return settings('app_currency','$'). ' '. $purchase->cost_price;
-                })
-                ->addColumn('supplier',function($purchase){
-                    return $purchase->supplier->name;
-                })
-                ->addColumn('expiry_date',function($purchase){
-                    return date_format(date_create($purchase->expiry_date),'d M, Y');
-                })
-                ->addColumn('action', function ($row) {
-                    $editbtn = '<a href="'.route("purchases.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('purchases.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                    if (!auth()->user()->hasPermissionTo('edit-purchase')) {
-                        $editbtn = '';
-                    }
-                    if (!auth()->user()->hasPermissionTo('destroy-purchase')) {
-                        $deletebtn = '';
-                    }
-                    $btn = $editbtn.' '.$deletebtn;
-                    return $btn;
-                })
-                ->rawColumns(['product','action'])
-                ->make(true);
-        }
+        $pembelians = Purchase::get(); // ← akan mengembalikan Collection of Model (object)
+
         return view('admin.purchases.index',compact(
-            'title'
+            'pembelians'
         ));
     }
 
@@ -91,7 +51,7 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
+        $request->validate([
             'product'=>'required|max:200',
             'category'=>'required',
             'cost_price'=>'required|min:1',
