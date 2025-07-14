@@ -63,10 +63,8 @@
 
 								<div class="row">
 									<p class="col-sm-2 text-muted text-sm-right mb-0 mb-sm-3">Peran</p>
-									<p class="col-sm-10">
-										@foreach (auth()->user()->getRoleNames() as $role)
-											{{$role}}
-										@endforeach
+									<p class="col-sm-10">	
+										{{auth()->user()->role}}									                                
 									</p>
 								</div>
 
@@ -102,11 +100,15 @@
 												<div class="col-12">
 													<div class="form-group">
 														<label>Peran</label>
-														<select class="form-control select edit_role" name="role">
-															@foreach ($roles as $role)
-																<option value="{{$role->name}}">{{$role->name}}</option>
-															@endforeach
-														</select>
+														<select class="form-control" name="role">
+    @foreach ($roles as $role)
+        <option value="{{ $role }}" {{ $users->role === $role ? 'selected' : '' }}>
+            {{ ucfirst($role) }}
+        </option>
+    @endforeach
+</select>
+
+
 													</div>
 												</div>												
 												<div class="col-12">

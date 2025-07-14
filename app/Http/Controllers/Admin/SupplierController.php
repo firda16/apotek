@@ -17,29 +17,10 @@ class SupplierController extends Controller
      */
     public function index(Request $request)
     {
-        $title = 'suppliers';
-        if($request->ajax()){
-            $suppliers = Supplier::get();
-            return DataTables::of($suppliers)
-                ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    $editbtn = '<a href="'.route("suppliers.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('suppliers.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                    if (!auth()->user()->hasPermissionTo('edit-supplier')) {
-                        $editbtn = '';
-                    }
-                    if (!auth()->user()->hasPermissionTo('destroy-supplier')) {
-                        $deletebtn = '';
-                    }
-                    $btn = $editbtn.' '.$deletebtn;
-                    return $btn;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
+        $suppliers = Supplier::get();
     
         return view('admin.suppliers.index',compact(
-            'title'
+            'suppliers'
         ));
     }
 
@@ -64,9 +45,9 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
+        $request->validate([
             'name'=>'required|min:10|max:255',
-            'product'=>'required',
+            'product'=>'nullable',
             'email'=>'nullable|email|string',
             'phone'=>'nullable|min:10|max:20',
             'company'=>'nullable|max:200|required',

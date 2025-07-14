@@ -19,7 +19,9 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('role')->default('kasir');
+            // Kolom 'role' diubah menjadi ENUM dengan opsi 'kasir' dan 'admin'
+            // Default nilai tetap 'kasir' sesuai permintaan Anda
+            $table->enum('role', ['kasir', 'admin'])->default('kasir');
             $table->rememberToken();
             $table->timestamps();
         });

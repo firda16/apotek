@@ -49,6 +49,7 @@
 						<thead>
 							<tr>
 								<th>No</th>
+								<th>Gambar</th>
 								<th>Nama Obat</th>
 								<th>Kategori</th>
 								<th>Pemasok</th>
@@ -60,8 +61,11 @@
 						</thead>
 						<tbody>
 							@foreach ($pembelians as $pembelian)
-							<tr>
+							<tr>							
 								<td>{{ $loop->iteration }}</td>
+								<td>
+    <img src="{{ asset('storage/purchases/' . $pembelian->image) }}" alt="Gambar Produk" style="width: 50px;">
+</td>
 								<td>{{ $pembelian->product }}</td>
 								<td>{{ $pembelian->category->name ?? '-' }}</td>
 								<td>{{ $pembelian->supplier->name ?? '-' }}</td>

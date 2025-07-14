@@ -24,7 +24,9 @@ class CategoryController extends Controller
         $query->where('name', 'like', '%' . $request->search . '%');
     }
 
-    $categories = $query->orderBy('created_at', 'desc')->get();
+    // Mengganti get() dengan paginate() untuk mengaktifkan pagination
+    $categories = $query->orderBy('created_at', 'desc')->paginate(15); 
+    // Anda bisa menyesuaikan jumlah item per halaman (contoh: 15)
 
     // Cek jika request AJAX, kembalikan partial view
     if ($request->ajax()) {

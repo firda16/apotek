@@ -27,46 +27,7 @@ class UserController extends Controller
         $users = User::get();
         return view('admin.users.index', compact(
              'users'
-        ));
-        // $title = 'users';
-        // if ($request->ajax()) {
-        //     $users = User::get();
-        //     return DataTables::of($users)
-        //         ->addIndexColumn()
-        //         ->addColumn('created_at', function ($category) {
-        //             return date_format(date_create($category->created_at), "d M,Y");
-        //         })
-        //         ->addColumn('avatar', function ($user) {
-        //             $src = asset('assets/img/avatar.png');
-        //             if (!empty($user->avatar)) {
-        //                 $src = asset('storage/users/'.$user->avatar);
-        //             }
-        //             return '<img src="'.$src.'" class="avatar-img rounded-circle" width="50" />';
-        //         })
-        //         ->addColumn('role', function ($row) {
-        //             foreach ($row->getRoleNames() as $role) {
-        //                 return '<span>'.$role.'</span>';
-        //             }
-        //         })
-        //         ->addColumn('action', function ($row) {
-        //             $editbtn = '<a href="'.route("users.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-        //             $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('users.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-        //             $user = Auth::user();                    
-        //                 if ($user && $user->hasPermissionTo('edit-user')) {
-        //                 $editbtn = '';
-        //             }
-        //             if (!Auth::user()->hasPermissionTo('destroy-user')) {
-        //                 $deletebtn = '';
-        //             }
-        //             $btn = $editbtn.' '.$deletebtn;
-        //             return $btn;
-        //         })
-        //         ->rawColumns(['avatar','role','action'])
-        //         ->make(true);
-        // }
-        // return view('admin.users.index', compact(
-        //     'title'
-        // ));
+        ));        
     }
 
     /**
@@ -75,10 +36,9 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
-        $title = 'create user';
-        $roles = Role::get();
-        return view('admin.users.create', compact('title','roles'));
+    {        
+        $users = User::get();      
+        return view('admin.users.create', compact('users'));
     }
 
     /**
@@ -122,12 +82,9 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $title = "edit user";
-        $roles = Role::get();
-        return view('admin.users.edit',compact(
-            'title','roles','user'
-        ));
+    return view('admin.users.edit', compact('user'));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -160,20 +117,17 @@ class UserController extends Controller
             'email' => $request->email,
             'avatar' => $imageName,
             'password' => $password,
-        ]);
-        foreach($user->getRoleNames() as $userRole){
-            $user->removeRole($userRole);
-        }
-        $user->assignRole($request->role);
+        ]);                
         $notification = notify('user update berhasil ');
         return redirect()->route('users.index')->with($notification);
     }
 
     public function profile(){
-        $title = 'user profile';
-        $roles = Role::get();
+        // $title = 'user profile';
+        $users = Auth::user();
+        $roles = User::getRoleOptions(); 
         return view('admin.users.profile',compact(
-            'title','roles'
+            'users','roles'
         ));
     }
 

@@ -30,16 +30,34 @@
 					<table id="sales-table" class="datatable table table-hover table-center mb-0">
 						<thead>
 							<tr>
-								<th>Medicine Name</th>
-								<th>Quantity</th>
-								<th>Total Price</th>
-								<th>Date</th>
-								<th class="action-btn">Action</th>
+								<th>No</th>
+								<th>Nama Obat</th>
+								<th>Jumlah</th>
+								<th>Total Harga</th>
+								<th>Tanggal</th>
+								<th class="action-btn">Aksi</th>
 							</tr>
 						</thead>
 						<tbody>
-							
-						</tbody>
+    @foreach ($sales as $sale)
+    <tr>							
+        <td>{{ $loop->iteration }}</td>
+        {{-- Mengakses nama produk melalui relasi product --}}
+        <td>{{ $sale->product->name ?? '-' }}</td>
+        
+        {{-- Menampilkan kuantitas --}}
+        <td>{{ $sale->quantity }}</td>
+        
+        {{-- Menggunakan total_price (sesuai model Sale) --}}
+        <td>{{ $sale->total_price }}</td>
+        
+        {{-- Mengakses expiry_date melalui relasi purchase --}}
+        <td>{{ $sale->purchase?->expiry_date }}</td>
+        
+        {{-- ... kode lainnya ... --}}
+    </tr>
+    @endforeach
+</tbody>
 					</table>
 				</div>
 			</div>
@@ -52,7 +70,7 @@
 
 @endsection
 
-@push('page-js')
+{{-- @push('page-js')
 <script>
     $(document).ready(function() {
         var table = $('#sales-table').DataTable({
@@ -70,4 +88,4 @@
         
     });
 </script> 
-@endpush
+@endpush --}}

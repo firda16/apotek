@@ -19,6 +19,16 @@ class SaleController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
+
+    public function index(Request $request)
+    {
+        // $products = Product::get();
+        $sales = Sale::with(['product', 'purchase'])->get();
+        return view('admin.sales.index',compact(
+        'sales',
+        ));
+    }
+
     public function data(Request $request)
     {
         $title = 'sales';
@@ -88,7 +98,7 @@ class SaleController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
+        $request->validate([
             'product'=>'required',
             'quantity'=>'required|integer|min:1'
         ]);

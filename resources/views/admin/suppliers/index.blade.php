@@ -30,6 +30,7 @@
 					<table id="supplier-table" class="datatable table table-hover table-center mb-0">
 						<thead>
 							<tr>
+								<th>No</th>
 								<th>Produk</th>
 								<th>Nama</th>
 								<th>Telepon</th>
@@ -40,8 +41,9 @@
 							</tr>
 						</thead>
 						<tbody>
-							{{-- @foreach ($suppliers as $supplier)
+							@foreach ($suppliers as $supplier)
 							<tr>
+								<td>{{ $loop->iteration }}</td>
 								<td>
 									{{$supplier->product}}
 								</td>
@@ -50,7 +52,7 @@
 								<td>{{$supplier->email}}</td>
 								<td>{{$supplier->address}}</td>
 								<td>{{$supplier->company}}</td>
-								<td>
+								{{-- <td>
 									<div class="actions">
 										<a class="btn btn-sm bg-success-light" href="{{route('edit-supplier',$supplier)}}">
 											<i class="fe fe-pencil"></i> Edit
@@ -59,9 +61,9 @@
 											<i class="fe fe-trash"></i> Hapus
 										</a>
 									</div>
-								</td>
+								</td> --}}
 							</tr>
-							@endforeach --}}
+							@endforeach
 						</tbody>
 					</table>
 				</div>

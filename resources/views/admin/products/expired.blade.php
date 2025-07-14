@@ -35,9 +35,22 @@
 								<th class="action-btn">Aksi</th>
 							</tr>
 						</thead>
-						<tbody>
-							{{-- Data akan diisi oleh DataTables --}}
-						</tbody>
+						<tbody>    
+        @foreach($products as $product) {{-- Iterate through products for each purchase --}}
+            <tr>
+                <td>{{ $product->description }}</td> {{-- Assuming 'description' is the product name/description --}}
+                <td>{{ $product->purchase->category->name }}</td>
+                <td>{{ settings('app_currency','Rp').' '. $product->price }}</td>
+                <td>{{ $product->purchase->quantity }}</td> {{-- This quantity might be for the whole purchase, not individual product --}}
+                <td>{{ $product->discount }}%</td>
+                <td>{{ date_format(date_create($product->purchase->expiry_date),'d M, Y') }}</td>
+                <td>
+                    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="javascript:void(0)" class="btn btn-sm btn-danger" id="deletebtn" data-id="{{ $product->id }}" data-route="{{ route('products.destroy', $product->id) }}">Hapus</a>
+                </td>
+            </tr>
+        @endforeach
+</tbody>
 					</table>
 				</div>
 			</div>

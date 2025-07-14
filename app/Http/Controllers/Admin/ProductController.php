@@ -20,60 +20,9 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $title = 'products';
-        if ($request->ajax()) {
-            $products = Product::latest();
-            return DataTables::of($products)
-                ->addColumn('product',function($product){
-                    $image = '';
-                    if(!empty($product->purchase)){
-                        $image = null;
-                        if(!empty($product->purchase->image)){
-                            $image = '<span class="avatar avatar-sm mr-2">
-                            <img class="avatar-img" src="'.asset("storage/purchases/".$product->purchase->image).'" alt="image">
-                            </span>';
-                        }
-                        return $product->purchase->product. ' ' . $image;
-                    }
-                })
-
-                ->addColumn('category',function($product){
-                    $category = null;
-                    if(!empty($product->purchase->category)){
-                        $category = $product->purchase->category->name;
-                    }
-                    return $category;
-                })
-                ->addColumn('price',function($product){
-                    return settings('app_currency','$').' '. $product->price;
-                })
-                ->addColumn('quantity',function($product){
-                    if(!empty($product->purchase)){
-                        return $product->purchase->quantity;
-                    }
-                })
-                ->addColumn('expiry_date',function($product){
-                    if(!empty($product->purchase)){
-                        return date_format(date_create($product->purchase->expiry_date),'d M, Y');
-                    }
-                })
-                ->addColumn('action', function ($row) {
-                    $editbtn = '<a href="'.route("products.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('products.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                    if (!auth()->user()->hasPermissionTo('edit-product')) {
-                        $editbtn = '';
-                    }
-                    if (!auth()->user()->hasPermissionTo('destroy-purchase')) {
-                        $deletebtn = '';
-                    }
-                    $btn = $editbtn.' '.$deletebtn;
-                    return $btn;
-                })
-                ->rawColumns(['product','action'])
-                ->make(true);
-        }
+       $products = Product::get();
         return view('admin.products.index',compact(
-            'title'
+            'products'
         ));
     }
 
@@ -101,7 +50,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
+        $request->validate([
             'product'=>'required|max:200',
             'price'=>'required|min:1',
             'discount'=>'nullable',
@@ -146,7 +95,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        $this->validate($request,[
+        $request->validate([
             'product'=>'required|max:200',
             'price'=>'required',
             'discount'=>'nullable',
@@ -174,62 +123,11 @@ class ProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function expired(Request $request){
-        $title = "expired Products";
-        if($request->ajax()){
-            $products = Purchase::whereDate('expiry_date', '<=', Carbon::now())->get();
-            return DataTables::of($products)
-                ->addColumn('product',function($product){
-                    $image = '';
-                    if(!empty($product->purchase)){
-                        $image = null;
-                        if(!empty($product->purchase->image)){
-                            $image = '<span class="avatar avatar-sm mr-2">
-                            <img class="avatar-img" src="'.asset("storage/purchases/".$product->purchase->image).'" alt="image">
-                            </span>';
-                        }
-                        return $product->purchase->product. ' ' . $image;
-                    }
-                })
+        $products = Product::whereHas('purchase', function ($q) {
+            $q->whereDate('expiry_date', '<=', now());
+        })->with('purchase.category')->get();
 
-                ->addColumn('category',function($product){
-                    $category = null;
-                    if(!empty($product->purchase->category)){
-                        $category = $product->purchase->category->name;
-                    }
-                    return $category;
-                })
-                ->addColumn('price',function($product){
-                    return settings('app_currency','$').' '. $product->price;
-                })
-                ->addColumn('quantity',function($product){
-                    if(!empty($product->purchase)){
-                        return $product->purchase->quantity;
-                    }
-                })
-                ->addColumn('expiry_date',function($product){
-                    if(!empty($product->purchase)){
-                        return date_format(date_create($product->purchase->expiry_date),'d M, Y');
-                    }
-                })
-                ->addColumn('action', function ($row) {
-                    $editbtn = '<a href="'.route("products.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('products.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                    if (!auth()->user()->hasPermissionTo('edit-product')) {
-                        $editbtn = '';
-                    }
-                    if (!auth()->user()->hasPermissionTo('destroy-purchase')) {
-                        $deletebtn = '';
-                    }
-                    $btn = $editbtn.' '.$deletebtn;
-                    return $btn;
-                })
-                ->rawColumns(['product','action'])
-                ->make(true);
-        }
-
-        return view('admin.products.expired',compact(
-            'title',
-        ));
+        return view('admin.products.expired', compact('products'));
     }
 
     /**
@@ -238,75 +136,30 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function outstock(Request $request){
-        $title = "outstocked Products";
-        if($request->ajax()){
-            $products = Product::whereHas('purchase', function($q){
-                return $q->where('quantity', '<=', 0);
-            })->get();
-            return DataTables::of($products)
-                ->addColumn('product',function($product){
-                    $image = '';
-                    if(!empty($product->purchase)){
-                        $image = null;
-                        if(!empty($product->purchase->image)){
-                            $image = '<span class="avatar avatar-sm mr-2">
-                            <img class="avatar-img" src="'.asset("storage/purchases/".$product->purchase->image).'" alt="image">
-                            </span>';
-                        }
-                        return $product->purchase->product. ' ' . $image;
-                    }
-                })
-               
-                ->addColumn('category',function($product){
-                    $category = null;
-                    if(!empty($product->purchase->category)){
-                        $category = $product->purchase->category->name;
-                    }
-                    return $category;
-                })
-                ->addColumn('price',function($product){
-                    return settings('app_currency','$').' '. $product->price;
-                })
-                ->addColumn('quantity',function($product){
-                    if(!empty($product->purchase)){
-                        return $product->purchase->quantity;
-                    }
-                })
-                ->addColumn('expiry_date',function($product){
-                    if(!empty($product->purchase)){
-                        return date_format(date_create($product->purchase->expiry_date),'d M, Y');
-                    }
-                })
-                ->addColumn('action', function ($row) {
-                    $editbtn = '<a href="'.route("products.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('products.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                    if (!auth()->user()->hasPermissionTo('edit-product')) {
-                        $editbtn = '';
-                    }
-                    if (!auth()->user()->hasPermissionTo('destroy-purchase')) {
-                        $deletebtn = '';
-                    }
-                    $btn = $editbtn.' '.$deletebtn;
-                    return $btn;
-                })
-                ->rawColumns(['product','action'])
-                ->make(true);
-        }
-        $product = Purchase::where('quantity', '<=', 0)->first();
-        return view('admin.products.outstock',compact(
+     public function outstock(Request $request)
+    {
+        $title = "Outstocked Products";
+
+        // Fetch products with quantity <= 0 directly
+        $products = Product::whereHas('purchase', function ($q) {
+            return $q->where('quantity', '<=', 0);
+        })->get();
+
+        return view('admin.products.outstock', compact(
             'title',
+            'products' // Pass the fetched products to the view
         ));
     }
-
     /**
      * Remove the specified resource from storage.
      *
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function destroy(Product $product)
     {
-        return Product::findOrFail($request->id)->delete();
+        $product->delete();
+        $notification = notify('Product has been deleted');
+        return redirect()->route('products.index')->with($notification);
     }
 }

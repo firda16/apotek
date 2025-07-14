@@ -24,7 +24,7 @@
             </div>
             <div class="card-body">
                 <div class="p-5">
-                    <form method="POST" enctype="multipart/form-data" action="{{route('users.update',$user)}}">
+                    <form method="POST" enctype="multipart/form-data" action="{{route('users.update',$user->id)}}">
                         @csrf
                         @method("PUT")
                         <div class="row form-row">
@@ -44,13 +44,11 @@
                                 <div class="form-group">
                                     <label>Peran</label>
                                     <div class="form-group">
-                                        <select class="select2 form-select form-control" name="role">
-                                            @foreach ($roles as $role)
-                                                <option value="{{$role->name}}" {{ $user->hasRole($role->name) ? 'selected' : '' }}>
-                                                    {{$role->name == 'admin' ? 'Admin' : ($role->name == 'kasir' ? 'Kasir' : ucfirst($role->name))}}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                      <select class="select2 form-select form-control" name="role">
+    <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
+    <option value="kasir" {{ $user->role === 'kasir' ? 'selected' : '' }}>Kasir</option>
+</select>
+
                                     </div>
                                 </div>
                             </div>

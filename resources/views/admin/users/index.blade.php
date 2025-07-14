@@ -25,6 +25,7 @@
 					<table class="table table-striped table-bordered table-hover table-center mb-0">
 						<thead>
 							<tr>
+								<th>No</th>
 								<th>Nama</th>
 								<th>Email</th>
 								<th>Peran</th>
@@ -36,6 +37,7 @@
 						<tbody>
 							@foreach ($users as $user)
 							<tr>
+								<td>{{ $loop->iteration }}</td>
 								<td>{{ $user->name }}</td>
 								<td>{{ $user->email }}</td>
 								<td>{{ $user->role }}</td>
@@ -62,9 +64,9 @@
 						</tbody>
 					</table>
 					{{-- Pagination jika datanya banyak --}}
-					<div class="mt-3">
+					{{-- <div class="mt-3">
 						{{ $users->links() }}
-					</div>
+					</div> --}}
 				</div>
 			</div>
 		</div>
