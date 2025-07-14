@@ -3,46 +3,46 @@
 <x-assets.datatables />
 
 @push('page-css')
-    
+
 @endpush
 
 @push('page-header')
 <div class="col-sm-7 col-auto">
-	<h3 class="page-title">Supplier</h3>
+	<h3 class="page-title">Pemasok</h3>
 	<ul class="breadcrumb">
-		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-		<li class="breadcrumb-item active">Supplier</li>
+		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Beranda</a></li>
+		<li class="breadcrumb-item active">Pemasok</li>
 	</ul>
 </div>
 <div class="col-sm-5 col">
-	<a href="{{route('suppliers.create')}}" class="btn btn-primary float-right mt-2">Add New</a>
+	<a href="{{route('suppliers.create')}}" class="btn btn-primary float-right mt-2">Tambah Baru</a>
 </div>
 @endpush
 
 @section('content')
 <div class="row">
 	<div class="col-md-12">
-	
-		<!-- Suppliers -->
+
+		<!-- Daftar Pemasok -->
 		<div class="card">
 			<div class="card-body">
 				<div class="table-responsive">
 					<table id="supplier-table" class="datatable table table-hover table-center mb-0">
 						<thead>
 							<tr>
-								<th>Product</th>
-								<th>Name</th>
-								<th>Phone</th>
+								<th>Produk</th>
+								<th>Nama</th>
+								<th>Telepon</th>
 								<th>Email</th>
-								<th>Address</th>
-								<th>Company</th>
-								<th class="action-btn">Action</th>
+								<th>Alamat</th>
+								<th>Perusahaan</th>
+								<th class="action-btn">Aksi</th>
 							</tr>
 						</thead>
 						<tbody>
 							{{-- @foreach ($suppliers as $supplier)
 							<tr>
-								<td>										
+								<td>
 									{{$supplier->product}}
 								</td>
 								<td>{{$supplier->name}}</td>
@@ -56,23 +56,23 @@
 											<i class="fe fe-pencil"></i> Edit
 										</a>
 										<a data-id="{{$supplier->id}}" href="javascript:void(0);" class="btn btn-sm bg-danger-light deletebtn" data-toggle="modal">
-											<i class="fe fe-trash"></i> Delete
+											<i class="fe fe-trash"></i> Hapus
 										</a>
 									</div>
 								</td>
 							</tr>
-							@endforeach							 --}}
+							@endforeach --}}
 						</tbody>
 					</table>
 				</div>
 			</div>
 		</div>
-		<!-- /Suppliers-->
-		
+		<!-- /Daftar Pemasok -->
+
 	</div>
 </div>
 
-@endsection	
+@endsection
 
 @push('page-js')
 <script>
@@ -87,11 +87,11 @@
                 {data: 'email', name: 'email'},
                 {data: 'phone', name: 'phone'},
                 {data: 'address', name: 'address'},
-                {data: 'company',name: 'company'},
+                {data: 'company', name: 'company'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ]
         });
-        
+
     });
-</script> 
+</script>
 @endpush

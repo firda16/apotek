@@ -3,19 +3,18 @@
 <x-assets.datatables />
 
 @push('page-css')
-    
 @endpush
 
 @push('page-header')
 <div class="col-sm-7 col-auto">
-	<h3 class="page-title">Categories</h3>
+	<h3 class="page-title">Kategori</h3>
 	<ul class="breadcrumb">
-		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-		<li class="breadcrumb-item active">Categories</li>
+		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Beranda</a></li>
+		<li class="breadcrumb-item active">Kategori</li>
 	</ul>
 </div>
 <div class="col-sm-5 col">
-	<a href="#add_categories" data-toggle="modal" class="btn btn-primary float-right mt-2">Add Category</a>
+	<a href="#add_categories" data-toggle="modal" class="btn btn-primary float-right mt-2">Tambah Kategori</a>
 </div>
 @endpush
 
@@ -24,24 +23,23 @@
 	<div class="col-sm-12">
 		<div class="card">
 			<div class="card-body">
-<form method="GET" action="{{ route('categories.index') }}" class="mb-3">
-    <div class="input-group">
-        <input type="text" name="search" class="form-control" placeholder="Cari kategori..."
-               value="{{ request('search') }}">
-        <div class="input-group-append">
-            <button class="btn btn-primary" type="submit">Cari</button>
-        </div>
-    </div>
-</form>
-
+				<form method="GET" action="{{ route('categories.index') }}" class="mb-3">
+					<div class="input-group">
+						<input type="text" name="search" class="form-control" placeholder="Cari kategori..."
+							value="{{ request('search') }}">
+						<div class="input-group-append">
+							<button class="btn btn-primary" type="submit">Cari</button>
+						</div>
+					</div>
+				</form>
 
 				<div class="table-responsive">
 					<table id="category-table" class="datatable table table-striped table-bordered table-hover table-center mb-0">
 						<thead>
-							<tr style="boder:1px solid black;">
-								<th>Name</th>
-								<th>Created date</th>
-								<th class="text-center action-btn">Actions</th>
+							<tr>
+								<th>Nama Kategori</th>
+								<th>Tanggal Dibuat</th>
+								<th class="text-center action-btn">Aksi</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -50,26 +48,31 @@
 									<td>{{ $category->name }}</td>
 									<td>{{ date_format(date_create($category->created_at),"d M,Y") }}</td>
 									<td class="text-center">
-										<a data-id="{{ $category->id }}" data-name="{{ $category->name }}" href="javascript:void(0)" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>
-										<a data-id="{{ $category->id }}" data-route="{{ route('categories.destroy',$category->id) }}" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>
+										<a data-id="{{ $category->id }}" data-name="{{ $category->name }}" href="javascript:void(0)" class="editbtn">
+											<button class="btn btn-primary"><i class="fas fa-edit"></i></button>
+										</a>
+										<a data-id="{{ $category->id }}" data-route="{{ route('categories.destroy',$category->id) }}" href="javascript:void(0)" id="deletebtn">
+											<button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+										</a>
 									</td>
 								</tr>
 							@endforeach
 						</tbody>
 					</table>
 				</div>
+
 			</div>
 		</div>
-	</div>			
+	</div>
 </div>
 
-<!-- Add Modal -->
+<!-- Modal Tambah -->
 <div class="modal fade" id="add_categories" aria-hidden="true" role="dialog">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">Add Category</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<h5 class="modal-title">Tambah Kategori</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -79,74 +82,60 @@
 					<div class="row form-row">
 						<div class="col-12">
 							<div class="form-group">
-								<label>Category</label>
+								<label>Nama Kategori</label>
 								<input type="text" name="name" class="form-control">
 							</div>
 						</div>
 					</div>
-					<button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+					<button type="submit" class="btn btn-primary btn-block">Simpan</button>
 				</form>
 			</div>
 		</div>
 	</div>
 </div>
-<!-- /ADD Modal -->
+<!-- /Modal Tambah -->
 
-<!-- Edit Details Modal -->
+<!-- Modal Edit -->
 <div class="modal fade" id="edit_category" aria-hidden="true" role="dialog">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">Edit Category</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<h5 class="modal-title">Edit Kategori</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
 			<div class="modal-body">
 				<form method="POST" action="{{ route('categories.update') }}">
-    @csrf
-    <input type="hidden" name="id" id="edit_id">
+					@csrf
+					<input type="hidden" name="id" id="edit_id">
 
-    <div class="form-group">
-        <label>Category</label>
-        <input type="text" class="form-control edit_name" name="name">
-    </div>
+					<div class="form-group">
+						<label>Nama Kategori</label>
+						<input type="text" class="form-control edit_name" name="name">
+					</div>
 
-    <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-</form>
-
-
+					<button type="submit" class="btn btn-primary btn-block">Simpan Perubahan</button>
+				</form>
 			</div>
 		</div>
 	</div>
 </div>
-<!-- /Edit Details Modal --> 
+<!-- /Modal Edit -->
 @endsection
 
 @push('page-js')
 <script>
     $(document).ready(function() {
-        // var table = $('#category-table').DataTable({
-        //     processing: true,
-        //     serverSide: true,
-        //     ajax: "{{route('categories.index')}}",
-        //     columns: [
-        //         {data: 'name', name: 'name'},
-        //         {data: 'created_at',name: 'created_at'},
-        //         {data: 'action', name: 'action', orderable: false, searchable: false},
-        //     ]
-        // });
-       $('#category-table').on('click', '.editbtn', function () {
-    const id = $(this).data('id');
-    const name = $(this).data('name');
+        $('#category-table').on('click', '.editbtn', function () {
+            const id = $(this).data('id');
+            const name = $(this).data('name');
 
-    $('#edit_id').val(id);
-    $('.edit_name').val(name);
+            $('#edit_id').val(id);
+            $('.edit_name').val(name);
 
-    $('#edit_category').modal('show');
-});
-
-        //
+            $('#edit_category').modal('show');
+        });
     });
-</script> 
+</script>
 @endpush

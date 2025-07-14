@@ -6,10 +6,10 @@
 
 @push('page-header')
 <div class="col-sm-12">
-	<h3 class="page-title">Edit Product</h3>
+	<h3 class="page-title">Edit Pemasok</h3>
 	<ul class="breadcrumb">
-		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-		<li class="breadcrumb-item active">Edit Product</li>
+		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Beranda</a></li>
+		<li class="breadcrumb-item active">Edit Pemasok</li>
 	</ul>
 </div>
 @endpush
@@ -19,8 +19,8 @@
 	<div class="col-sm-12">
 		<div class="card">
 			<div class="card-body custom-edit-service">
-			
-			<!-- Edit Supplier -->
+
+			<!-- Edit Pemasok -->
 			<form method="post" enctype="multipart/form-data" action="{{route('suppliers.update',$supplier)}}">
 				@csrf
 				@method("PUT")
@@ -28,7 +28,7 @@
 					<div class="row">
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label>Name<span class="text-danger">*</span></label>
+								<label>Nama<span class="text-danger">*</span></label>
 								<input class="form-control" type="text" value="{{$supplier->name ?? old('name')}}" name="name">
 							</div>
 						</div>
@@ -43,12 +43,12 @@
 					<div class="row">
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label>Phone<span class="text-danger">*</span></label>
+								<label>No. Telepon<span class="text-danger">*</span></label>
 								<input class="form-control" type="text" value="{{$supplier->phone ?? old('phone')}}" name="phone">
 							</div>
 						</div>
 						<div class="col-lg-6">
-							<label>Company<span class="text-danger">*</span></label>
+							<label>Perusahaan<span class="text-danger">*</span></label>
 							<input class="form-control" type="text" value="{{$supplier->company ?? old('company')}}" name="company">
 						</div>
 					</div>
@@ -58,46 +58,39 @@
 					<div class="row">
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label>Address <span class="text-danger">*</span></label>
+								<label>Alamat <span class="text-danger">*</span></label>
 								<input type="text" name="address" value="{{$supplier->address ?? old('address')}}" class="form-control">
 							</div>
 						</div>
 						<div class="col-lg-6">
-							<label>Product</label>
+							<label>Produk</label>
 							<input type="text" name="product" value="{{$supplier->product ?? old('product')}}" class="form-control">
 						</div>
 					</div>
-				</div>	
+				</div>
+
 				<div class="service-fields mb-3">
 					<div class="row">
 						<div class="col-12">
-							<label>Comment</label>
-							<textarea name="comment" class="form-control" value="{{$supplier->comment ?? old('comment')}}" cols="30" rows="10">{{$supplier->comment}}</textarea>
+							<label>Catatan</label>
+							<textarea name="comment" class="form-control" cols="30" rows="10">{{$supplier->comment}}</textarea>
 						</div>
 					</div>
-				</div>		
-				
-				
+				</div>
+
 				<div class="submit-section">
-					<button class="btn btn-primary submit-btn" type="submit" name="form_submit" value="submit">Submit</button>
+					<button class="btn btn-primary submit-btn" type="submit" name="form_submit" value="submit">Kirim</button>
 				</div>
 			</form>
-
-			<!-- /Edit Supplier -->
+			<!-- /Edit Pemasok -->
 
 			</div>
 		</div>
-	</div>			
+	</div>
 </div>
-@endsection	
-
-
+@endsection
 
 @push('page-js')
 	<!-- Select2 JS -->
 	<script src="{{asset('assets/plugins/select2/js/select2.min.js')}}"></script>
 @endpush
-
-
-
-

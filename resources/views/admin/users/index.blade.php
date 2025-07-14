@@ -1,23 +1,22 @@
 @extends('admin.layouts.app')
 
-<x-assets.datatables />  
+<x-assets.datatables />
 
 @push('page-css')
-	
+
 @endpush
 
 @push('page-header')
 <div class="col-sm-7 col-auto">
-	<h3 class="page-title">User</h3>
+	<h3 class="page-title">Pengguna</h3>
 	<ul class="breadcrumb">
-		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-		<li class="breadcrumb-item active">Users</li>
+		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dasbor</a></li>
+		<li class="breadcrumb-item active">Daftar Pengguna</li>
 	</ul>
 </div>
 <div class="col-sm-5 col">
-	<a href="{{route('users.create')}}" class="btn btn-primary float-right mt-2">Add User</a>
+	<a href="{{route('users.create')}}" class="btn btn-primary float-right mt-2">Tambah Pengguna</a>
 </div>
-
 @endpush
 
 @section('content')
@@ -28,17 +27,17 @@
 				<div class="table-responsive">
 					<table id="user-table" class="datatable table table-striped table-bordered table-hover table-center mb-0">
 						<thead>
-							<tr style="boder:1px solid black;">
-								<th>Name</th>
+							<tr>
+								<th>Nama</th>
 								<th>Email</th>
-								<th>Role</th>
-								<th>Avatar</th>
-								<th>Created date</th>
-								<th class="text-center action-btn">Actions</th>
+								<th>Peran</th>
+								<th>Foto</th>
+								<th>Tanggal Dibuat</th>
+								<th class="text-center action-btn">Aksi</th>
 							</tr>
 						</thead>
 						<tbody>
-							
+							{{-- Data diisi secara dinamis oleh DataTables --}}
 						</tbody>
 					</table>
 				</div>
@@ -60,11 +59,10 @@ $(document).ready(function() {
             {data: 'email', name: 'email'},
             {data: 'role', name: 'role'},
 			{data: 'avatar', name: 'avatar', orderable: false, searchable: false},
-            {data: 'created_at',name: 'created_at'},
+            {data: 'created_at', name: 'created_at'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
     });
-    
 });
 </script>
 @endpush

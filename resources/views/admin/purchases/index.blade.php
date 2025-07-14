@@ -3,54 +3,54 @@
 <x-assets.datatables />
 
 @push('page-css')
-    
+
 @endpush
 
 @push('page-header')
 <div class="col-sm-7 col-auto">
-	<h3 class="page-title">Purchase</h3>
+	<h3 class="page-title">Pembelian</h3>
 	<ul class="breadcrumb">
-		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-		<li class="breadcrumb-item active">Purchase</li>
+		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Beranda</a></li>
+		<li class="breadcrumb-item active">Pembelian</li>
 	</ul>
 </div>
 <div class="col-sm-5 col">
-	<a href="{{route('purchases.create')}}" class="btn btn-primary float-right mt-2">Add New</a>
+	<a href="{{route('purchases.create')}}" class="btn btn-primary float-right mt-2">Tambah Baru</a>
 </div>
 @endpush
 
 @section('content')
 <div class="row">
 	<div class="col-md-12">
-	
-		<!-- Recent Orders -->
+
+		<!-- Riwayat Pembelian -->
 		<div class="card">
 			<div class="card-body">
 				<div class="table-responsive">
 					<table id="purchase-table" class="datatable table table-hover table-center mb-0">
 						<thead>
 							<tr>
-								<th>Medicine Name</th>
-								<th>Category</th>
-								<th>Supplier</th>
-								<th>Purchase Cost</th>
-								<th>Quantity</th>
-								<th>Expire Date</th>
-								<th class="action-btn">Action</th>
+								<th>Nama Obat</th>
+								<th>Kategori</th>
+								<th>Pemasok</th>
+								<th>Harga Beli</th>
+								<th>Jumlah</th>
+								<th>Tanggal Kedaluwarsa</th>
+								<th class="action-btn">Aksi</th>
 							</tr>
 						</thead>
 						<tbody>
-														
+
 						</tbody>
 					</table>
 				</div>
 			</div>
 		</div>
-		<!-- /Recent Orders -->
-		
+		<!-- /Riwayat Pembelian -->
+
 	</div>
 </div>
-@endsection	
+@endsection
 
 @push('page-js')
 <script>
@@ -69,7 +69,7 @@
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ]
         });
-        
+
     });
-</script> 
+</script>
 @endpush
