@@ -21,9 +21,41 @@ class PurchaseController extends Controller
      */
     public function index(Request $request)
     {
-        $pembelians = Purchase::get(); // ← akan mengembalikan Collection of Model (object)
+        // Mulai query untuk model Purchase dan eager load relasi 'category' dan 'supplier'
+        // Ini memastikan data relasi tersedia saat pencarian atau tampilan
+        $query = Purchase::query()->with(['category', 'supplier']);
 
-        return view('admin.purchases.index',compact(
+        // Cek apakah ada parameter 'search' dalam request
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+
+            // Terapkan kondisi pencarian. 
+            // Kita menggunakan closure 'where()' untuk mengelompokkan kondisi OR
+            // sehingga pencarian berjalan di antara nama produk, kategori, dan supplier.
+            $query->where(function ($q) use ($searchTerm) {
+                // 1. Pencarian berdasarkan nama produk ('product')
+                $q->where('product', 'like', '%' . $searchTerm . '%');
+
+                // 2. Pencarian berdasarkan nama kategori (menggunakan whereHas untuk relasi)
+                $q->orWhereHas('category', function ($q_cat) use ($searchTerm) {
+                    $q_cat->where('name', 'like', '%' . $searchTerm . '%');
+                });
+
+                // 3. Pencarian berdasarkan nama supplier (menggunakan whereHas untuk relasi)
+                $q->orWhereHas('supplier', function ($q_sup) use ($searchTerm) {
+                    $q_sup->where('name', 'like', '%' . $searchTerm . '%');
+                });
+                
+                // Opsional: Jika Anda ingin mencari berdasarkan cost_price atau quantity
+                // $q->orWhere('cost_price', 'like', '%' . $searchTerm . '%');
+                // $q->orWhere('quantity', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        // Ambil data yang sudah difilter atau semua data jika tidak ada pencarian
+        $pembelians = $query->get();
+
+        return view('admin.purchases.index', compact(
             'pembelians'
         ));
     }
@@ -105,7 +137,7 @@ class PurchaseController extends Controller
      */
     public function update(Request $request, Purchase $purchase)
     {
-        $this->validate($request,[
+        $request->validate([
             'product'=>'required|max:200',
             'category'=>'required',
             'cost_price'=>'required|min:1',
@@ -155,8 +187,19 @@ class PurchaseController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
-    {
-        return Purchase::findOrFail($request->id)->delete();
-    }
+    // public function destroy(Request $request)
+    // {
+    //     return Purchase::findOrFail($request->id)->delete();
+    // }
+
+    // app/Http/Controllers/PurchaseController.php
+
+public function destroy(Request $request, Purchase $purchase)
+{
+    // Jika model ditemukan, Laravel akan meneruskannya ke $purchase
+    $purchase->delete();
+
+    // Anda bisa mengembalikan respons sesuai kebutuhan, misalnya redirect atau JSON
+    return redirect()->route('purchases.index')->with('success', 'Data pembelian berhasil dihapus.');
+}
 }

@@ -221,7 +221,7 @@ class SaleController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function generateReport(Request $request){
-        $this->validate($request,[
+        $request->validate([
             'from_date' => 'required',
             'to_date' => 'required',
         ]);
