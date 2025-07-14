@@ -31,6 +31,8 @@ use App\Http\Controllers\Admin\SupplierController;
 */
 Route::middleware(['auth'])->group(function(){
     Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard');
+    // Mengarahkan route 'kasir.dashboard' ke metode 'kasirDashboard'
+Route::get('dashboard-kasir', [DashboardController::class, 'kasirDashboard'])->name('kasir.dashboard');
     Route::get('',[DashboardController::class,'Index']);
     Route::get('notification',[NotificationController::class,'markAsRead'])->name('mark-as-read');
     Route::get('notification-read',[NotificationController::class,'read'])->name('read');

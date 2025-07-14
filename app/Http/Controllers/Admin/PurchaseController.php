@@ -21,50 +21,42 @@ class PurchaseController extends Controller
      */
     public function index(Request $request)
     {
-        $title = 'purchases';
-        if($request->ajax()){
-            $purchases = Purchase::get();
-            return DataTables::of($purchases)
-                ->addColumn('product',function($purchase){
-                    $image = '';
-                    if(!empty($purchase->image)){
-                        $image = '<span class="avatar avatar-sm mr-2">
-						<img class="avatar-img" src="'.asset("storage/purchases/".$purchase->image).'" alt="product">
-					    </span>';
-                    }                 
-                    return $purchase->product.' ' . $image;
-                })
-                ->addColumn('category',function($purchase){
-                    if(!empty($purchase->category)){
-                        return $purchase->category->name;
-                    }
-                })
-                ->addColumn('cost_price',function($purchase){
-                    return settings('app_currency','$'). ' '. $purchase->cost_price;
-                })
-                ->addColumn('supplier',function($purchase){
-                    return $purchase->supplier->name;
-                })
-                ->addColumn('expiry_date',function($purchase){
-                    return date_format(date_create($purchase->expiry_date),'d M, Y');
-                })
-                ->addColumn('action', function ($row) {
-                    $editbtn = '<a href="'.route("purchases.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('purchases.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                    if (!auth()->user()->hasPermissionTo('edit-purchase')) {
-                        $editbtn = '';
-                    }
-                    if (!auth()->user()->hasPermissionTo('destroy-purchase')) {
-                        $deletebtn = '';
-                    }
-                    $btn = $editbtn.' '.$deletebtn;
-                    return $btn;
-                })
-                ->rawColumns(['product','action'])
-                ->make(true);
+        // Mulai query untuk model Purchase dan eager load relasi 'category' dan 'supplier'
+        // Ini memastikan data relasi tersedia saat pencarian atau tampilan
+        $query = Purchase::query()->with(['category', 'supplier']);
+
+        // Cek apakah ada parameter 'search' dalam request
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+
+            // Terapkan kondisi pencarian. 
+            // Kita menggunakan closure 'where()' untuk mengelompokkan kondisi OR
+            // sehingga pencarian berjalan di antara nama produk, kategori, dan supplier.
+            $query->where(function ($q) use ($searchTerm) {
+                // 1. Pencarian berdasarkan nama produk ('product')
+                $q->where('product', 'like', '%' . $searchTerm . '%');
+
+                // 2. Pencarian berdasarkan nama kategori (menggunakan whereHas untuk relasi)
+                $q->orWhereHas('category', function ($q_cat) use ($searchTerm) {
+                    $q_cat->where('name', 'like', '%' . $searchTerm . '%');
+                });
+
+                // 3. Pencarian berdasarkan nama supplier (menggunakan whereHas untuk relasi)
+                $q->orWhereHas('supplier', function ($q_sup) use ($searchTerm) {
+                    $q_sup->where('name', 'like', '%' . $searchTerm . '%');
+                });
+                
+                // Opsional: Jika Anda ingin mencari berdasarkan cost_price atau quantity
+                // $q->orWhere('cost_price', 'like', '%' . $searchTerm . '%');
+                // $q->orWhere('quantity', 'like', '%' . $searchTerm . '%');
+            });
         }
-        return view('admin.purchases.index',compact(
-            'title'
+
+        // Ambil data yang sudah difilter atau semua data jika tidak ada pencarian
+        $pembelians = $query->get();
+
+        return view('admin.purchases.index', compact(
+            'pembelians'
         ));
     }
 
@@ -91,7 +83,7 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
+        $request->validate([
             'product'=>'required|max:200',
             'category'=>'required',
             'cost_price'=>'required|min:1',
@@ -145,7 +137,7 @@ class PurchaseController extends Controller
      */
     public function update(Request $request, Purchase $purchase)
     {
-        $this->validate($request,[
+        $request->validate([
             'product'=>'required|max:200',
             'category'=>'required',
             'cost_price'=>'required|min:1',
@@ -195,8 +187,19 @@ class PurchaseController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
-    {
-        return Purchase::findOrFail($request->id)->delete();
-    }
+    // public function destroy(Request $request)
+    // {
+    //     return Purchase::findOrFail($request->id)->delete();
+    // }
+
+    // app/Http/Controllers/PurchaseController.php
+
+public function destroy(Request $request, Purchase $purchase)
+{
+    // Jika model ditemukan, Laravel akan meneruskannya ke $purchase
+    $purchase->delete();
+
+    // Anda bisa mengembalikan respons sesuai kebutuhan, misalnya redirect atau JSON
+    return redirect()->route('purchases.index')->with('success', 'Data pembelian berhasil dihapus.');
+}
 }

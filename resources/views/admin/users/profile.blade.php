@@ -98,8 +98,7 @@
 														<label>Email</label>
 														<input class="form-control" name="email" type="text" value="{{auth()->user()->email}}" placeholder="Email">
 													</div>
-												</div>
-												@can('edit-role')
+												</div>												
 												<div class="col-12">
 													<div class="form-group">
 														<label>Peran</label>
@@ -109,8 +108,7 @@
 															@endforeach
 														</select>
 													</div>
-												</div>
-												@endcan
+												</div>												
 												<div class="col-12">
 													<div class="form-group">
 														<label>Foto Pengguna</label>

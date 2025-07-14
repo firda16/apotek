@@ -23,18 +23,22 @@
 	<div class="col-sm-12">
 		<div class="card">
 			<div class="card-body">
+				{{-- Form Pencarian --}}
 				<form method="GET" action="{{ route('categories.index') }}" class="mb-3">
 					<div class="input-group">
-						<input type="text" name="search" class="form-control" placeholder="Cari kategori..."
-							value="{{ request('search') }}">
+						<input type="text" name="search" class="form-control" placeholder="Cari kategori..." value="{{ request('search') }}">
 						<div class="input-group-append">
 							<button class="btn btn-primary" type="submit">Cari</button>
+							@if(request('search'))
+								<a href="{{ route('categories.index') }}" class="btn btn-outline-secondary">Reset</a>
+							@endif
 						</div>
 					</div>
 				</form>
 
+				{{-- Tabel --}}
 				<div class="table-responsive">
-					<table id="category-table" class="datatable table table-striped table-bordered table-hover table-center mb-0">
+					<table id="category-table" class="table table-striped table-bordered table-hover table-center mb-0">
 						<thead>
 							<tr>
 								<th>Nama Kategori</th>
@@ -46,7 +50,7 @@
 							@foreach($categories as $category)
 								<tr>
 									<td>{{ $category->name }}</td>
-									<td>{{ date_format(date_create($category->created_at),"d M,Y") }}</td>
+									<td>{{ $category->created_at->format('d M, Y') }}</td>
 									<td class="text-center">
 										<a data-id="{{ $category->id }}" data-name="{{ $category->name }}" href="javascript:void(0)" class="editbtn">
 											<button class="btn btn-primary"><i class="fas fa-edit"></i></button>
@@ -59,6 +63,11 @@
 							@endforeach
 						</tbody>
 					</table>
+
+					{{-- Pagination --}}
+					<div class="mt-3">
+						{{ $categories->links() }}
+					</div>
 				</div>
 
 			</div>
@@ -66,7 +75,7 @@
 	</div>
 </div>
 
-<!-- Modal Tambah -->
+{{-- Modal Tambah --}}
 <div class="modal fade" id="add_categories" aria-hidden="true" role="dialog">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
@@ -79,13 +88,9 @@
 			<div class="modal-body">
 				<form method="POST" action="{{route('categories.store')}}">
 					@csrf
-					<div class="row form-row">
-						<div class="col-12">
-							<div class="form-group">
-								<label>Nama Kategori</label>
-								<input type="text" name="name" class="form-control">
-							</div>
-						</div>
+					<div class="form-group">
+						<label>Nama Kategori</label>
+						<input type="text" name="name" class="form-control" required>
 					</div>
 					<button type="submit" class="btn btn-primary btn-block">Simpan</button>
 				</form>
@@ -93,9 +98,8 @@
 		</div>
 	</div>
 </div>
-<!-- /Modal Tambah -->
 
-<!-- Modal Edit -->
+{{-- Modal Edit --}}
 <div class="modal fade" id="edit_category" aria-hidden="true" role="dialog">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
@@ -109,24 +113,21 @@
 				<form method="POST" action="{{ route('categories.update') }}">
 					@csrf
 					<input type="hidden" name="id" id="edit_id">
-
 					<div class="form-group">
 						<label>Nama Kategori</label>
-						<input type="text" class="form-control edit_name" name="name">
+						<input type="text" class="form-control edit_name" name="name" required>
 					</div>
-
 					<button type="submit" class="btn btn-primary btn-block">Simpan Perubahan</button>
 				</form>
 			</div>
 		</div>
 	</div>
 </div>
-<!-- /Modal Edit -->
 @endsection
 
 @push('page-js')
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#category-table').on('click', '.editbtn', function () {
             const id = $(this).data('id');
             const name = $(this).data('name');

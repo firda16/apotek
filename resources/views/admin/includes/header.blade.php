@@ -97,9 +97,8 @@
 				</div>
 
 				<a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a>
-				@can('view-settings')
 					<a class="dropdown-item" href="{{ route('settings') }}">Pengaturan</a>
-				@endcan
+	
 
 				<a href="javascript:void(0)" class="dropdown-item">
 					<form action="{{ route('logout') }}" method="post">

@@ -26,9 +26,13 @@ class CategoryController extends Controller
 
     $categories = $query->orderBy('created_at', 'desc')->get();
 
+    // Cek jika request AJAX, kembalikan partial view
+    if ($request->ajax()) {
+        return view('admin.products.partials.categories-table', compact('categories'))->render();
+    }
+
     return view('admin.products.categories', compact('categories'));
 }
-
     /**
      * Store a newly created resource in storage.
      *
