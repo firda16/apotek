@@ -71,7 +71,7 @@
 								<td>{{ $pembelian->supplier->name ?? '-' }}</td>
 								<td>{{ $pembelian->cost_price }}</td>
 								<td>{{ $pembelian->quantity }}</td>
-								<td>{{ $pembelian->expiry_date }}</td>
+								<td>{{ date_format(date_create($pembelian->expiry_date),'d M, Y') }}</td>
 								<td>
 									<a href="{{ route('purchases.edit', $pembelian->id) }}" class="editbtn">
 										<button class="btn btn-primary"><i class="fas fa-edit"></i></button>

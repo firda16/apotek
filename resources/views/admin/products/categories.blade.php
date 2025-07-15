@@ -41,6 +41,7 @@
 					<table id="category-table" class="table table-striped table-bordered table-hover table-center mb-0">
 						<thead>
 							<tr>
+								<th>No</th>
 								<th>Nama Kategori</th>
 								<th>Tanggal Dibuat</th>
 								<th class="text-center action-btn">Aksi</th>
@@ -49,6 +50,7 @@
 						<tbody>
 							@foreach($categories as $category)
 								<tr>
+									<td>{{ $loop->iteration }}</td>
 									<td>{{ $category->name }}</td>
 									<td>{{ $category->created_at->format('d M, Y') }}</td>
 									<td class="text-center">

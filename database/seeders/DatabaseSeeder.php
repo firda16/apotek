@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         'name' => 'admin',
         'email' => 'admin@admin.com',
         'password' => bcrypt('admin'),
-        'role' => 'admin', // Menambahkan role admin secara eksplisit
+        'role' => 'admin',
     ]);
 
         // Buat user kasir
