@@ -1811,9 +1811,22 @@ html.menu-opened body {
 	line-height: 18px;
 	top: 11px;
 }
-.sidebar-menu .menu-arrow:before {
-	content: "\f105";
+.sidebar-menu .menu-arrow::before {
+  content: "▶"; /* Unicode panah kanan */
+  font-family: inherit;
+  font-size: 16px;
+  color: #ccc;
 }
+
+/* .sidebar-menu .menu-arrow:before {
+	content: "\f105";
+	font-family: 'FontAwesome';
+} */
+.arrow-test::before {
+      content: "\f105";
+      font-family: 'FontAwesome';
+      font-size: 24px;
+    }
 .sidebar-menu li a.subdrop .menu-arrow {
 	-ms-transform: rotate(90deg);
 	-webkit-transform: rotate(90deg);

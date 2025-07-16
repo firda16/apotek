@@ -24,8 +24,8 @@
                     <span class="dash-widget-icon text-primary border-primary">
                         <i class="fe fe-money"></i>
                     </span>
-                    <div class="dash-count">
-                        <h3>{{ AppSettings::get('app_currency', 'Rp') }} {{ $today_sales }}</h3>
+                    <div class="dash-count">                        
+                        <h3 class="text-center">Rp {{ number_format( $today_sales, 0, ',', '.') }}</h3>
                     </div>
                 </div>
                 <div class="dash-widget-info">
@@ -111,19 +111,30 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="sales-table" class="datatable table table-hover table-center mb-0">
-                        <thead>
-                            <tr>
-                                <th>Nama Obat</th>
-                                <th>Jumlah</th>
-                                <th>Total Harga</th>
-                                <th>Tanggal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{-- DataTables akan diisi otomatis --}}
-                        </tbody>
-                    </table>
+                    <table class="table table-hover table-center mb-0">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Nama Obat</th>
+            <th>Jumlah</th>
+            <th>Total Harga</th>
+            <th>Tanggal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($latest_sales as $sale)
+    <tr>
+        <td>{{$loop->iteration}}</td>
+        <td>{{ $sale->product->name ?? '-' }}</td>
+        <td>{{ $sale->quantity }}</td>        
+        <td class="text-center">Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td>
+        <td>{{ $sale->created_at->format('d M Y H:i') }}</td>
+    </tr>        
+@endforeach
+
+    </tbody>
+</table>
+
                 </div>
             </div>
         </div>

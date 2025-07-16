@@ -51,8 +51,8 @@
         <td>{{ $product->purchase->category->name ?? '-' }}</td> 
 
         {{-- Harga dari relasi 'purchaseProduct' (yang merupakan objek Product) --}}
-        <td>{{ settings('app_currency','Rp').' '. $product->price }}</td>
-
+        {{-- <td>{{ settings('app_currency','Rp').' '. $product->price }}</td> --}}
+        <td class="text-center">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
         {{-- Quantity dari field 'quantity' pada model Purchase --}}
         <td>{{ $product->purchase->quantity ?? '0' }}</td> 
 
@@ -63,7 +63,7 @@
 		<td>{{ date_format(date_create($product->purchase->expiry_date),'d M, Y') }}</td>
         <td>
             {{-- Tombol Edit: link ke produk yang berelasi --}}
-            <a href="{{ route('products.edit', $product->purchase->id ?? '#') }}" class="btn btn-sm btn-primary">Edit</a>
+            <a href="{{ route('products.edit', $product->id ?? '#') }}" class="btn btn-sm btn-primary">Edit</a>
             {{-- Tombol Hapus: link ke produk yang berelasi --}}
             <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline;">
                     @csrf {{-- Wajib untuk CSRF Protection Laravel --}}

@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             // Kolom 'role' diubah menjadi ENUM dengan opsi 'kasir' dan 'admin'
             // Default nilai tetap 'kasir' sesuai permintaan Anda
+            $table->string('image_user')->nullable(); // Menambahkan kolom avatar
             $table->enum('role', ['kasir', 'admin'])->default('kasir');
             $table->rememberToken();
             $table->timestamps();

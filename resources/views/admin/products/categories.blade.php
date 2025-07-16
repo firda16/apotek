@@ -54,9 +54,10 @@
 									<td>{{ $category->name }}</td>
 									<td>{{ $category->created_at->format('d M, Y') }}</td>
 									<td class="text-center">
-										<a data-id="{{ $category->id }}" data-name="{{ $category->name }}" href="javascript:void(0)" class="editbtn">
-											<button class="btn btn-primary"><i class="fas fa-edit"></i></button>
-										</a>
+										<a href="javascript:void(0)" data-id="{{ $category->id }}" data-name="{{ $category->name }}" class="editbtn">
+    <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
+</a>
+
 										<a data-id="{{ $category->id }}" data-route="{{ route('categories.destroy',$category->id) }}" href="javascript:void(0)" id="deletebtn">
 											<button class="btn btn-danger"><i class="fas fa-trash"></i></button>
 										</a>

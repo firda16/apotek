@@ -42,11 +42,13 @@
 								<td>{{ $user->email }}</td>
 								<td>{{ $user->role }}</td>
 								<td>
-									@if ($user->avatar)
-										<img src="{{ asset('storage/avatars/' . $user->avatar) }}" alt="Avatar" width="40" height="40">
-									@else
-										<span class="text-muted">-</span>
-									@endif
+								@if ($user->avatar && file_exists(public_path('storage/users/' . $user->avatar)))
+    <img src="{{ asset('storage/users/' . $user->avatar) }}" alt="Avatar" width="40" height="40">
+@else
+    <span class="text-muted">-</span>
+@endif
+
+
 								</td>
 								<td>{{ $user->created_at->format('d M Y') }}</td>
 								<td class="text-center">

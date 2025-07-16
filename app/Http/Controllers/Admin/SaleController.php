@@ -22,8 +22,10 @@ class SaleController extends Controller
 
     public function index(Request $request)
     {
+        
         // $products = Product::get();
-        $sales = Sale::with(['product', 'purchase'])->get();
+        $sales = Sale::with(['product', 'purchase'])->get();        
+
         return view('admin.sales.index',compact(
         'sales',
         ));
@@ -167,7 +169,7 @@ class SaleController extends Controller
      */
     public function update(Request $request, Sale $sale)
     {
-        $this->validate($request,[
+        $request->validate([
             'product'=>'required',
             'quantity'=>'required|integer|min:1'
         ]);
@@ -251,6 +253,7 @@ class SaleController extends Controller
      */
     public function destroy(Request $request)
     {
-        return Sale::findOrFail($request->id)->delete();
+        Sale::findOrFail($request->id)->delete();
+        return redirect()->route('sales.index')->with(notify("Sale has been deleted"));
     }
 }

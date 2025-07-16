@@ -12,7 +12,7 @@
 				</li>												
 
 				<li class="submenu">
-					<a href="#"><i class="fe fe-activity"></i> <span>Penjualan</span> <span class="menu-arrow"></span></a>
+					<a href="#"><i class="fe fe-activity"></i> <span>Penjualan</span> </a>
 					<ul style="display: none;">
 						<li><a class="{{ route_is('sales.*') ? 'active' : '' }}" href="{{ route('sales.index') }}">Data Penjualan</a></li>
 						<li><a class="{{ route_is('sales.create') ? 'active' : '' }}" href="{{ route('sales.create') }}">Tambah Penjualan</a></li>

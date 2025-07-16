@@ -67,8 +67,7 @@ class UserController extends Controller
             'email' => $request->email,
             'avatar' => $imageName,
             'password' => Hash::make($request->password),
-        ]);
-        $user->assignRole($request->role);
+        ]);        
         $notifiation = notify('user created successfully');
         return redirect()->route('users.index')->with($notifiation);
     }
@@ -183,8 +182,10 @@ class UserController extends Controller
     * @param  \Illuminate\Http\Request $request
     * @return \Illuminate\Http\Response
     */
-    public function destroy(Request $request)
-    {
-        return User::findOrFail($request->id)->delete();
-    }
+    public function destroy($id)
+{
+    User::findOrFail($id)->delete();
+    return back()->with('success', 'User deleted successfully');
+}
+
 }

@@ -59,8 +59,14 @@
 					<div class="row">
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label>Harga Beli <span class="text-danger">*</span></label>
-								<input class="form-control" value="{{$purchase->cost_price}}" type="text" name="cost_price">
+								<label>Harga Beli <span class="text-danger">*</span></label>								
+							<div class="input-group">
+    <span class="input-group-text">Rp</span>
+    <input class="form-control" type="text" name="cost_price" value="{{ $purchase->cost_price }}">
+</div>
+
+
+
 							</div>
 						</div>
 						<div class="col-lg-6">
@@ -104,4 +110,17 @@
 @push('page-js')
 	<!-- Select2 JS -->
 	<script src="{{asset('assets/plugins/select2/js/select2.min.js')}}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/autonumeric@4.6.0"></script>
+<script>
+    new AutoNumeric('#cost_price', {
+    digitGroupSeparator: '.',
+    decimalCharacter: ',',
+    decimalPlaces: 0,
+    currencySymbol: 'Rp ',
+    currencySymbolPlacement: 'p',
+    unformatOnSubmit: true
+});
+
+</script>
+
 @endpush

@@ -41,19 +41,35 @@
 						<tbody>
     @foreach ($sales as $sale)
     <tr>							
-        <td>{{ $loop->iteration }}</td>
-        {{-- Mengakses nama produk melalui relasi product --}}
-        <td>{{ $sale->product->name ?? '-' }}</td>
-        
+        <td>{{ $loop->iteration }}</td>        
+		{{-- <td>{{ $sale->product_id }}</td> --}}
+		<td>{{ $sale->product->purchase->product ?? "-"  }}</td>
+
+
         {{-- Menampilkan kuantitas --}}
         <td>{{ $sale->quantity }}</td>
         
         {{-- Menggunakan total_price (sesuai model Sale) --}}
         <td>{{ $sale->total_price }}</td>
         
-        {{-- Mengakses expiry_date melalui relasi purchase --}}
-        <td>{{ $sale->purchase?->expiry_date }}</td>
-        
+        {{-- Mengakses expiry_date melalui relasi purchase --}}        
+		<td>{{ date_format(date_create($sale->created_at),'d M, Y') }}</td>		
+        <td>
+            <a href="{{ route('sales.edit', $sale->id) }}" class="editbtn">
+    <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
+</a>
+
+            {{-- <a href="{{ route('sales.destroy', $sale->id) }}" data-id="{{ $sale->id }}" class="deletebtn">
+                <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+            </a> --}}
+			<form action="{{ route('sales.destroy', $sale->id) }}" method="POST" style="display:inline;">
+    @csrf
+    @method('DELETE')
+    <input type="hidden" name="id" value="{{ $sale->id }}">
+    <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+</form>
+
+        </td>
         {{-- ... kode lainnya ... --}}
     </tr>
     @endforeach

@@ -140,12 +140,12 @@ class PurchaseController extends Controller
         $request->validate([
             'product'=>'required|max:200',
             'category'=>'required',
-            'cost_price'=>'required|min:1',
+            'cost_price'=>'required|numeric|min:1',
             'quantity'=>'required|min:1',
             'expiry_date'=>'required',
             'supplier'=>'required',
             'image'=>'file|image|mimes:jpg,jpeg,png,gif',
-        ]);
+        ]);        
         $imageName = $purchase->image;
         if($request->hasFile('image')){
             $imageName = time().'.'.$request->image->extension();

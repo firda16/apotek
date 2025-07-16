@@ -91,7 +91,7 @@ class SupplierController extends Controller
      */
     public function update(Request $request, Supplier $supplier)
     {
-        $this->validate($request,[
+        $request->validate([
             'name'=>'required|min:10|max:255',
             'product'=>'required',
             'email'=>'nullable|email|string',
@@ -119,8 +119,12 @@ class SupplierController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
-    {
-        return Supplier::findOrFail($request->id)->delete();
-    }
+    public function destroy($id)
+{
+    $supplier = Supplier::findOrFail($id);
+    $supplier->delete();
+
+    return redirect()->route('suppliers.index')->with(notify("Supplier has been deleted"));
+}
+
 }

@@ -26,6 +26,7 @@
 					<table id="expired-product" class="datatable table table-striped table-bordered table-hover table-center mb-0">
 						<thead>
 							<tr>
+								<th>No</th>
 								<th>Nama Merek</th>
 								<th>Kategori</th>
 								<th>Harga</th>
@@ -38,6 +39,7 @@
 						<tbody>    
         @foreach($products as $product) {{-- Iterate through products for each purchase --}}
             <tr>
+				<td>{{ $loop->iteration }}</td>
                 <td>{{ $product->description }}</td> {{-- Assuming 'description' is the product name/description --}}
                 <td>{{ $product->purchase->category->name }}</td>
                 <td>{{ settings('app_currency','Rp').' '. $product->price }}</td>
