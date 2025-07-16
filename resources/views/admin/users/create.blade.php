@@ -44,8 +44,8 @@
                                     <label>Peran</label>
                                     <div class="form-group">
                                         <select class="select2 form-select form-control" name="role">
-                                            @foreach ($roles as $role)
-                                                <option value="{{$role->name}}">{{$role->name}}</option>
+                                            @foreach ($users as $user)
+                                                <option value="{{$user->role}}">{{$user->role}}</option>
                                             @endforeach
                                         </select>
                                     </div>

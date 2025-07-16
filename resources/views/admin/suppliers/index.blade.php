@@ -52,16 +52,20 @@
 								<td>{{$supplier->email}}</td>
 								<td>{{$supplier->address}}</td>
 								<td>{{$supplier->company}}</td>
-								{{-- <td>
+								<td>
 									<div class="actions">
-										<a class="btn btn-sm bg-success-light" href="{{route('edit-supplier',$supplier)}}">
+										<a class="btn btn-sm bg-success-light" href="{{route('suppliers.edit',$supplier)}}">
 											<i class="fe fe-pencil"></i> Edit
 										</a>
-										<a data-id="{{$supplier->id}}" href="javascript:void(0);" class="btn btn-sm bg-danger-light deletebtn" data-toggle="modal">
-											<i class="fe fe-trash"></i> Hapus
-										</a>
+										<form action="{{ route('suppliers.destroy', $supplier->id) }}" method="POST" style="display:inline;">
+											@csrf
+											@method('DELETE')											
+											<button type="submit" class="btn btn-sm bg-danger-light deletebtn" onclick="return confirm('Yakin ingin menghapus pemasok ini?')">
+												<i class="fe fe-trash"></i> Hapus
+											</button>
+										</form>
 									</div>
-								</td> --}}
+								</td>
 							</tr>
 							@endforeach
 						</tbody>
@@ -76,7 +80,7 @@
 
 @endsection
 
-@push('page-js')
+{{-- @push('page-js')
 <script>
     $(document).ready(function() {
         var table = $('#supplier-table').DataTable({
@@ -96,4 +100,4 @@
 
     });
 </script>
-@endpush
+@endpush --}}

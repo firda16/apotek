@@ -46,7 +46,7 @@ Route::get('dashboard-kasir', [DashboardController::class, 'kasirDashboard'])->n
     Route::put('permission',[PermissionController::class,'update'])->name('permissions.update');
     Route::resource('roles',RoleController::class);
     Route::resource('suppliers',SupplierController::class);
-    Route::resource('categories',CategoryController::class)->only(['index','store','destroy']);
+    Route::resource('categories',CategoryController::class)->only(['index','edit','store','destroy']);
     // Route::put('categories',[CategoryController::class,'update'])->name('categories.update');
     Route::post('categories/update', [CategoryController::class, 'update'])->name('categories.update');
     Route::resource('purchases',PurchaseController::class)->except('show');

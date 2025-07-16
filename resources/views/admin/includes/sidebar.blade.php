@@ -1,4 +1,3 @@
-
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
 	<div class="sidebar-inner slimscroll">
@@ -58,15 +57,15 @@
 					</ul>
 				</li>
 
-				{{--<li class="submenu">
+				<li class="submenu">
 					<a href="#"><i class="fe fe-lock"></i> <span>Kontrol Akses</span> <span class="menu-arrow"></span></a>
 					<ul style="display: none;">
 						<li><a class="{{ route_is('permissions.index') ? 'active' : '' }}" href="{{ route('permissions.index') }}">Hak Akses</a></li>
 						<li><a class="{{ route_is('roles.*') ? 'active' : '' }}" href="{{ route('roles.index') }}">Peran</a></li>
 					</ul>
-				</li>--}}
+				</li>
 
-                <li class="{{ route_is('history.index') ? 'active' : '' }}">
+				<li class="{{ route_is('history.index') ? 'active' : '' }}">
 					<a href="{{ route('history.index') }}"><i class="material-icons">history</i> <span>History</span></a>
 				</li>
 
@@ -77,6 +76,10 @@
 				<li class="{{ route_is('profile') ? 'active' : '' }}">
 					<a href="{{ route('profile') }}"><i class="fe fe-user-plus"></i> <span>Profil</span></a>
 				</li>
+
+				{{-- <li class="{{ route_is('backup.index') ? 'active' : '' }}">
+					<a href="{{ route('backup.index') }}"><i class="material-icons">backup</i> <span>Cadangan</span></a>
+				</li> --}}
 
 				<li class="{{ route_is('settings') ? 'active' : '' }}">
 					<a href="{{ route('settings') }}">

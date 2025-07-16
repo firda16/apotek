@@ -68,8 +68,8 @@
 </td>
 								<td>{{ $pembelian->product }}</td>
 								<td>{{ $pembelian->category->name ?? '-' }}</td>
-								<td>{{ $pembelian->supplier->name ?? '-' }}</td>
-								<td>{{ $pembelian->cost_price }}</td>
+								<td>{{ $pembelian->supplier->name ?? '-' }}</td>								
+								<td class="text-center">Rp {{ number_format($pembelian->cost_price, 0, ',', '.') }}</td>
 								<td>{{ $pembelian->quantity }}</td>
 								<td>{{ date_format(date_create($pembelian->expiry_date),'d M, Y') }}</td>
 								<td>

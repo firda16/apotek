@@ -9,13 +9,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class CategoryController extends Controller
 {
-     use ValidatesRequests;
-    /**
-     * Display a listing of the resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
+     use ValidatesRequests;    
    public function index(Request $request)
 {
     $query = Category::query();
@@ -24,17 +18,11 @@ class CategoryController extends Controller
         $query->where('name', 'like', '%' . $request->search . '%');
     }
 
-    // Mengganti get() dengan paginate() untuk mengaktifkan pagination
-    $categories = $query->orderBy('created_at', 'desc')->paginate(15); 
-    // Anda bisa menyesuaikan jumlah item per halaman (contoh: 15)
-
-    // Cek jika request AJAX, kembalikan partial view
-    if ($request->ajax()) {
-        return view('admin.products.partials.categories-table', compact('categories'))->render();
-    }
+    $categories = $query->orderBy('created_at', 'desc')->paginate(15);
 
     return view('admin.products.categories', compact('categories'));
 }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -55,7 +43,10 @@ class CategoryController extends Controller
 }
 
 
-
+    public function edit(Request $request){
+    $category = Category::findOrFail($request->id);
+    return view('admin.products.partials.edit-category', compact('category'));    
+    }
 
 
     /**
