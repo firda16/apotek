@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\BackupController;
+use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Auth\LoginController;
@@ -60,10 +60,10 @@ Route::get('dashboard-kasir', [DashboardController::class, 'kasirDashboard'])->n
     Route::get('sales/reports',[SaleController::class,'reports'])->name('sales.report');
     Route::post('sales/reports',[SaleController::class,'generateReport']);
 
-    Route::get('backup', [BackupController::class,'index'])->name('backup.index');
-    Route::put('backup/create', [BackupController::class,'create'])->name('backup.store');
-    Route::get('backup/download/{file_name?}', [BackupController::class,'download'])->name('backup.download');
-    Route::delete('backup/delete/{file_name?}', [BackupController::class,'destroy'])->where('file_name', '(.*)')->name('backup.destroy');
+    Route::get('history', [HistoryController::class,'index'])->name('history.index');
+    Route::put('backup/create', [HistoryController::class,'create'])->name('backup.store');
+    Route::get('backup/download/{file_name?}', [HistoryController::class,'download'])->name('backup.download');
+    Route::delete('backup/delete/{file_name?}', [HistoryController::class,'destroy'])->where('file_name', '(.*)')->name('backup.destroy');
 
     Route::get('settings',[SettingController::class,'index'])->name('settings');
 });
