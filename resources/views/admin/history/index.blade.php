@@ -25,38 +25,35 @@
 								<th>Tanggal</th>
 								<th>Jenis Transaksi</th>
 								<th>Nama</th>
+								<th>Produk</th>
+								<th>Kategori</th>
+								<th>Jumlah</th>
 								<th>Total</th>
 							</tr>
 						</thead>
 						<tbody>
-							@php $no = 1; @endphp
+    @forelse($histories as $item)
+        <tr>
+            <td>{{ $loop->iteration }}</td>
+            <td>{{ \Carbon\Carbon::parse($item['tanggal'])->format('d M Y') }}</td>
+            <td>
+                <span class="badge badge-{{ $item['jenis'] === 'Pembelian' ? 'info' : 'success' }}">
+                    {{ $item['jenis'] }}
+                </span>
+            </td>
+            <td>{{ $item['nama'] }}</td>
+			<td>{{ $item['produk'] }}</td>
+			<td>{{ $item['kategori'] }}</td>
+			<td>{{ $item['jumlah'] }}</td>			
+            <td>Rp{{ number_format($item['total'], 0, ',', '.') }}</td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="5" class="text-center">Tidak ada data transaksi.</td>
+        </tr>
+    @endforelse
+</tbody>
 
-							@foreach($purchases as $item)
-								<tr>
-									<td>{{ $no++ }}</td>
-									<td>{{ $item->created_at->format('d M Y') }}</td>
-									<td><span class="badge badge-info">Pembelian</span></td>
-									<td>{{ $item->supplier->name ?? '-' }}</td>
-									<td>Rp{{ number_format($item->total, 0, ',', '.') }}</td>
-								</tr>
-							@endforeach
-
-							@foreach($sales as $item)
-								<tr>
-									<td>{{ $no++ }}</td>
-									<td>{{ $item->created_at->format('d M Y') }}</td>
-									<td><span class="badge badge-success">Penjualan</span></td>
-									<td>{{ $item->customer_name ?? '-' }}</td>
-									<td>Rp{{ number_format($item->total, 0, ',', '.') }}</td>
-								</tr>
-							@endforeach
-
-							@if($purchases->isEmpty() && $sales->isEmpty())
-								<tr>
-									<td colspan="5" class="text-center">Tidak ada data transaksi.</td>
-								</tr>
-							@endif
-						</tbody>
 					</table>
 				</div>
 

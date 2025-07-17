@@ -41,8 +41,7 @@
 						<tbody>
     @foreach ($sales as $sale)
     <tr>							
-        <td>{{ $loop->iteration }}</td>        
-		{{-- <td>{{ $sale->product_id }}</td> --}}
+        <td>{{ $loop->iteration }}</td>        		
 		<td>{{ $sale->product->purchase->product ?? "-"  }}</td>
 
 
