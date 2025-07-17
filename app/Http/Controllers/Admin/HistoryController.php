@@ -11,7 +11,7 @@ class HistoryController extends Controller
 {
     public function index()
     {
-        $title = 'History';
+        $title = 'Riwayat';
 
         $purchases = Purchase::orderBy('created_at', 'desc')->get();
         $sales = Sale::orderBy('created_at', 'desc')->get();
