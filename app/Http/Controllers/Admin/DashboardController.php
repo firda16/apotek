@@ -20,20 +20,22 @@ class DashboardController extends Controller
 
         $total_purchases = Purchase::whereDate('created_at', Carbon::today())->sum('cost_price');
         $total_categories = Category::count();
+
         $total_pembelian_produk = Purchase::count();
         $total_suppliers = Supplier::count();
         $total_sales = Sale::count();
-
-       
-        $pieChart = new Chart;
-        $pieChart->labels(['Total Pembelian', 'Total Pemasok', 'Total Penjualan']);
-        $pieChart->dataset('Data Summary', 'pie', [
-            $total_purchases,
-            $total_suppliers,
-            $total_sales
-        ])->backgroundColor(['#FF6384', '#36A2EB', '#7bb13c']);
-
         $total_products = Product::count(); //total produk
+
+        $pieChart = new Chart;
+        $pieChart->labels(['Total Pembelian', 'Total Pemasok', 'Total Penjualan', 'Total Produk']);
+        $pieChart->dataset('Data Summary', 'pie', [
+            $total_pembelian_produk,
+            $total_suppliers,
+            $total_sales,
+            $total_products
+        ])->backgroundColor(['#FF6384', '#36A2EB', '#7bb13c', '#FFCE56']);
+
+
         //produk habis stok
         $out_of_stock_products = Product::whereHas('purchase', function ($q) {
             return $q->where('quantity', '<=', 0);
