@@ -5,7 +5,7 @@
 	<h3 class="page-title">{{ $title }}</h3>
 	<ul class="breadcrumb">
 		<li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-		<li class="breadcrumb-item active">History</li>
+		<li class="breadcrumb-item active">Riwayat</li>
 	</ul>
 </div>
 @endpush

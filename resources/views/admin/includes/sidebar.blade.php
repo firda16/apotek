@@ -66,7 +66,7 @@
 				</li>
 
 				<li class="{{ route_is('history.index') ? 'active' : '' }}">
-					<a href="{{ route('history.index') }}"><i class="material-icons">history</i> <span>History</span></a>
+					<a href="{{ route('history.index') }}"><i class="material-icons">history</i> <span>Riwayat</span></a>
 				</li>
 
 				<li class="{{ route_is('users.*') ? 'active' : '' }}">
