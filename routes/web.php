@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\KasirController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +35,10 @@ Route::middleware(['auth'])->group(function(){
     Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard');
     // Mengarahkan route 'kasir.dashboard' ke metode 'kasirDashboard'
 Route::get('dashboard-kasir', [DashboardController::class, 'kasirDashboard'])->name('kasir.dashboard');
+Route::get('/transaksi', [KasirController::class, 'transaksi'])->name('kasir.transaksi');
+Route::post('/transaksi', [KasirController::class, 'storeTransaksi'])->name('kasir.transaksi.store');
+Route::get('/laporan', [KasirController::class, 'laporan'])->name('kasir.laporan');
+Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.laporan');
     Route::get('',[DashboardController::class,'Index']);
     Route::get('notification',[NotificationController::class,'markAsRead'])->name('mark-as-read');
     Route::get('notification-read',[NotificationController::class,'read'])->name('read');
