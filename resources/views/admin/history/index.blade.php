@@ -4,7 +4,7 @@
 <div class="col-sm-7 col-auto">
 	<h3 class="page-title">{{ $title }}</h3>
 	<ul class="breadcrumb">
-		<li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+		<li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
 		<li class="breadcrumb-item active">Riwayat</li>
 	</ul>
 </div>
@@ -44,7 +44,7 @@
             <td>{{ $item['nama'] }}</td>
 			<td>{{ $item['produk'] }}</td>
 			<td>{{ $item['kategori'] }}</td>
-			<td>{{ $item['jumlah'] }}</td>			
+			<td>{{ $item['jumlah'] }}</td>
             <td>Rp{{ number_format($item['total'], 0, ',', '.') }}</td>
         </tr>
     @empty

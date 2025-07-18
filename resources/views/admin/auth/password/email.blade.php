@@ -1,8 +1,8 @@
 @extends('admin.layouts.plain')
 
 @section('content')
-<h1>Forgot Password?</h1>
-<p class="account-subtitle">Enter your email to get a password reset link</p>
+<h1>Lupa Kata Sandi?</h1>
+<p class="account-subtitle">Masukkan email Anda untuk mendapatkan tautan pengaturan ulang kata sandi</p>
 <!-- Form -->
 <form action="{{route('password.request')}}" method="post">
 	@csrf
@@ -10,10 +10,10 @@
 		<input class="form-control" name="email" type="text" placeholder="Email">
 	</div>
 	<div class="form-group mb-0">
-		<button class="btn btn-primary btn-block" type="submit">Submit</button>
+		<button class="btn btn-primary btn-block" type="submit">Kirim</button>
 	</div>
 </form>
 <!-- /Form -->
 
-<div class="text-center dont-have">Remember your password? <a href="{{route('login')}}">Login</a></div>
+<div class="text-center dont-have">Ingat kata sandi Anda? <a href="{{route('login')}}">Login</a></div>
 @endsection

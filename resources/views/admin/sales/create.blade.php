@@ -2,15 +2,15 @@
 
 
 @push('page-css')
-    
+
 @endpush
 
 @push('page-header')
 <div class="col-sm-12">
-	<h3 class="page-title">tambah Sale</h3>
+	<h3 class="page-title">Tambah Sale</h3>
 	<ul class="breadcrumb">
 		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-		<li class="breadcrumb-item active">Edit Sale</li>
+		<li class="breadcrumb-item active">Tambah Sale</li>
 	</ul>
 </div>
 @endpush
@@ -27,7 +27,7 @@
 						<div class="col-12">
 							<div class="form-group">
 								<label>Produk <span class="text-danger">*</span></label>
-								<select class="select2 form-select form-control" name="product"> 
+								<select class="select2 form-select form-control" name="product">
 									@foreach ($products as $product)
 										@if (!empty($product->purchase))
 											@if (!($product->purchase->quantity <= 0))
@@ -42,10 +42,10 @@
 						<div class="col-12">
 							<div class="form-group">
 								<label>Kategori <span class="text-danger">*</span></label>
-								<select class="select2 form-select form-control" name="category"> 
-									@foreach ($categories as $category)																		
+								<select class="select2 form-select form-control" name="category">
+									@foreach ($categories as $category)
                                         {{-- <option disabled selected > Select Category</option> --}}
-										<option value="{{$category->id}}">{{$category->name}}</option>																			
+										<option value="{{$category->id}}">{{$category->name}}</option>
 									@endforeach
 								</select>
 							</div>
@@ -62,11 +62,11 @@
                 <!--/ Create Sale -->
 			</div>
 		</div>
-	</div>			
+	</div>
 </div>
-@endsection	
+@endsection
 
 
 @push('page-js')
-    
+
 @endpush
