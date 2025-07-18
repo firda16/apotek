@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="{{asset('assets/plugins/fontawesome/css/fontawesome.min.css')}}">
     <!-- Feathericon CSS -->
     <link rel="stylesheet" href="{{asset('assets/css/feathericon.min.css')}}">
-
     <link rel="stylesheet" href="{{asset('assets/css/icons.min.css')}}">
     <!-- Snackbar CSS -->
 	<link rel="stylesheet" href="{{asset('assets/plugins/snackbar/snackbar.min.css')}}">
