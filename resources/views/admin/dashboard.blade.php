@@ -249,15 +249,21 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($latest_purchases as $purchase)
-    <tr>
-        <td>{{$loop->iteration}}</td>
-        <td>{{ $purchase->product ?? '-' }}</td>
-        <td>{{ $purchase->quantity }}</td>        
-        <td class="text-center">Rp {{ number_format($purchase->cost_price, 0, ',', '.') }}</td>
-        <td>{{ $purchase->created_at->format('d M Y H:i') }}</td>
-    </tr>        
-@endforeach
+       @if($latest_purchases->isEmpty())
+            <tr>
+                <td colspan="5" class="text-center">Tidak ada pembelian hari ini</td>
+            </tr>
+        @else
+            @foreach($latest_purchases as $purchase)
+                <tr>
+                    <td>{{$loop->iteration}}</td>
+                    <td>{{ $purchase->product->purchase->product ?? '-' }}</td>
+                    <td>{{ $purchase->quantity }}</td>        
+                    <td class="text-center">Rp {{ number_format($purchase->total_price, 0, ',', '.') }}</td>
+                    <td>{{ $purchase->created_at->format('d M Y H:i') }}</td>
+                </tr>        
+            @endforeach
+        @endif
 
     </tbody>
 </table>
@@ -286,15 +292,21 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($latest_sales as $sale)
-    <tr>
-        <td>{{$loop->iteration}}</td>
-        <td>{{ $sale->product->purchase->product ?? '-' }}</td>
-        <td>{{ $sale->quantity }}</td>        
-        <td class="text-center">Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td>
-        <td>{{ $sale->created_at->format('d M Y H:i') }}</td>
-    </tr>        
-@endforeach
+        @if ($latest_sales->isEmpty())
+            <tr>
+                <td colspan="5" class="text-center">Tidak ada penjualan hari ini</td>
+            </tr>
+        @else
+            @foreach($latest_sales as $sale)
+                <tr>
+                    <td>{{$loop->iteration}}</td>
+                    <td>{{ $sale->product->purchase->product ?? '-' }}</td>
+                    <td>{{ $sale->quantity }}</td>        
+                    <td class="text-center">Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td>
+                    <td>{{ $sale->created_at->format('d M Y H:i') }}</td>
+                </tr>        
+            @endforeach                                        
+        @endif
 
     </tbody>
 </table>

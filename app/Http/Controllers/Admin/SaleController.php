@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Sale;
 use App\Models\Product;
+use App\Models\Category;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
 use App\Events\PurchaseOutStock;
@@ -35,7 +36,7 @@ class SaleController extends Controller
     {
         $title = 'sales';
         if($request->ajax()){
-            $sales = Sale::latest();
+            $sales = Sale::latest()->with((['category']));
             return DataTables::of($sales)
                     ->addIndexColumn()
                     ->addColumn('product',function($sale){
@@ -72,7 +73,7 @@ class SaleController extends Controller
                     ->make(true);
 
         }
-        $products = Product::get();
+        // $products = Product::get();
         return view('admin.sales.index',compact(
             'title','products',
         ));
@@ -87,8 +88,9 @@ class SaleController extends Controller
     {
         $title = 'create sales';
         $products = Product::get();
+        $categories = Category::get();
         return view('admin.sales.create',compact(
-            'title','products'
+            'title', 'categories','products'
         ));
     }
 
