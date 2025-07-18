@@ -32,6 +32,7 @@
 							<tr>
 								<th>No</th>
 								<th>Nama Obat</th>
+                                <th>Kategori</th>
 								<th>Jumlah</th>
 								<th>Total Harga</th>
 								<th>Tanggal</th>
@@ -43,7 +44,7 @@
     <tr>							
         <td>{{ $loop->iteration }}</td>        		
 		<td>{{ $sale->product->purchase->product ?? "-"  }}</td>
-
+        <td>{{ $sale->product->purchase->category->name ?? '-' }}</td>
 
         {{-- Menampilkan kuantitas --}}
         <td>{{ $sale->quantity }}</td>

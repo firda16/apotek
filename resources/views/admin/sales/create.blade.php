@@ -26,7 +26,7 @@
 					<div class="row form-row">
 						<div class="col-12">
 							<div class="form-group">
-								<label>Product <span class="text-danger">*</span></label>
+								<label>Produk <span class="text-danger">*</span></label>
 								<select class="select2 form-select form-control" name="product"> 
 									@foreach ($products as $product)
 										@if (!empty($product->purchase))
@@ -35,6 +35,17 @@
 												<option value="{{$product->id}}">{{$product->purchase->product}}</option>
 											@endif
 										@endif
+									@endforeach
+								</select>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="form-group">
+								<label>Kategori <span class="text-danger">*</span></label>
+								<select class="select2 form-select form-control" name="category"> 
+									@foreach ($categories as $category)																		
+                                        {{-- <option disabled selected > Select Category</option> --}}
+										<option value="{{$category->id}}">{{$category->name}}</option>																			
 									@endforeach
 								</select>
 							</div>
