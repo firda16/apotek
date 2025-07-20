@@ -168,7 +168,7 @@ class UserController extends Controller
         if ($verify_password) {
             $user->update(['password'=>Hash::make($request->password)]);
             $notification = notify('User password updated successfully!!!');
-            $logout = auth()->logout();
+            $logout = Auth::logout();
             return back()->with($notification, $logout);
         } elseif(!$verify_password) {
             $notification = notify("Incorrect Old Password!!!",'danger');

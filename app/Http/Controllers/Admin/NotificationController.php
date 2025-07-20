@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
     public function markAsRead(){
-        auth()->user()->unreadNotifications->markAsRead();
+        Auth::user()->unreadNotifications->markAsRead();
         $notification = notify('Notifications marked as read');
         return back()->with($notification);
     }
 
     public function read(){
-        auth()->user()->unreadNotifications->markAsRead();
+        Auth::user()->unreadNotifications->markAsRead();
         $notification = notify('Notification marked as read');
         return back()->with($notification);
     }
@@ -25,10 +26,16 @@ class NotificationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-        auth()->user()->notifications()->delete();
-        $notification = notify('Notification has been deleted');
-        return back()->with($notification);
-    }
+    // public function destroy($id)
+    // {
+    //     Auth::user()->notify()->delete();
+    //     $notification = notify('Notification has been deleted');
+    //     return back()->with($notification);
+    // }
+    // public function destroy($id)
+    // {
+    //     Auth::user()->notifications()->delete();
+    //     $notification = notify('Notification has been deleted');
+    //     return back()->with($notification);
+    // }
 }

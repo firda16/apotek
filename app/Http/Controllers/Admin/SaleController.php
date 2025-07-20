@@ -32,52 +32,52 @@ class SaleController extends Controller
         ));
     }
 
-    public function data(Request $request)
-    {
-        $title = 'sales';
-        if($request->ajax()){
-            $sales = Sale::latest()->with((['category']));
-            return DataTables::of($sales)
-                    ->addIndexColumn()
-                    ->addColumn('product',function($sale){
-                        $image = '';
-                        if(!empty($sale->product)){
-                            $image = null;
-                            if(!empty($sale->product->purchase->image)){
-                                $image = '<span class="avatar avatar-sm mr-2">
-                                <img class="avatar-img" src="'.asset("storage/purchases/".$sale->product->purchase->image).'" alt="image">
-                                </span>';
-                            }
-                            return $sale->product->purchase->product. ' ' . $image;
-                        }
-                    })
-                    ->addColumn('total_price',function($sale){
-                        return settings('app_currency','Rp').' '. $sale->total_price;
-                    })
-                    ->addColumn('date',function($row){
-                        return date_format(date_create($row->created_at),'d M, Y');
-                    })
-                    ->addColumn('action', function ($row) {
-                        $editbtn = '<a href="'.route("sales.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                        $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('sales.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                        if (!auth()->user()->hasPermissionTo('edit-sale')) {
-                            $editbtn = '';
-                        }
-                        if (!auth()->user()->hasPermissionTo('destroy-sale')) {
-                            $deletebtn = '';
-                        }
-                        $btn = $editbtn.' '.$deletebtn;
-                        return $btn;
-                    })
-                    ->rawColumns(['product','action'])
-                    ->make(true);
+    // public function data(Request $request)
+    // {
+    //     $title = 'sales';
+    //     if($request->ajax()){
+    //         $sales = Sale::latest()->with((['category']));
+    //         return DataTables::of($sales)
+    //                 ->addIndexColumn()
+    //                 ->addColumn('product',function($sale){
+    //                     $image = '';
+    //                     if(!empty($sale->product)){
+    //                         $image = null;
+    //                         if(!empty($sale->product->purchase->image)){
+    //                             $image = '<span class="avatar avatar-sm mr-2">
+    //                             <img class="avatar-img" src="'.asset("storage/purchases/".$sale->product->purchase->image).'" alt="image">
+    //                             </span>';
+    //                         }
+    //                         return $sale->product->purchase->product. ' ' . $image;
+    //                     }
+    //                 })
+    //                 ->addColumn('total_price',function($sale){
+    //                     return settings('app_currency','Rp').' '. $sale->total_price;
+    //                 })
+    //                 ->addColumn('date',function($row){
+    //                     return date_format(date_create($row->created_at),'d M, Y');
+    //                 })
+    //                 ->addColumn('action', function ($row) {
+    //                     $editbtn = '<a href="'.route("sales.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
+    //                     $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('sales.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
+    //                     if (!auth()->user()->hasPermissionTo('edit-sale')) {
+    //                         $editbtn = '';
+    //                     }
+    //                     if (!auth()->user()->hasPermissionTo('destroy-sale')) {
+    //                         $deletebtn = '';
+    //                     }
+    //                     $btn = $editbtn.' '.$deletebtn;
+    //                     return $btn;
+    //                 })
+    //                 ->rawColumns(['product','action'])
+    //                 ->make(true);
 
-        }
-        // $products = Product::get();
-        return view('admin.sales.index',compact(
-            'title','products',
-        ));
-    }
+    //     }
+    //     // $products = Product::get();
+    //     return view('admin.sales.index',compact(
+    //         'title','products',
+    //     ));
+    // }
 
     /**
      * Show the form for creating a new resource.
