@@ -54,8 +54,9 @@
                                     </td>
                                     <td>{{$purchase->category->name}}</td>
                                     <td>{{$purchase->supplier->name}}</td>
-                                    <td>{{AppSettings::get('app_currency', 'Rp')}}{{$purchase->price}}</td>
-                                    <td>{{$purchase->quantity}}</td>
+                                    <td>{{ AppSettings::get('app_currency', 'Rp') }}{{ number_format($purchase->price, 0, ',', '.') }}
+                                                </td>
+                                    <td>{{ number_format($purchase->quantity, 0, ',', '.') }}</td>
                                     <td>{{date_format(date_create($purchase->expiry_date),"d M, Y")}}</td>
                                 </tr>
                                 @endif

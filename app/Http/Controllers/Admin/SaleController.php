@@ -23,9 +23,9 @@ class SaleController extends Controller
 
     public function index(Request $request)
     {
-        
+
         // $products = Product::get();
-        $sales = Sale::with(['product', 'purchase'])->get();        
+        $sales = Sale::with(['product', 'purchase'])->get();
 
         return view('admin.sales.index',compact(
         'sales',
@@ -52,7 +52,7 @@ class SaleController extends Controller
                         }
                     })
                     ->addColumn('total_price',function($sale){
-                        return settings('app_currency','$').' '. $sale->total_price;
+                        return settings('app_currency','Rp').' '. $sale->total_price;
                     })
                     ->addColumn('date',function($row){
                         return date_format(date_create($row->created_at),'d M, Y');

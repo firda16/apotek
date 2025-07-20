@@ -19,6 +19,7 @@ class DashboardController extends Controller
         $title = 'dashboard';
 
         $total_purchases = Purchase::whereDate('created_at', Carbon::today())->sum('cost_price');
+
         $total_categories = Category::count();
 
         $total_pembelian_produk = Purchase::count();
@@ -92,5 +93,5 @@ class DashboardController extends Controller
             'total_categories'
         ));
     }
-    
+
 }

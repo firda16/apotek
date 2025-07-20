@@ -3,7 +3,7 @@
 <x-assets.datatables />
 
 @push('page-css')
-    
+
 @endpush
 
 @push('page-header')
@@ -22,7 +22,7 @@
 @section('content')
 <div class="row">
 	<div class="col-md-12">
-	
+
 		<!--  Sales -->
 		<div class="card">
 			<div class="card-body">
@@ -41,19 +41,19 @@
 						</thead>
 						<tbody>
     @foreach ($sales as $sale)
-    <tr>							
-        <td>{{ $loop->iteration }}</td>        		
+    <tr>
+        <td>{{ $loop->iteration }}</td>
 		<td>{{ $sale->product->purchase->product ?? "-"  }}</td>
         <td>{{ $sale->product->purchase->category->name ?? '-' }}</td>
 
         {{-- Menampilkan kuantitas --}}
         <td>{{ $sale->quantity }}</td>
-        
+
         {{-- Menggunakan total_price (sesuai model Sale) --}}
-        <td>{{ $sale->total_price }}</td>
-        
-        {{-- Mengakses expiry_date melalui relasi purchase --}}        
-		<td>{{ date_format(date_create($sale->created_at),'d M, Y') }}</td>		
+        <td>Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td>
+
+        {{-- Mengakses expiry_date melalui relasi purchase --}}
+		<td>{{ date_format(date_create($sale->created_at),'d M, Y') }}</td>
         <td>
             <a href="{{ route('sales.edit', $sale->id) }}" class="editbtn">
     <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
@@ -79,7 +79,7 @@
 			</div>
 		</div>
 		<!-- / sales -->
-		
+
 	</div>
 </div>
 
@@ -101,7 +101,7 @@
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ]
         });
-        
+
     });
-</script> 
+</script>
 @endpush --}}
