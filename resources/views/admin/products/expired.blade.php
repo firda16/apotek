@@ -40,7 +40,7 @@
         @foreach($products as $product) {{-- Iterate through products for each purchase --}}
             <tr>
 				<td>{{ $loop->iteration }}</td>
-                <td>{{ $product->description }}</td> {{-- Assuming 'description' is the product name/description --}}
+                <td>{{ $product->purchase->product }}</td> {{-- Assuming 'description' is the product name/description --}}
                 <td>{{ $product->purchase->category->name }}</td>
                 <td>{{ settings('app_currency','Rp').' '. $product->price }}</td>
                 <td>{{ $product->purchase->quantity }}</td> {{-- This quantity might be for the whole purchase, not individual product --}}
