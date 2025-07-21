@@ -17,7 +17,53 @@
 
 @section('content')
     <div class="row">
+
+        {{-- Total Pengeluaran --}}
         <div class="col-xl-3 col-sm-6 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="dash-widget-header">
+                        <span class="dash-widget-icon text-success border-success">
+                            <i class="fe fe-money"></i>
+                        </span>
+                        <div class="dash-count">
+                            <h3 class="text-center">Rp {{ number_format($total_pengeluaran, 0, ',', '.') }}</h3>
+                        </div>
+                    </div>
+                    <div class="dash-widget-info">
+                        <h6 class="text-muted">Total pengeluaran</h6>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar bg-success w-50"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Total Pendapatan --}}
+        <div class="col-xl-3 col-sm-6 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="dash-widget-header">
+                        <span class="dash-widget-icon text-success border-success">
+                            <i class="fe fe-money"></i>
+                        </span>
+                        <div class="dash-count">
+                            <h3 class="text-center">Rp {{ number_format($total_pendapatan, 0, ',', '.') }}</h3>
+                        </div>
+                    </div>
+                    <div class="dash-widget-info">
+                        <h6 class="text-muted">Total pendapatan</h6>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar bg-success w-50"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {{-- total pembelian hari ini --}}
+        {{-- <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="dash-widget-header">
@@ -36,8 +82,10 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 col-12">
+        </div> --}}
+
+        {{-- Total Penjualan Hari Ini --}}
+        {{-- <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="dash-widget-header">
@@ -56,28 +104,7 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-secondary">
-                            <i class="fe fe-credit-card"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3>{{ $total_categories }}</h3>
-                        </div>
-                    </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Kategori Produk</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-secondary w-50"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div>        --}}
 
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
@@ -99,41 +126,20 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-warning border-warning">
-                            <i class="fe fe-folder"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3>{{ $total_pembelian_produk }}</h3>
-                        </div>
-                    </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Total Produk yang dibeli</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-warning w-50"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        </div>        
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="dash-widget-header">
                         <span class="dash-widget-icon text-success border-success">
                             <i class="fe fe-folder"></i>
+
                         </span>
                         <div class="dash-count">
                             <h3>{{ $total_sales }}</h3>
                         </div>
                     </div>
-                    <div class="dash-widget-info">
+                    <div class="dash-widget-success">
                         <h6 class="text-muted">Total Produk yang terjual</h6>
                         <div class="progress progress-sm">
                             <div class="progress-bar bg-success w-50"></div>
@@ -141,8 +147,28 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>        
 
+        <div class="col-xl-3 col-sm-6 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="dash-widget-header">
+                        <span class="dash-widget-icon text-primary border-primary">
+                            <i class="fe fe-cart"></i>
+                        </span>
+                        <div class="dash-count">
+                            <h3>{{ $stok_produk }}</h3>
+                        </div>
+                    </div>
+                    <div class="dash-widget-info">
+                        <h6 class="text-muted">Produk Stok yang tersedia</h6>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar bg-primary w-50"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
                 <div class="card-body">
@@ -260,7 +286,7 @@
                                             <td>{{ $purchase->product ?? '-' }}</td>
                                             <td>{{ $purchase->quantity }}</td>
                                             <td class="text-center">Rp
-                                                {{ number_format($purchase->total_price, 0, ',', '.') }}</td>
+                                                {{ number_format($purchase->cost_price, 0, ',', '.') }}</td>
                                             <td>{{ $purchase->created_at->format('d M Y H:i') }}</td>
                                         </tr>
                                     @endforeach

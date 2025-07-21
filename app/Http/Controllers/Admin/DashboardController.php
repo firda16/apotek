@@ -17,8 +17,10 @@ class DashboardController extends Controller
     public function index()
     {
         $title = 'dashboard';
-
+        //total pembelian hari ini
         $total_purchases = Purchase::whereDate('created_at', Carbon::today())->sum('cost_price');
+        //total pembelian/pengeluaran
+        $total_pengeluaran = Purchase::sum('cost_price');
 
         $total_categories = Category::count();
 
@@ -46,12 +48,19 @@ class DashboardController extends Controller
     $q->whereDate('expiry_date', '<=', now());
 })->count();
 
-        //jumlah uang hari ini
+        //jumlah uang penjualan hari ini
         $today_sales = Sale::whereDate('created_at', '=', Carbon::now())->sum('total_price');
+        //jumlah total uang pendapatan penjualan
+        $total_pendapatan = Sale::sum('total_price');
         //tabel penjualan hari ini
         $latest_sales = Sale::whereDate('created_at', '=', Carbon::now())->get();
         //tabel pembelian hari ini
         $latest_purchases = Purchase::whereDate('created_at', '=', Carbon::now())->get();
+        
+        //jumlah produk yang masih ada stok
+        $stok_produk = Product::whereHas('purchase', function ($q) {
+            return $q->where('quantity', '>', 0);
+        })->count();
 
         return view('admin.dashboard', compact(
             'title',
@@ -66,7 +75,10 @@ class DashboardController extends Controller
             'latest_purchases',
             'total_pembelian_produk',
             'total_sales',
-            'total_suppliers'
+            'total_suppliers',
+            'total_pendapatan',
+            'total_pengeluaran',
+            'stok_produk',
         ));
     }
 
