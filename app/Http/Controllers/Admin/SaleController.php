@@ -25,7 +25,9 @@ class SaleController extends Controller
     {
 
         // $products = Product::get();
-        $sales = Sale::with(['product', 'purchase'])->get();
+        $query = Sale::query()->with(['product', 'purchase']);
+
+        $sales = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return view('admin.sales.index',compact(
         'sales',

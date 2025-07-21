@@ -24,7 +24,9 @@ class UserController extends Controller
     public function index(Request $request)
     {
         
-        $users = User::get();
+        $query = User::query();
+        $users = $query->orderBy('created_at', 'desc')->paginate(15);
+
         return view('admin.users.index', compact(
              'users'
         ));        

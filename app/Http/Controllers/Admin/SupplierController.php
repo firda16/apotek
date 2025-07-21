@@ -17,8 +17,17 @@ class SupplierController extends Controller
      */
     public function index(Request $request)
     {
-        $suppliers = Supplier::get();
-    
+        $query = Supplier::query();
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+            $query->where('name', 'like', '%' . $searchTerm . '%')
+                ->orWhere('company', 'like', '%' . $searchTerm . '%')
+                ->orWhere('email', 'like', '%' . $searchTerm . '%')
+                ->orWhere('phone', 'like', '%' . $searchTerm . '%');
+        }
+
+        $suppliers = $query->orderBy('created_at', 'desc')->paginate(15);
+
         return view('admin.suppliers.index',compact(
             'suppliers'
         ));

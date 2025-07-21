@@ -51,7 +51,7 @@
                             <tbody>
                                 @foreach ($categories as $category)
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $categories->firstItem() + $loop->index }}</td>
                                         <td>{{ $category->name }}</td>
                                         <td>{{ $category->created_at->format('d M, Y') }}</td>
                                         <td class="text-center">
@@ -72,13 +72,10 @@
                         </table>
 
                         {{-- Pagination --}}
-                        <div class="mt-3">
-                            {{-- {{ $categories->links() }} --}}
-                            {{ $categories->links('pagination::bootstrap-5') }}
-
-                        </div>
                     </div>
-
+                    <div class="mt-3">                            
+                        {{ $categories->links('pagination::bootstrap-5') }}
+                    </div>
                 </div>
             </div>
         </div>

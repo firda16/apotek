@@ -43,7 +43,7 @@
 						<tbody>
 							@foreach ($suppliers as $supplier)
 							<tr>
-								<td>{{ $loop->iteration }}</td>
+								<td>{{ $suppliers->firstItem() + $loop->index }}</td>
 								<td>
 									{{$supplier->product}}
 								</td>
@@ -70,6 +70,9 @@
 							@endforeach
 						</tbody>
 					</table>
+				</div>
+				<div class="mt-3">                        
+					{{ $suppliers->links('pagination::bootstrap-5') }}
 				</div>
 			</div>
 		</div>

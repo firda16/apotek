@@ -20,11 +20,15 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-       $products = Product::get();
+    //    $products = Product::get();
+        $query = Product::query();
+        $products = $query->orderBy('created_at', 'desc')->paginate(15);
         return view('admin.products.index',compact(
             'products'
         ));
     }
+
+    
 
 
     /**

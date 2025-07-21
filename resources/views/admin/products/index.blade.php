@@ -43,7 +43,8 @@
     {{-- Ingat: $product di sini adalah objek Purchase --}}
     @foreach($products as $product)
     <tr>
-		<td>{{ $loop->iteration }}</td>
+		<td>{{ $products->firstItem() + $loop->index }}</td>
+
         {{-- Nama produk dari field 'product' pada model Purchase --}}
         <td>{{ $product->purchase->product ?? '-' }}</td> 
 
@@ -76,6 +77,10 @@
 </tbody>
 					</table>
 				</div>
+                {{-- Pagination --}}
+                <div class="mt-3">                        
+                    {{ $products->links('pagination::bootstrap-5') }}
+                </div>
 			</div>
 		</div>
 		<!-- /Daftar Produk -->

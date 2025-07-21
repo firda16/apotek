@@ -61,8 +61,8 @@
                             </thead>
                             <tbody>
                                 @foreach ($pembelians as $pembelian)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
+                                    <tr>                                        
+                                        <td>{{ $pembelians->firstItem() + $loop->index }}</td>
                                         <td>
                                             @php
                                                 $basePath = public_path('assets/img/purchases/');
@@ -109,6 +109,11 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        {{-- Pagination --}}
+                    </div>
+                    <div class="mt-3">
+                        {{-- {{ $categories->links() }} --}}
+                        {{ $pembelians->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
             </div>

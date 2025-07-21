@@ -42,7 +42,7 @@
 						<tbody>
     @foreach ($sales as $sale)
     <tr>
-        <td>{{ $loop->iteration }}</td>
+        <td>{{ $sales->firstItem() + $loop->index }}</td>
 		<td>{{ $sale->product->purchase->product ?? "-"  }}</td>
         <td>{{ $sale->product->purchase->category->name ?? '-' }}</td>
 
@@ -76,6 +76,9 @@
 </tbody>
 					</table>
 				</div>
+                <div class="mt-3">                        
+                    {{ $sales->links('pagination::bootstrap-5') }}
+                </div>
 			</div>
 		</div>
 		<!-- / sales -->

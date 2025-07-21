@@ -31,7 +31,8 @@ class PurchaseController extends Controller
             });
         }
 
-        $pembelians = $query->get();
+        // $pembelians = $query->get();
+        $pembelians = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return view('admin.purchases.index', compact('pembelians'));
     }

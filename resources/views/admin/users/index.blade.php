@@ -37,7 +37,7 @@
 						<tbody>
 							@foreach ($users as $user)
 							<tr>
-								<td>{{ $loop->iteration }}</td>
+								<td>{{ $users->firstItem() + $loop->index }}</td>
 								<td>{{ $user->name }}</td>
 								<td>{{ $user->email }}</td>
 								<td>{{ $user->role }}</td>
@@ -69,6 +69,9 @@
 					{{-- <div class="mt-3">
 						{{ $users->links() }}
 					</div> --}}
+				</div>
+				<div class="mt-3">
+					{{ $users->links('pagination::bootstrap-5') }}
 				</div>
 			</div>
 		</div>
