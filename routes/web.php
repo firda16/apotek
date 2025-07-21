@@ -47,10 +47,7 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
     Route::put('profile/update-password/{user}',[UserController::class,'updatePassword'])->name('update-password');
     Route::post('logout',[LogoutController::class,'index'])->name('logout');
 
-    Route::resource('users',UserController::class);
-    Route::resource('permissions',PermissionController::class)->only(['index','store','destroy']);
-    Route::put('permission',[PermissionController::class,'update'])->name('permissions.update');
-    Route::resource('roles',RoleController::class);
+    Route::resource('users',UserController::class);    
     Route::resource('suppliers',SupplierController::class);
     Route::resource('categories',CategoryController::class)->only(['index','edit','store','destroy']);
     // Route::put('categories',[CategoryController::class,'update'])->name('categories.update');

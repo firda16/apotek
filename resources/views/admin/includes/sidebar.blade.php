@@ -55,15 +55,7 @@
 						<li><a class="{{ route_is('sales.report') ? 'active' : '' }}" href="{{ route('sales.report') }}">Laporan Penjualan</a></li>
 						<li><a class="{{ route_is('purchases.report') ? 'active' : '' }}" href="{{ route('purchases.report') }}">Laporan Pembelian</a></li>
 					</ul>
-				</li>
-
-				<li class="submenu">
-					<a href="#"><i class="fe fe-lock"></i> <span>Kontrol Akses</span> <span class="menu-arrow"></span></a>
-					<ul style="display: none;">
-						<li><a class="{{ route_is('permissions.index') ? 'active' : '' }}" href="{{ route('permissions.index') }}">Hak Akses</a></li>
-						<li><a class="{{ route_is('roles.*') ? 'active' : '' }}" href="{{ route('roles.index') }}">Peran</a></li>
-					</ul>
-				</li>
+				</li>				
 
 				<li class="{{ route_is('history.index') ? 'active' : '' }}">
 					<a href="{{ route('history.index') }}"><i class="material-icons">history</i> <span>Riwayat</span></a>

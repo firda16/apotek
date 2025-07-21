@@ -41,8 +41,8 @@
             <tr>
 				<td>{{ $loop->iteration }}</td>
                 <td>{{ $product->purchase->product }}</td> {{-- Assuming 'description' is the product name/description --}}
-                <td>{{ $product->purchase->category->name }}</td>
-                <td>{{ settings('app_currency','Rp').' '. $product->price }}</td>
+                <td>{{ $product->purchase->category->name }}</td>                
+				<td>{{ (settings('app_currency') ?? 'Rp') . ' ' . $product->price }}</td>
                 <td>{{ $product->purchase->quantity }}</td> {{-- This quantity might be for the whole purchase, not individual product --}}
                 <td>{{ $product->discount }}%</td>
                 <td>{{ date_format(date_create($product->purchase->expiry_date),'d M, Y') }}</td>
@@ -64,7 +64,7 @@
 @endsection
 
 @push('page-js')
-<script>
+{{-- <script>
     $(document).ready(function() {
         var table = $('#expired-product').DataTable({
             processing: true,
@@ -81,5 +81,5 @@
             ]
         });
     });
-</script>
+</script> --}}
 @endpush
