@@ -23,7 +23,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-success border-success">
+                        <span class="dash-widget-icon text-warning border-warning">
                             <i class="fe fe-money"></i>
                         </span>
                         <div class="dash-count">
@@ -33,7 +33,7 @@
                     <div class="dash-widget-info">
                         <h6 class="text-muted">Total pengeluaran</h6>
                         <div class="progress progress-sm">
-                            <div class="progress-bar bg-success w-50"></div>
+                            <div class="progress-bar bg-warning w-50"></div>
                         </div>
                     </div>
                 </div>
@@ -60,92 +60,52 @@
                     </div>
                 </div>
             </div>
-        </div>
-        
-        {{-- total pembelian hari ini --}}
-        {{-- <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-warning border-warning">
-                            <i class="fe fe-money"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3 class="text-center">Rp {{ number_format($total_purchases, 0, ',', '.') }}</h3>
-                        </div>
-                    </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Total Pembelian Hari Ini</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-warning w-50"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
-
-        {{-- Total Penjualan Hari Ini --}}
-        {{-- <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-success border-success">
-                            <i class="fe fe-money"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3 class="text-center">Rp {{ number_format($today_sales, 0, ',', '.') }}</h3>
-                        </div>
-                    </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Total Penjualan Hari Ini</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-success w-50"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>        --}}
+        </div>                
 
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-info border-info">
-                            <i class="fe fe-folder"></i>
+                <a class="{{ route_is('purchases.*') ? 'active' : '' }}" href="{{ route('purchases.index') }}">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-info border-info">
+                                <i class="fe fe-folder"></i>
 
-                        </span>
-                        <div class="dash-count">
-                            <h3>{{ $total_products }}</h3>
+                            </span>
+                            <div class="dash-count text-dark">
+                                <h3>{{ $total_products }}</h3>
+                            </div>
+                        </div>
+                        <div class="dash-widget-info">
+                            <h6 class="text-muted">Total Produk yang dibeli</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-info w-50"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Total Produk</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-info w-50"></div>
-                        </div>
-                    </div>
-                </div>
+                </a>
             </div>
         </div>        
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-success border-success">
-                            <i class="fe fe-folder"></i>
+                <a class="{{ route_is('sales.*') ? 'active' : '' }}" href="{{ route('sales.index') }}">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-success border-success">
+                                <i class="fe fe-folder"></i>
 
-                        </span>
-                        <div class="dash-count">
-                            <h3>{{ $total_sales }}</h3>
+                            </span>
+                            <div class="dash-count text-dark">
+                                <h3>{{ $total_sales }}</h3>
+                            </div>
+                        </div>
+                        <div class="dash-widget-success">
+                            <h6 class="text-muted">Total Produk yang terjual</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-success w-50"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="dash-widget-success">
-                        <h6 class="text-muted">Total Produk yang terjual</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-success w-50"></div>
-                        </div>
-                    </div>
-                </div>
+                </a>
             </div>
         </div>        
 
@@ -169,89 +129,77 @@
                 </div>
             </div>
         </div>
+        {{-- stok habis --}}
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-danger border-danger">
-                            <i class="fe fe-warning"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3>{{ $out_of_stock_products }}</h3>
+                <a href="{{ route('expired') }}" class="text-decoration-none {{ route_is('expired') ? 'active' : '' }}">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-danger border-danger">
+                                <i class="fe fe-warning"></i>
+                            </span>
+                            <div class="dash-count text-dark">
+                                <h3>{{ $out_of_stock_products }}</h3>
+                            </div>
+                        </div>
+                        <div class="dash-widget-info">
+                            <h6 class="text-muted">Stok Habis</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-danger w-50"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Stok Habis</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-danger w-50"></div>
-                        </div>
-                    </div>
-                </div>
+                </a>
             </div>
         </div>
 
 
+
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-danger border-danger">
-                            <i class="fe fe-trash"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3>{{ $total_expired_products }}</h3>
+                <a class="{{ route_is('expired') ? 'active' : '' }}" href="{{ route('expired') }}">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-danger border-danger">
+                                <i class="fe fe-trash"></i>
+                            </span>
+                            <div class="dash-count text-dark">
+                                <h3>{{ $total_expired_products }}</h3>
+                            </div>
+                        </div>
+                        <div class="dash-widget-info">
+                            <h6 class="text-muted">Produk Kedaluwarsa</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-danger w-50"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Produk Kedaluwarsa</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-danger w-50"></div>
-                        </div>
-                    </div>
-                </div>
+                </a>
             </div>
         </div>
 
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-primary border-primary">
-                            <i class="fe fe-users"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3>{{ $total_suppliers }}</h3>
+                <a class="{{ route_is('suppliers.*') ? 'active' : '' }}" href="{{ route('suppliers.index') }}">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-primary border-primary">
+                                <i class="fe fe-users"></i>
+                            </span>
+                            <div class="dash-count text-dark">
+                                <h3>{{ $total_suppliers }}</h3>
+                            </div>
+                        </div>
+                        <div class="dash-widget-info">
+                            <h6 class="text-muted">Jumlah Pemasok</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-primary w-50"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Jumlah Pemasok</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-primary w-50"></div>
-                        </div>
-                    </div>
-                </div>
+                </a>
             </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-secondary border-secondary">
-                            <i class="fe fe-users"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3>{{ \DB::table('users')->count() }}</h3>
-                        </div>
-                    </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Pengguna Sistem</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-secondary w-50"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div>        
     </div>
 
     <div class="row">
