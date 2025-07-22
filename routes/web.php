@@ -47,7 +47,7 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
     Route::put('profile/update-password/{user}',[UserController::class,'updatePassword'])->name('update-password');
     Route::post('logout',[LogoutController::class,'index'])->name('logout');
 
-    Route::resource('users',UserController::class);    
+    Route::resource('users',UserController::class);
     Route::resource('suppliers',SupplierController::class);
     Route::resource('categories',CategoryController::class)->only(['index','edit','store','destroy']);
     // Route::put('categories',[CategoryController::class,'update'])->name('categories.update');
@@ -63,7 +63,10 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
     Route::get('sales/reports',[SaleController::class,'reports'])->name('sales.report');
     Route::post('sales/reports',[SaleController::class,'generateReport']);
 
-    Route::get('history', [HistoryController::class,'index'])->name('history.index');
+      // Route::get('history', [HistoryController::class,'index'])->name('history.index');
+    Route::get('/admin/riwayat/penjualan', [HistoryController::class, 'penjualan'])->name('riwayat.penjualan');
+    Route::get('/admin/riwayat/pembelian', [HistoryController::class, 'pembelian'])->name('riwayat.pembelian');
+
     Route::put('backup/create', [HistoryController::class,'create'])->name('backup.store');
     Route::get('backup/download/{file_name?}', [HistoryController::class,'download'])->name('backup.download');
     Route::delete('backup/delete/{file_name?}', [HistoryController::class,'destroy'])->where('file_name', '(.*)')->name('backup.destroy');

@@ -10,53 +10,53 @@ use Illuminate\Support\Collection;
 
 class HistoryController extends Controller
 {
+    // FUNGSI TIDAK DIPAKAI LAGI
     // public function index()
     // {
-    //     $title = 'Riwayat';
-
-    //     $purchases = Purchase::orderBy('created_at', 'desc')->get();
-    //     $sales = Sale::orderBy('created_at', 'desc')->get();
-
-    //     return view('admin.history.index', compact('title', 'purchases', 'sales'));
+    //     ...
     // }
-    
 
-public function index()
-{
-    $title = 'Riwayat';
+    // ✅ RIWAYAT PENJUALAN
+    public function penjualan()
+    {
+        $title = 'Riwayat Penjualan';
 
-    // Ambil dan format data pembelian
-    $purchases = Purchase::get()
-        ->map(function ($item) {
-            return [
-                'tanggal' => $item->created_at ?? '-',
-                'jenis' => 'Pembelian' ?? '-',
-                'nama' => $item->supplier->name ?? '-',
-                'kategori' => $item->category->name ?? '-',
-                'total' => $item->cost_price ?? '-',
-                'produk' => $item->product ?? '-',
-                'jumlah' => $item->quantity ?? '-',
-            ];
-        });
+        $sales = Sale::get()
+            ->map(function ($item) {
+                return [
+                    'tanggal' => $item->created_at ?? '-',
+                    'jenis' => 'Penjualan',
+                    'nama' => '-', // Tidak ada nama supplier di penjualan
+                    'total' => $item->total_price ?? '-',
+                    'produk' => $item->product->purchase->product ?? '-',
+                    'kategori' => $item->purchase->category->name ?? '-',
+                    'jumlah' => $item->quantity ?? '-',
+                ];
+            })
+            ->sortByDesc('tanggal');
 
-    // Ambil dan format data penjualan
-    $sales = Sale::get()
-        ->map(function ($item) {
-            return [
-                'tanggal' => $item->created_at ?? '-',
-                'jenis' => 'Penjualan' ?? '-',
-                'nama' => '-' ?? '-',
-                'total' => $item->total_price ?? '-',
-                'produk' => $item->product->purchase->product ?? '-',
-                'kategori' => $item->purchase->category->name ?? '-',
-                'jumlah' => $item->quantity ?? '-',
-            ];
-        });
+        return view('admin.history.penjualan', compact('title', 'sales'));
+    }
 
-    // Gabung dan urutkan berdasarkan tanggal
-    $histories = $purchases->concat($sales)->sortByDesc('tanggal');
+    // ✅ RIWAYAT PEMBELIAN
+    public function pembelian()
+    {
+        $title = 'Riwayat Pembelian';
 
-    return view('admin.history.index', compact('title', 'histories'));
-}
+        $purchases = Purchase::get()
+            ->map(function ($item) {
+                return [
+                    'tanggal' => $item->created_at ?? '-',
+                    'jenis' => 'Pembelian',
+                    'nama' => $item->supplier->name ?? '-',
+                    'kategori' => $item->category->name ?? '-',
+                    'total' => $item->cost_price ?? '-',
+                    'produk' => $item->product ?? '-',
+                    'jumlah' => $item->quantity ?? '-',
+                ];
+            })
+            ->sortByDesc('tanggal');
 
+        return view('admin.history.pembelian', compact('title', 'purchases'));
+    }
 }
