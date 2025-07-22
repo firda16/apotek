@@ -1,8 +1,6 @@
 @extends('admin.layouts.app')
 
-
 @push('page-css')
-    
 @endpush
 
 @push('page-header')
@@ -21,41 +19,94 @@
 		<div class="card">
 			<div class="card-body custom-edit-service">
                 <!-- Edit Sale -->
-                <form method="POST" action="{{route('sales.update',$sale)}}">
+                <form method="POST" action="{{ route('sales.update', $sale) }}">
 					@csrf
 					@method("PUT")
 					<div class="row form-row">
-						<div class="col-12">
+						<div class="col-md-6">
 							<div class="form-group">
-								<label>Product <span class="text-danger">*</span></label>
-								<select class="select2 form-select form-control edit_product" name="product"> 
+								<label>Nama Obat <span class="text-danger">*</span></label>
+								<select class="select2 form-select form-control edit_product" name="product">
 									@foreach ($products as $product)
-										@if (!empty($product->purchase))
-											@if (!($product->purchase->quantity <= 0))
-												<option {{($product->purchase->id == $sale->product->purchase_id) ? 'selected': ''}} value="{{$product->id}}">{{$product->purchase->product}}</option>
-											@endif
+										@if (!empty($product->purchase) && $product->purchase->quantity > 0)
+											<option value="{{ $product->id }}" {{ ($product->purchase->id == $sale->product->purchase_id) ? 'selected' : '' }}>
+												{{ $product->purchase->product }}
+											</option>
 										@endif
 									@endforeach
 								</select>
 							</div>
 						</div>
-						<div class="col-12">
+
+						<div class="col-md-6">
 							<div class="form-group">
-								<label>Quantity</label>
-								<input type="number" class="form-control edit_quantity" value="{{$sale->quantity ?? '1'}}" name="quantity">
+								<label>Kategori</label>
+								<input type="text" class="form-control" value="{{ $sale->product->purchase->category->name ?? '-' }}" readonly>
+							</div>
+						</div>
+
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Jumlah</label>
+								<input type="number" class="form-control edit_quantity" value="{{ $sale->quantity ?? '1' }}" name="quantity">
+							</div>
+						</div>
+
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Satuan</label>
+								<input type="text" class="form-control" name="unit" value="{{ $sale->unit ?? 'pcs' }}">
+							</div>
+						</div>
+
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Harga per Produk</label>
+								<input type="number" class="form-control" name="price_per_product" value="{{ $sale->price_per_product ?? $sale->product->purchase->cost_price }}">
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Diskon (%)</label>
+								<input type="number" class="form-control" name="discount" value="{{ $sale->discount ?? 0 }}">
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Metode Pembayaran</label>
+								<select name="metode_pembayaran" class="form-control">
+									<option value="tunai" {{ $sale->metode_pembayaran == 'tunai' ? 'selected' : '' }}>Tunai</option>
+									<option value="transfer" {{ $sale->metode_pembayaran == 'transfer' ? 'selected' : '' }}>Transfer</option>
+									<option value="qris" {{ $sale->metode_pembayaran == 'qris' ? 'selected' : '' }}>QRIS</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Tanggal Penjualan</label>
+								<input type="date" class="form-control" name="tanggal" value="{{ $sale->created_at->format('Y-m-d') }}">
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Total Harga</label>
+								<input type="number" class="form-control" name="total_price" value="{{ $sale->total_price ?? ($sale->quantity * $sale->price_per_product) }}">
 							</div>
 						</div>
 					</div>
+
 					<button type="submit" class="btn btn-primary btn-block">Save Changes</button>
 				</form>
                 <!--/ Edit Sale -->
 			</div>
 		</div>
-	</div>			
+	</div>
 </div>
-@endsection	
-
+@endsection
 
 @push('page-js')
-    
 @endpush
