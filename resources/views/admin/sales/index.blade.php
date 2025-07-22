@@ -30,6 +30,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>No Antrian</th>
                                     <th>Nama Obat</th>
                                     <th>Kategori</th>
                                     <th>Jumlah</th>
@@ -46,6 +47,7 @@
                                 @foreach ($sales as $sale)
                                     <tr>
                                         <td>{{ $sales->firstItem() + $loop->index }}</td>
+                                        <td>{{ $sale->no_antrian ?? '-' }}</td>
                                         <td>{{ $sale->product->purchase->product ?? '-' }}</td>
                                         <td>{{ $sale->product->purchase->category->name ?? '-' }}</td>
                                         <td>{{ $sale->quantity }}</td>
