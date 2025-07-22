@@ -4,9 +4,9 @@
     <div class="col-sm-7 col-auto">
         <h3 class="page-title">{{ $title }}</h3>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('riwayat.penjualan') }}">Riwayat</a></li>
-            <li class="breadcrumb-item active">Penjualan</li>
+            <li class="breadcrumb-sale"><a href="{{ route('dashboard') }}">Beranda</a></li>
+            <li class="breadcrumb-sale"><a href="{{ route('riwayat.penjualan') }}">Riwayat</a></li>
+            <li class="breadcrumb-sale active">Penjualan</li>
         </ul>
     </div>
 @endpush
@@ -36,25 +36,27 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($sales as $item)
+                                @foreach ($sales as $sale)
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item['no_antrian'] ?? '-' }}</td>
-                                        <td>{{ $item['produk'] }}</td>
-                                        <td>{{ $item['kategori'] }}</td>
-                                        <td>{{ $item['jumlah'] }}</td>
-                                        <td>{{ $item['satuan'] ?? '-' }}</td>
-                                        <td>Rp{{ number_format($item['harga'], 0, ',', '.') }}</td>
-                                        <td>{{ $item['diskon'] ?? 0 }}%</td>
-                                        <td>Rp{{ number_format($item['total'], 0, ',', '.') }}</td>
-                                        <td>{{ ucfirst($item['metode_pembayaran']) }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($item['tanggal'])->format('d M Y') }}</td>
+                                      <td>{{ $sales->firstItem() + $loop->index }}</td>
+                                        <td>{{ $sale->no_antrian ?? '-' }}</td>
+                                        <td>{{ $sale->product->purchase->product ?? '-' }}</td>
+                                        <td>{{ $sale->product->purchase->category->name ?? '-' }}</td>
+                                        <td>{{ $sale->quantity ?? '-' }}</td>
+                                        <td>{{ $sale->unit ?? '-' }}</td>
+                                        <td>Rp{{ number_format($sale->price, 0, ',', '.') }}</td>
+                                        <td>{{ $sale->discount ?? 0 }}%</td>
+                                        <td>Rp{{ number_format($sale->total_price ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ ucfirst($sale->metode_pembayaran ?? '-') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($sale->created_at ?? 'now')->format('d M Y') }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-
+                    <div class="d-flex justify-content-end mt-3">
+                        {{ $sales->links('pagination::bootstrap-5') }}
+                    </div>
                 </div>
             </div>
         </div>

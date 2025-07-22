@@ -4,9 +4,9 @@
     <div class="col-sm-7 col-auto">
         <h3 class="page-title">{{ $title }}</h3>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('riwayat.pembelian') }}">Riwayat</a></li>
-            <li class="breadcrumb-item active">Pembelian</li>
+            <li class="breadcrumb-purchase"><a href="{{ route('dashboard') }}">Beranda</a></li>
+            <li class="breadcrumb-purchase"><a href="{{ route('riwayat.pembelian') }}">Riwayat</a></li>
+            <li class="breadcrumb-purchase active">Pembelian</li>
         </ul>
     </div>
 @endpush
@@ -56,33 +56,31 @@
                                     <th>Kategori</th>
                                     <th>Satuan</th> {{-- baru --}}
                                     <th>Harga Beli</th>
-                                    <th>Jumlah</th>
-                                    <th>Diskon</th> {{-- baru --}}
+                                    <th>Jumlah</th>                                    
                                     <th>Metode Pembayaran</th> {{-- baru --}}
                                     <th>Total Harga</th> {{-- baru --}}
                                     <th>Tanggal Kedaluwarsa</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($purchases as $item)
+                                @foreach ($purchases as $purchase)
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item['nama'] ?? '-' }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($item['tanggal'])->format('d M Y') }}</td>
-                                        <td>{{ $item['produk'] ?? '-' }}</td>
-                                        <td>{{ $item['kategori'] ?? '-' }}</td>
-                                        <td>{{ $item['satuan'] ?? '-' }}</td> {{-- satuan --}}
-                                        <td>Rp{{ number_format($item['harga'], 0, ',', '.') }}</td> {{-- harga beli per produk --}}
-                                        <td>{{ $item['jumlah'] }}</td>
-                                        <td>{{ $item['diskon'] ? $item['diskon'] . '%' : '-' }}</td>
+                                        <td>{{ $purchases->firstItem() + $loop->index }}</td>                                         
+                                        <td>{{ $purchase->supplier->name ?? '-' }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d M Y') }}</td>
+                                        <td>{{ $purchase->product ?? '-' }}</td>
+                                        <td>{{ $purchase->category->name ?? '-' }}</td>
+                                        <td>{{ $purchase->unit ?? '-' }}</td> {{-- satuan --}}
+                                        <td>Rp{{ number_format($purchase->price, 0, ',', '.') }}</td> {{-- harga beli per produk --}}
+                                        <td>{{ $purchase->quantity }}</td>                                        
                                         {{-- diskon --}}
-                                        <td>{{ ucfirst($item['metode_pembayaran'] ?? '-') }}</td> {{-- metode pembayaran --}}
+                                        <td>{{ ucfirst($purchase->payment_method ?? '-') }}</td> {{-- metode pembayaran --}}
                                         <td>
-                                            Rp{{ number_format($item['total_price'] ?? $item['jumlah'] * $item['harga'], 0, ',', '.') }}
+                                            Rp{{ number_format($purchase->cost_price ?? $purchase->quantity * $purchase->price, 0, ',', '.') }}
                                         </td> {{-- total akhir --}}
                                         <td>
                                             @php
-                                                $expired = \Carbon\Carbon::parse($item['expired_at']);
+                                                $expired = \Carbon\Carbon::parse($purchase['expired_at']);
                                                 $isExpired = $expired->isPast();
                                             @endphp
 
@@ -108,6 +106,9 @@
 
 
                         </table>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        {{ $purchases->links('pagination::bootstrap-5') }}
                     </div>
 
                 </div>
