@@ -46,7 +46,6 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
     Route::post('profile/{user}',[UserController::class,'updateProfile'])->name('profile.update');
     Route::put('profile/update-password/{user}',[UserController::class,'updatePassword'])->name('update-password');
     Route::post('logout',[LogoutController::class,'index'])->name('logout');
-
     Route::resource('users',UserController::class);
     Route::resource('suppliers',SupplierController::class);
     Route::resource('categories',CategoryController::class)->only(['index','edit','store','destroy']);
@@ -56,6 +55,7 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
     Route::get('purchases/reports',[PurchaseController::class,'reports'])->name('purchases.report');
     Route::post('purchases/reports',[PurchaseController::class,'generateReport']);
     Route::resource('products',ProductController::class)->except('show');
+    Route::get('products/available', [ProductController::class, 'available'])->name('available');
     Route::get('products/outstock',[ProductController::class,'outstock'])->name('outstock');
     Route::get('products/expired',[ProductController::class,'expired'])->name('expired');
     Route::resource('sales',SaleController::class)->except('show');
