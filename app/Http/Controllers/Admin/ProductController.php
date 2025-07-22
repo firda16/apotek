@@ -29,6 +29,19 @@ class ProductController extends Controller
     }
 
     
+    public function available(Request $request)
+    {
+        $title = 'available products';
+        // Fetch products with quantity > 0 directly
+        $products = Product::whereHas('purchase', function ($q) {
+            return $q->where('quantity', '>', 0);
+        })->paginate(10);
+
+        return view('admin.products.available', compact(
+            'title',
+            'products' 
+        )); 
+    }// Pass the fetched
 
 
     /**

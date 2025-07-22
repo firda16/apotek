@@ -62,8 +62,8 @@
 								<label>Harga Beli <span class="text-danger">*</span></label>								
 							<div class="input-group">
     <span class="input-group-text">Rp</span>
-    <input class="form-control" type="text" name="cost_price" value="{{ $purchase->cost_price }}">
-</div>
+	<input class="form-control" type="text" name="cost_price" value="{{ old('cost_price', intval($purchase->cost_price)) }}">
+	</div>
 
 
 

@@ -44,14 +44,22 @@
 							<div class="col-lg-6">
 								<div class="form-group">
 									<label>Harga Jual <span class="text-danger">*</span></label>
-									<input class="form-control" type="text" name="price" value="{{$product->price}}">
+									<input class="form-control" type="text" name="price"
+    value="{{ old('price', intval($product->price)) }}">
+
+
 								</div>
 							</div>
 
 							<div class="col-lg-6">
 								<div class="form-group">
-									<label>Diskon (%) <span class="text-danger">*</span></label>
-									<input class="form-control" type="text" name="discount" value="{{$product->discount}}">
+									 <label>Diskon (%) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input class="form-control" type="text" name="discount"
+                                                value="{{ old('discount', floatval($product->discount)) }}">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+
 								</div>
 							</div>
 						</div>
