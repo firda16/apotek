@@ -30,8 +30,7 @@
 					<table id="supplier-table" class="datatable table table-hover table-center mb-0">
 						<thead>
 							<tr>
-								<th>No</th>
-								<th>Produk</th>
+								<th>No</th>							
 								<th>Nama</th>
 								<th>Telepon</th>
 								<th>Email</th>
@@ -43,10 +42,7 @@
 						<tbody>
 							@foreach ($suppliers as $supplier)
 							<tr>
-								<td>{{ $suppliers->firstItem() + $loop->index }}</td>
-								<td>
-									{{$supplier->product}}
-								</td>
+								<td>{{ $suppliers->firstItem() + $loop->index }}</td>								
 								<td>{{$supplier->name}}</td>
 								<td>{{$supplier->phone}}</td>
 								<td>{{$supplier->email}}</td>

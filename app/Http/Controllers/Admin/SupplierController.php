@@ -55,8 +55,7 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'=>'required|min:10|max:255',
-            'product'=>'nullable',
+            'name'=>'required|min:10|max:255',           
             'email'=>'nullable|email|string',
             'phone'=>'nullable|min:10|max:20',
             'company'=>'nullable|max:200|required',
@@ -68,8 +67,7 @@ class SupplierController extends Controller
             'email'=>$request->email,
             'phone'=>$request->phone,
             'company'=>$request->company,
-            'address'=>$request->address,
-            'product'=>$request->product,
+            'address'=>$request->address,           
             'comment'=>$request->comment,
         ]);
         $notification = notify("Supplier has been added");
@@ -101,8 +99,7 @@ class SupplierController extends Controller
     public function update(Request $request, Supplier $supplier)
     {
         $request->validate([
-            'name'=>'required|min:10|max:255',
-            'product'=>'required',
+            'name'=>'required|min:10|max:255',            
             'email'=>'nullable|email|string',
             'phone'=>'nullable|min:10|max:20',
             'company'=>'nullable|max:200|required',
@@ -114,8 +111,7 @@ class SupplierController extends Controller
             'email'=>$request->email,
             'phone'=>$request->phone,
             'company'=>$request->company,
-            'address'=>$request->address,
-            'product'=>$request->product,
+            'address'=>$request->address,           
             'comment'=>$request->comment,
         ]);
         $notification = notify("Supplier has been added");

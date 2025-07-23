@@ -11,6 +11,6 @@ class Supplier extends Model
 
     protected $fillable = [
         'name','email','phone','company',
-        'address','product','comment'
+        'address','comment'
     ];
 }
