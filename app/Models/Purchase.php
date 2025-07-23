@@ -10,20 +10,31 @@ class Purchase extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product', 'category_id', 'supplier_id',
-        'cost_price', 'quantity', 'expiry_date',
+        'product',
+        'category_id',
+        'supplier_id',
+        'cost_price',
+        'quantity',
+        'expiry_date',
         'image'
     ];
 
-    public function supplier(){
+    public function supplier()
+    {
         return $this->belongsTo(Supplier::class);
     }
 
-    public function category(){
+    public function category()
+    {
         return $this->belongsTo(Category::class);
     }
 
-    public function product(){
+    public function product()
+    {
         return $this->belongsTo(Product::class, 'product');
+    }
+    public function items()
+    {
+        return $this->hasMany(PurchaseItem::class);
     }
 }

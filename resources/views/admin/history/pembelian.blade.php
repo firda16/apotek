@@ -27,53 +27,48 @@
                                     <th>Tanggal</th>
                                     <th>Nama Obat</th>
                                     <th>Kategori</th>
-                                    <th>Satuan</th> {{-- baru --}}
+                                    <th>Satuan</th>
                                     <th>Harga Beli</th>
                                     <th>Jumlah</th>
-                                    <th>Metode Pembayaran</th> {{-- baru --}}
-                                    <th>Total Harga</th> {{-- baru --}}
+                                    <th>Metode Pembayaran</th>
+                                    <th>Total Harga</th>
                                     <th>Tanggal Kedaluwarsa</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($purchases as $purchase)
-                                    <tr>
-                                        <td>{{ $purchases->firstItem() + $loop->index }}</td>
-                                        <td>{{ $purchase->supplier->name ?? '-' }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d M Y') }}</td>
-                                        <td>{{ $purchase->product ?? '-' }}</td>
-                                        <td>{{ $purchase->category->name ?? '-' }}</td>
-                                        <td>{{ $purchase->unit ?? '-' }}</td> {{-- satuan --}}
-                                        <td>Rp{{ number_format($purchase->price, 0, ',', '.') }}</td> {{-- harga beli per produk --}}
-                                        <td>{{ $purchase->quantity }}</td>
-                                        {{-- diskon --}}
-                                        <td>{{ ucfirst($purchase->payment_method ?? '-') }}</td> {{-- metode pembayaran --}}
-                                        <td>
-                                            Rp{{ number_format($purchase->cost_price ?? $purchase->quantity * $purchase->price, 0, ',', '.') }}
-                                        </td> {{-- total akhir --}}
-                                        <td>
-                                            @php
-                                                $expired = \Carbon\Carbon::parse($purchase['expired_at']);
-                                                $isExpired = $expired->isPast();
-                                            @endphp
+                                    @foreach ($purchase->items as $item)
+                                        <tr>
+                                            <td>{{ $loop->parent->iteration }}.{{ $loop->iteration }}</td>
+                                            <td>{{ $purchase->supplier->name ?? '-' }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d M Y') }}</td>
+                                            <td>{{ $item->product->name ?? '-' }}</td>
+                                            <td>{{ $item->product->category->name ?? '-' }}</td>
+                                            <td>{{ $item->product->unit ?? '-' }}</td>
+                                            <td>Rp{{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                                            <td>{{ $item->qty }}</td>
+                                            <td>{{ ucfirst($purchase->payment_method ?? '-') }}</td>
+                                            <td>Rp{{ number_format($item->subtotal ?? $item->qty * $item->unit_price, 0, ',', '.') }}</td>
+                                            <td>
+                                                @php
+                                                    $expired = \Carbon\Carbon::parse($item->expired_at);
+                                                    $isExpired = $expired->isPast();
+                                                @endphp
 
-                                            <span class="badge bg-{{ $isExpired ? 'danger' : 'success' }}">
-                                                @if ($isExpired)
-                                                    <span title="Obat kedaluwarsa"></span> {{ $expired->format('d-m-Y') }}
-                                                @else
+                                                <span class="badge bg-{{ $isExpired ? 'danger' : 'success' }}">
                                                     {{ $expired->format('d-m-Y') }}
-                                                @endif
-                                            </span>
-                                        </td>
-                                    </tr>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
+
                     <div class="d-flex justify-content-end mt-3">
                         {{ $purchases->links('pagination::bootstrap-5') }}
                     </div>
-
                 </div>
             </div>
         </div>
