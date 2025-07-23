@@ -10,6 +10,8 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use QCod\AppSettings\Setting\AppSettings;
+use App\Models\PurchaseItem;
+use App\Models\Product;
 
 class PurchaseController extends Controller
 {
@@ -22,12 +24,12 @@ class PurchaseController extends Controller
 
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('product', 'like', '%' . $searchTerm . '%')
-                  ->orWhereHas('category', function ($q_cat) use ($searchTerm) {
-                      $q_cat->where('name', 'like', '%' . $searchTerm . '%');
-                  })
-                  ->orWhereHas('supplier', function ($q_sup) use ($searchTerm) {
-                      $q_sup->where('name', 'like', '%' . $searchTerm . '%');
-                  });
+                    ->orWhereHas('category', function ($q_cat) use ($searchTerm) {
+                        $q_cat->where('name', 'like', '%' . $searchTerm . '%');
+                    })
+                    ->orWhereHas('supplier', function ($q_sup) use ($searchTerm) {
+                        $q_sup->where('name', 'like', '%' . $searchTerm . '%');
+                    });
             });
         }
 
@@ -42,43 +44,59 @@ class PurchaseController extends Controller
         $title = 'create purchase';
         $categories = Category::get();
         $suppliers = Supplier::get();
-        return view('admin.purchases.create', compact('title', 'categories', 'suppliers'));
+        $products = Product::all();
+        return view('admin.purchases.create', compact('title', 'categories', 'suppliers', 'products'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'product' => 'required|max:200',
-            'category' => 'required',
-            'cost_price' => 'required|min:1',
-            'quantity' => 'required|min:1',
-            'expiry_date' => 'required',
-            'supplier' => 'required',
-            'image' => 'file|image|mimes:jpg,jpeg,png,gif',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.qty' => 'required|numeric|min:1',
+            'products.*.unit_price' => 'required|numeric|min:0',
         ]);
 
-        $imageName = null;
-        if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('storage/purchases'), $imageName);
+        DB::beginTransaction();
+
+        try {
+            // Buat entri pembelian utama
+            $purchase = Purchase::create([
+                'supplier_id' => $request->supplier_id,
+                'total' => 0, // diupdate nanti setelah subtotal dihitung
+            ]);
+
+            $total = 0;
+
+            // Loop produk yang dibeli
+            foreach ($request->products as $item) {
+                $subtotal = $item['qty'] * $item['unit_price'];
+                $total += $subtotal;
+
+                // Simpan item pembelian ke tabel purchase_items
+                PurchaseItem::create([
+                    'purchase_id' => $purchase->id,
+                    'product_id' => $item['product_id'],
+                    'qty' => $item['qty'],
+                    'unit_price' => $item['unit_price'],
+                    'subtotal' => $subtotal,
+                ]);
+
+                // Tambahkan stok produk
+                Product::find($item['product_id'])->increment('stock', $item['qty']);
+            }
+
+            // Update total pembelian
+            $purchase->update(['total' => $total]);
+
+            DB::commit();
+            return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil disimpan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat menyimpan pembelian.');
         }
-
-        // Bersihkan input cost_price
-        $cleanCostPrice = str_replace(['Rp', '.', ',', ' '], '', $request->cost_price);
-
-        Purchase::create([
-            'product' => $request->product,
-            'category_id' => $request->category,
-            'supplier_id' => $request->supplier,
-            'cost_price' => $cleanCostPrice,
-            'quantity' => $request->quantity,
-            'expiry_date' => $request->expiry_date,
-            'image' => $imageName,
-        ]);
-
-        $notifications = notify("Purchase has been added");
-        return redirect()->route('purchases.index')->with($notifications);
     }
+
 
     public function edit(Purchase $purchase)
     {
