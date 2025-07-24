@@ -27,8 +27,11 @@
                                 <div class="form-group">
                                     <label>Nama Produk <span class="text-danger">*</span></label>
                                     <select class="select2 form-select form-control" name="product">
-                                        @foreach ($purchases as $purchase)
-                                            <option value="{{$purchase->id}}">{{$purchase->product}}</option>
+                                        {{-- @foreach ($purchases as $purchase)
+                                            <option value="{{$purchase->id}}">{{$purchase->product->nama_produk}}</option>
+                                        @endforeach --}}
+                                        @foreach ($products as $product)
+                                            <option value="{{$product->id}}">{{$product->nama_produk}}</option>
                                         @endforeach
                                     </select>
                                 </div>

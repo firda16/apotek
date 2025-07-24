@@ -49,64 +49,83 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>Tanggal Pembelian</th>
+                                    <th>Pemasok</th>
+                                    <th>Pembayaran</th>
+                                    <th>Item</th>
+                                    {{-- <th>Jumlah Produk</th>
                                     <th>Gambar</th>
                                     <th>Nama Obat</th>
                                     <th>Kategori</th>
-                                    <th>Pemasok</th>
                                     <th>Harga Beli</th>
                                     <th>Jumlah</th>
-                                    <th>Tanggal Kedaluwarsa</th>
+                                    <th>Tanggal Kedaluwarsa</th>                                   --}}
                                     <th class="action-btn">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($pembelians as $pembelian)
-                                    <tr>                                        
-                                        <td>{{ $pembelians->firstItem() + $loop->index }}</td>
-                                        <td>
-                                            @php
-                                                $basePath = public_path('assets/img/purchases/');
-                                                $baseUrl = asset('assets/img/purchases/');
-                                                $imageName = Str::slug($pembelian->product);
-                                                $extensions = ['jpg', 'jpeg', 'png'];
-                                                $foundImage = null;
+                             @foreach ($pembelians as $pembelian)
+                             @foreach ($pembelian->purchaseItems as $item)
+                             <tr>
+                                 <td>{{ $pembelians->firstItem() + $loop->parent->index }}</td>          
+                                 <td>{{ $pembelian->created_at ? date('d M, Y', strtotime($pembelian->created_at)) : '-' }}</td>
+                                 <td>{{ $pembelian->supplier->name ?? '-' }}</td>
+                                 <td>{{ $pembelian->payment_method ?? '-' }}</td>
+                                 <td>
+                                    <ul>
+                                        <li>Nama produk: {{ $item->product->nama_produk ?? '-' }}</li>
+                                        <li>Jumlah: {{ $item->quantity ?? '-' }}</li>
+                                        <li>Harga: Rp {{ number_format($item->unit_price ?? 0, 0, ',', '.') }}</li>
+                                        <li>Subtotal: Rp {{ number_format($item->subtotal ?? 0, 0, ',', '.') }}</li>
+                                        <li>Kategori: {{ $item->product->category->name ?? '-' }}</li>                                        
+                                        <li>Expired: {{ $item->expiry_date ? date('d M, Y', strtotime($item->expiry_date)) : '-' }}</li>
+                                    </ul>
+                                </td>
+            {{-- <td>{{ $item->product->nama_produk ?? '-' }}</td>
+            <td>
+                @php
+                    $basePath = public_path('assets/img/purchases/');
+                    $baseUrl = asset('assets/img/purchases/');
+                    $imageName = Str::slug($item->product->name ?? 'gambar'); // pakai relasi produk
+                    $extensions = ['jpg', 'jpeg', 'png'];
+                    $foundImage = null;
 
-                                                foreach ($extensions as $ext) {
-                                                    if (file_exists($basePath . $imageName . '.' . $ext)) {
-                                                        $foundImage = $imageName . '.' . $ext;
-                                                        break;
-                                                    }
-                                                }
-                                            @endphp
-                                            @if ($foundImage)
-                                                <img src="{{ $baseUrl . '/' . $foundImage }}" width="100">
-                                            @else
-                                                <span style="color:red">Gambar tidak ditemukan</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $pembelian->product }}</td>
-                                        <td>{{ $pembelian->category->name ?? '-' }}</td>
-                                        <td>{{ $pembelian->supplier->name ?? '-' }}</td>
-                                        <td class="text-center">Rp {{ number_format($pembelian->cost_price, 0, ',', '.') }}
-                                        </td>
-                                        <td>{{ $pembelian->quantity }}</td>
-                                        <td>{{ date_format(date_create($pembelian->expiry_date), 'd M, Y') }}</td>
-                                        <td>
-                                            <a href="{{ route('purchases.edit', $pembelian->id) }}" class="editbtn">
-                                                <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
-                                            </a>
-                                            <form action="{{ route('purchases.destroy', $pembelian->id) }}" method="POST"
-                                                style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger"
-                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                    foreach ($extensions as $ext) {
+                        if (file_exists($basePath . $imageName . '.' . $ext)) {
+                            $foundImage = $imageName . '.' . $ext;
+                            break;
+                        }
+                    }
+                @endphp
+                @if ($foundImage)
+                    <img src="{{ $baseUrl . '/' . $foundImage }}" width="100">
+                @else
+                    <span style="color:red">Gambar tidak ditemukan</span>
+                @endif
+            </td>
+            
+            
+            <td>{{ $item->product->category->name ?? '-' }}</td>
+            <td>Rp {{ number_format($item->unit_price ?? 0, 0, ',', '.') }}</td>
+            <td>{{ $item->quantity ?? '-' }}</td>
+            <td>{{ $pembelian->expiry_date ? date('d M, Y', strtotime($pembelian->expiry_date)) : '-' }}</td>     --}}
+            <td>
+                <a href="{{ route('purchases.edit', $pembelian->id) }}" class="editbtn">
+                    <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
+                </a>
+                <form action="{{ route('purchases.destroy', $pembelian->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+    @endforeach
+@endforeach
+
                             </tbody>
                         </table>
                         {{-- Pagination --}}
@@ -122,7 +141,7 @@
     </div>
 @endsection
 
-@push('page-js')
+{{-- @push('page-js')
     <script>
         $(document).ready(function() {
             $('#purchase-table').DataTable({
@@ -172,4 +191,4 @@
             });
         });
     </script>
-@endpush
+@endpush --}}

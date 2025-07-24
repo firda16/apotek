@@ -30,33 +30,48 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>Tanggal Penjualan</th>
                                     <th>No Antrian</th>
-                                    <th>Nama Obat</th>
+                                    <th>Metode Pembayaran</th>
+                                    <th>Item</th>
+                                    <th>Diskon</th>
+                                    <th>Total Harga</th>
+                                    {{-- <th>Nama Obat</th>
                                     <th>Kategori</th>
                                     <th>Jumlah</th>
                                     <th>Satuan</th>
                                     <th>Harga per Produk</th>
-                                    <th>Diskon</th>
-                                    <th>Total Harga</th>
-                                    <th>Metode Pembayaran</th>
-                                    <th>Tanggal</th>
+                                     --}}
                                     <th class="action-btn">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($sales as $sale)
+                                {{-- @foreach ($sale->saleItems as $item) --}}
                                     <tr>
                                         <td>{{ $sales->firstItem() + $loop->index }}</td>
-                                        <td>{{ $sale->no_antrian ?? '-' }}</td>
-                                        <td>{{ $sale->product->purchase->product ?? '-' }}</td>
-                                        <td>{{ $sale->product->purchase->category->name ?? '-' }}</td>
+                                        <td>{{ date('d M, Y', strtotime($sale->created_at)) }}</td>
+                                        <td>{{ $sale->queue_number ?? '-' }}</td>
+                                        <td>{{ $sale->payment_method ?? '-' }}</td>
+                                        <td>
+                                            <ul>                                                
+                                                <li>
+                                                    Nama produk: {{ $sale->product->nama_produk ?? '-' }}
+                                                </li>
+                                                <li>Jumlah: {{ $sale->quantity }}</li>
+                                                <li>Kategori: {{ $sale->product->category->name ?? '-' }}</li>
+                                                <li>Harga per Produk: Rp {{ number_format($sale->price_per_product, 0, ',', '.') }}</li>                                                
+                                                <li>Sub total: Rp {{ number_format($sale->subtotal, 0, ',', '.') }}                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td>{{ $sale->discount ?? 0 }}%</td>
+                                        <td>Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td> 
+                                        {{-- <td>{{ $item->product->nama_produk ?? '-' }}</td>
+                                        <td>{{ $item->product->category->name ?? '-' }}</td>
                                         <td>{{ $sale->quantity }}</td>
                                         <td>{{ $sale->unit ?? '-' }}</td>
                                         <td>Rp {{ number_format($sale->price_per_product, 0, ',', '.') }}</td>
-                                        <td>{{ $sale->discount ?? 0 }}%</td>
-                                        <td>Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td>
-                                        <td>{{ $sale->payment_method ?? '-' }}</td>
-                                        <td>{{ date('d M, Y', strtotime($sale->created_at)) }}</td>
+                                       
                                         <td>
                                             <a href="{{ route('sales.edit', $sale->id) }}" class="editbtn">
                                                 <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
@@ -69,6 +84,7 @@
                                             </form>
                                         </td>
                                     </tr>
+                                    {{-- @endforeach --}}
                                 @endforeach
                             </tbody>
 

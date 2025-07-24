@@ -42,10 +42,10 @@
                                 <td>
                                     {{ $loop->iteration }}
                                 </td>
-								<td>{{ $product->purchase->product ?? '-' }}</td> 
-                                <td>{{ $product->purchase->category->name ?? '' }}</td>
+								<td>{{ $product->nama_produk ?? '-' }}</td> 
+                                <td>{{ $product->category->name ?? '' }}</td>
                                 <td>{{ settings('app_currency','Rp') }} {{ $product->price }}</td>
-                                <td>{{ $product->purchase->quantity ?? '' }}</td>
+                                <td>{{ $product->purchaseItems->sum('qty') }}</td>
                                 <td>{{ $product->discount }}</td> {{-- Assuming discount is a direct property of product or related --}}
                                 <td>{{ !empty($product->purchase->expiry_date) ? date_format(date_create($product->purchase->expiry_date),'d M, Y') : '' }}</td>
                                 <td>
