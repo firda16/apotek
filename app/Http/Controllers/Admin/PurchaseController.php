@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Product;
 use App\Models\Category;
 use App\Models\Purchase;
 use App\Models\Supplier;
+use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Container\Attributes\Log;
 use QCod\AppSettings\Setting\AppSettings;
-use App\Models\PurchaseItem;
-use App\Models\Product;
 
 class PurchaseController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Purchase::query()->with(['category', 'supplier']);
+        $query = Purchase::query()->with(['purchaseItems.supplier', 'purchaseItems.category', 'purchaseItems']);
+        $items = PurchaseItem::query();
+        $products = Product::get();
+        $category = Category::get();
 
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
@@ -36,7 +41,7 @@ class PurchaseController extends Controller
         // $pembelians = $query->get();
         $pembelians = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        return view('admin.purchases.index', compact('pembelians'));
+        return view('admin.purchases.index', compact('pembelians', 'items', 'products', 'category'));
     }
 
     public function create()
@@ -48,13 +53,22 @@ class PurchaseController extends Controller
         return view('admin.purchases.create', compact('title', 'categories', 'suppliers', 'products'));
     }
 
-    public function store(Request $request)
+public function store(Request $request)
     {
+        // Debugging: Lihat semua input yang diterima
+        // dd($request->all());
+
         $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
-            'products.*.product_id' => 'required|exists:products,id',
-            'products.*.qty' => 'required|numeric|min:1',
+            // Validasi untuk setiap item produk dalam array 'products'
+            'products.*.product_id' => 'nullable|exists:products,id', // product_id bisa null jika ingin menambah produk baru
+            // 'products.*.product_name' => 'required_without:products.*.product_id|string|max:255', // Nama produk wajib jika product_id tidak ada
+            'products.*.category_id' => 'required|exists:categories,id',
+            'products.*.quantity' => 'required|numeric|min:1',
             'products.*.unit_price' => 'required|numeric|min:0',
+            'products.*.expiry_date' => 'nullable|date',
+            'products.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Untuk validasi gambar
+            'payment_method' => 'required|string|in:Tunai,Transfer,QRIS,Ewallet', // Validasi payment method
         ]);
 
         DB::beginTransaction();
@@ -63,37 +77,69 @@ class PurchaseController extends Controller
             // Buat entri pembelian utama
             $purchase = Purchase::create([
                 'supplier_id' => $request->supplier_id,
-                'total' => 0, // diupdate nanti setelah subtotal dihitung
+                'payment_method' => $request->payment_method, // Tambahkan metode pembayaran ke Purchase
+                'total' => 0, // Akan diupdate nanti setelah subtotal dihitung
             ]);
 
             $total = 0;
 
             // Loop produk yang dibeli
-            foreach ($request->products as $item) {
-                $subtotal = $item['qty'] * $item['unit_price'];
+            foreach ($request->products as $index => $item) {
+                $product = null;
+
+                // Cek apakah product_id disediakan (produk yang sudah ada)
+                if (isset($item['product_id']) && !empty($item['product_id'])) {
+                    $product = Product::find($item['product_id']);
+                } else {
+                    // Jika product_id tidak disediakan, buat produk baru
+                    $product = new Product();
+                    // $product->nama_produk = $item['product_name'];
+                    $product->category_id = $item['category_id'];
+                    $product->stock = 0; // Stok awal akan ditambahkan nanti
+                    $product->unit_price = $item['unit_price']; // Harga jual produk
+                    $product->save(); // Simpan produk baru untuk mendapatkan ID-nya
+                }
+
+                // Handle image upload jika ada
+                $imagePath = null;
+                if ($request->hasFile("products.{$index}.image")) {
+                    $image = $request->file("products.{$index}.image");
+                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $imagePath = $image->storeAs('public/products', $imageName); // Simpan gambar di storage/app/public/products
+                    $imagePath = Storage::url($imagePath); // Dapatkan URL yang dapat diakses publik
+                }
+
+                $subtotal = $item['quantity'] * $item['unit_price'];
                 $total += $subtotal;
 
                 // Simpan item pembelian ke tabel purchase_items
                 PurchaseItem::create([
                     'purchase_id' => $purchase->id,
-                    'product_id' => $item['product_id'],
-                    'qty' => $item['qty'],
-                    'unit_price' => $item['unit_price'],
+                    'product_id' => $product->id, // Gunakan ID produk yang sudah ada atau yang baru dibuat
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'], // Ini adalah harga beli per unit
                     'subtotal' => $subtotal,
+                    'expiry_date' => $item['expiry_date'] ?? null, // Tambahkan expiry_date
+                    // 'image' => $imagePath, // Kolom gambar biasanya di tabel produk, bukan purchase_items.
+                                            // Jika Anda ingin menyimpan gambar per item pembelian, pastikan tabel purchase_items memiliki kolom 'image'.
+                                            // Untuk saat ini, asumsikan gambar terkait dengan produk itu sendiri.
                 ]);
 
-                // Tambahkan stok produk
-                Product::find($item['product_id'])->increment('stock', $item['qty']);
+                // Tambahkan stok produk yang sudah ada atau yang baru dibuat
+                $product->increment('stock', $item['quantity']);
+                // Jika Anda ingin memperbarui harga jual produk berdasarkan harga beli terbaru:
+                // $product->update(['unit_price' => $item['unit_price']]);
             }
 
-            // Update total pembelian
+            // Update total pembelian di tabel purchases
             $purchase->update(['total' => $total]);
 
             DB::commit();
             return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Terjadi kesalahan saat menyimpan pembelian.');
+            // Log the error for debugging purposes            
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan pembelian: ' . $e->getMessage());
         }
     }
 

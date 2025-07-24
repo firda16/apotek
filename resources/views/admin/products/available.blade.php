@@ -46,22 +46,22 @@
 		<td>{{ $products->firstItem() + $loop->index }}</td>
 
         {{-- Nama produk dari field 'product' pada model Purchase --}}
-        <td>{{ $product->purchase->product ?? '-' }}</td> 
+        <td>{{ $product->nama_produk ?? '-' }}</td> 
 
         {{-- Nama kategori dari relasi 'category' pada model Purchase --}}
-        <td>{{ $product->purchase->category->name ?? '-' }}</td> 
+        <td>{{ $product->category->name ?? '-' }}</td> 
 
         {{-- Harga dari relasi 'purchaseProduct' (yang merupakan objek Product) --}}
         {{-- <td>{{ settings('app_currency','Rp').' '. $product->price }}</td> --}}
         <td class="text-center">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
         {{-- Quantity dari field 'quantity' pada model Purchase --}}
-        <td>{{ $product->purchase->quantity ?? '0' }}</td> 
+        <td>{{ $product->purchaseItems->sum('qty') }}</td>
 
         {{-- Diskon dari relasi 'purchaseProduct' (yang merupakan objek Product) --}}
         <td>{{ ($product->discount ?? '0') }}%</td> 
 
         {{-- Tanggal kadaluarsa dari field 'expiry_date' pada model Purchase --}}        
-		<td>{{ date_format(date_create($product->purchase->expiry_date),'d M, Y') }}</td>
+		<td>{{ date_format(date_create($product->purchase?->expiry_date),'d M, Y') }}</td>
         <td>
             {{-- Tombol Edit: link ke produk yang berelasi --}}
             <a href="{{ route('products.edit', $product->id ?? '#') }}" class="btn btn-sm btn-primary">Edit</a>

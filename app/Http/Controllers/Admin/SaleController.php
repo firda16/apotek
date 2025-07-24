@@ -6,6 +6,7 @@ use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Purchase;
+use App\Models\SaleItem;
 use Illuminate\Http\Request;
 use App\Events\PurchaseOutStock;
 use Yajra\DataTables\DataTables;
@@ -25,12 +26,15 @@ class SaleController extends Controller
     {
 
         // $products = Product::get();
-        $query = Sale::query()->with(['product', 'purchase']);
+        $query = Sale::query()->with(['saleItems.product.category', 'saleItems.product', 'saleItems']);
+        $items = SaleItem::query();
+        $products = Product::get();
+        $category = Category::get();
 
         $sales = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return view('admin.sales.index',compact(
-        'sales',
+        'sales', 'items', 'products', 'category' 
         ));
     }
 

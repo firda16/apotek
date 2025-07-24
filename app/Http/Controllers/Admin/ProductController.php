@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use QCod\AppSettings\Setting\AppSettings;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
@@ -21,7 +22,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
     //    $products = Product::get();
-        $query = Product::query();
+        $query = Product::query()->with(['purchase.category', 'purchaseItems']);
         $products = $query->orderBy('created_at', 'desc')->paginate(15);
         return view('admin.products.index',compact(
             'products'
@@ -31,17 +32,29 @@ class ProductController extends Controller
     
     public function available(Request $request)
     {
-        $title = 'available products';
-        // Fetch products with quantity > 0 directly
-        $products = Product::whereHas('purchase', function ($q) {
-            return $q->where('quantity', '>', 0);
-        })->paginate(10);
+       $allProducts = Product::with(['purchaseItems', 'category'])->get();
 
-        return view('admin.products.available', compact(
-            'title',
-            'products' 
-        )); 
-    }// Pass the fetched
+        $filtered = $allProducts->filter(function ($product) {
+            return $product->purchaseItems->sum('qty') > 0;
+        });
+
+// manual paginate
+$page = request()->get('page', 1);
+$perPage = 10;
+$offset = ($page - 1) * $perPage;
+$paginated = new LengthAwarePaginator(
+    $filtered->slice($offset, $perPage)->values(),
+    $filtered->count(),
+    $perPage,
+    $page,
+    ['path' => request()->url(), 'query' => request()->query()]
+);
+
+return view('admin.products.available', [
+    'title' => 'available products',
+    'products' => $paginated
+]);
+    }
 
 
     /**
@@ -53,8 +66,9 @@ class ProductController extends Controller
     {
         $title = 'add product';
         $purchases = Purchase::get();
+        $products = Product::get();
         return view('admin.products.create',compact(
-            'title','purchases'
+            'title','purchases', 'products' // Pass the fetched products to the view
         ));
 
     }
@@ -158,9 +172,10 @@ class ProductController extends Controller
         $title = "Outstocked Products";
 
         // Fetch products with quantity <= 0 directly
-        $products = Product::whereHas('purchase', function ($q) {
-            return $q->where('quantity', '<=', 0);
-        })->get();
+       $products = Product::with(['category', 'purchaseItems' => function ($q) {
+            $q->where('quantity', '<=', 0);
+        }])->paginate(10);
+
 
         return view('admin.products.outstock', compact(
             'title',
