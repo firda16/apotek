@@ -31,31 +31,7 @@ class ProductController extends Controller
     }
 
 
-    public function available(Request $request)
-    {
-        $allProducts = Product::with(['purchaseItems', 'category'])->get();
-
-        $filtered = $allProducts->filter(function ($product) {
-            return $product->purchaseItems->sum('qty') > 0;
-        });
-
-        // manual paginate
-        $page = request()->get('page', 1);
-        $perPage = 10;
-        $offset = ($page - 1) * $perPage;
-        $paginated = new LengthAwarePaginator(
-            $filtered->slice($offset, $perPage)->values(),
-            $filtered->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        return view('admin.products.available', [
-            'title' => 'available products',
-            'products' => $paginated
-        ]);
-    }
+   
 
 
     /**
@@ -160,11 +136,17 @@ class ProductController extends Controller
     public function expired()
     {
         $title = 'Produk Kedaluwarsa';
+        
+        // $products = Product::with('purchaseItems')
+        // ->where('stock', '>', 0)        
+        // ->paginate(10);
 
-        $expired_product_ids = PurchaseItem::whereDate('expiry_date', '<=', now())
-            ->pluck('product_id');
+        $products = Product::with(['purchaseItems' => function ($query) {
+            $query->whereDate('expiry_date', '<=', now());
+        }])        
+        ->paginate(10);
 
-        $products = Product::whereIn('id', $expired_product_ids)->get();
+
 
         return view('admin.products.expired', compact('title', 'products'));
     }
@@ -175,14 +157,26 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
+
+     public function available(Request $request)
+    {        
+        $products = Product::where('stock', '>', 0)
+        ->with('category')
+        ->paginate(10);
+        return view('admin.products.available', [
+            'title' => 'available products',
+            'products' => $products
+        ]);
+    }
+
     public function outstock(Request $request)
     {
         $title = "Outstocked Products";
 
         // Fetch products with quantity <= 0 directly
-        $products = Product::with(['category', 'purchaseItems' => function ($q) {
-            $q->where('quantity', '<=', 0);
-        }])->paginate(10);
+        $products = Product::where('stock', '<=', 0)
+        ->with('category')
+        ->paginate(1);
 
 
         return view('admin.products.outstock', compact(

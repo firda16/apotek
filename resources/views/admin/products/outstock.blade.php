@@ -29,25 +29,23 @@
 								<th>No</th>
                                 <th>Nama Produk</th>
                                 <th>Kategori</th>
-                                <th>Harga</th>
+                                {{-- <th>Harga</th> --}}
                                 <th>Jumlah</th>
-                                <th>Diskon</th>
-                                <th>Kedaluwarsa</th>
+                                {{-- <th>Diskon</th> --}}
+                                {{-- <th>Kedaluwarsa</th> --}}
                                 <th class="action-btn">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($products as $product)
-                            <tr>
-                                <td>
-                                    {{ $loop->iteration }}
-                                </td>
-								<td>{{ $product->nama_produk ?? '-' }}</td> 
+                            <tr>                                
+                                <td>{{ $products->firstItem() + $loop->index }}</td>
+								<td>{{ $product->name ?? '-' }}</td> 
                                 <td>{{ $product->category->name ?? '' }}</td>
-                                <td>{{ settings('app_currency','Rp') }} {{ $product->price }}</td>
-                                <td>{{ $product->purchaseItems->sum('qty') }}</td>
-                                <td>{{ $product->discount }}</td> {{-- Assuming discount is a direct property of product or related --}}
-                                <td>{{ !empty($product->purchase->expiry_date) ? date_format(date_create($product->purchase->expiry_date),'d M, Y') : '' }}</td>
+                                {{-- <td>{{ settings('app_currency','Rp') }} {{ $product->price }}</td> --}}
+                                <td>{{ $product->stock }}</td>
+                                {{-- <td>{{ $product->discount }}</td> Assuming discount is a direct property of product or related --}}
+                                {{-- <td>{{ !empty($product->purchase->expiry_date) ? date_format(date_create($product->purchase->expiry_date),'d M, Y') : '' }}</td> --}}
                                 <td>
                                     @php
                                         $editbtn = '<a href="'.route("products.edit", $product->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
@@ -70,13 +68,16 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="mt-3">                        
+                    {{ $products->links('pagination::bootstrap-5') }}
+                </div>
             </div>
         </div>
         </div>
 </div>
 @endsection
 
-@push('page-js')
+{{-- @push('page-js')
 <script>
     $(document).ready(function() {
         // Initialize DataTables without AJAX if data is pre-rendered
@@ -86,4 +87,4 @@
         });
     });
 </script>
-@endpush
+@endpush --}}

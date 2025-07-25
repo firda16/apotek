@@ -132,7 +132,7 @@
         {{-- stok habis --}}
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <a href="{{ route('expired') }}" class="text-decoration-none {{ route_is('expired') ? 'active' : '' }}">
+                <a href="{{ route('outstock') }}" class="text-decoration-none {{ route_is('outstock') ? 'active' : '' }}">
                     <div class="card-body">
                         <div class="dash-widget-header">
                             <span class="dash-widget-icon text-danger border-danger">
