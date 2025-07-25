@@ -11,25 +11,54 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use ConsoleTVs\Charts\Classes\Chartjs\Chart;
+use App\Models\PurchaseItem;
+use App\Models\SaleItem;
 
 class DashboardController extends Controller
 {
     public function index()
     {
         $title = 'dashboard';
-        //total pembelian hari ini
-        $total_purchases = Purchase::whereDate('created_at', Carbon::today())->sum('cost_price');
-        //total pembelian/pengeluaran
-        $total_pengeluaran = Purchase::sum('cost_price');
 
+        // Total pengeluaran hari ini (dari tabel purchase_items)
+        $total_pengeluaran = \App\Models\PurchaseItem::whereDate('created_at', Carbon::today())->sum('total_price');
+
+        // Total pendapatan hari ini (dari tabel sale_items)
+        $total_pendapatan = \App\Models\SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
+
+        // Total kategori & supplier
         $total_categories = Category::count();
-
-        $total_pembelian_produk = Purchase::count();
         $total_suppliers = Supplier::count();
-        $total_sales = Sale::count();
-        $total_products = Product::count(); //total produk
 
-        $pieChart = new Chart;
+        // Total produk yang pernah dibeli dan dijual
+        $total_pembelian_produk = \App\Models\PurchaseItem::count();
+        $total_sales = \App\Models\SaleItem::count();
+
+        // Total produk
+        $total_products = Product::count();
+
+        // Produk stok habis
+        $out_of_stock_products = Product::where('stock', '<=', 0)->count();
+
+        // Produk expired (dari purchase_items)
+        $total_expired_products = \App\Models\PurchaseItem::whereDate('expiry_date', '<=', now())->count();
+
+        // Penjualan hari ini
+        $today_sales = \App\Models\SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
+
+        // Data terbaru pembelian dan penjualan (10 terakhir)
+        $latest_sales = \App\Models\SaleItem::with('product')
+            ->whereDate('created_at', Carbon::today())
+            ->latest()
+            ->take(10)
+            ->get();
+        $latest_purchases = \App\Models\PurchaseItem::with('product')->whereDate('created_at', Carbon::today())->latest()->take(10)->get();
+
+        // Stok produk yang tersedia
+        $stok_produk = Product::where('stock', '>', 0)->count();
+
+        // Pie Chart
+        $pieChart = new \ConsoleTVs\Charts\Classes\Chartjs\Chart;
         $pieChart->labels(['Total Pembelian', 'Total Pemasok', 'Total Penjualan', 'Total Produk']);
         $pieChart->dataset('Data Summary', 'pie', [
             $total_pembelian_produk,
@@ -38,39 +67,14 @@ class DashboardController extends Controller
             $total_products
         ])->backgroundColor(['#FF6384', '#36A2EB', '#7bb13c', '#FFCE56']);
 
-
-        //produk habis stok
-        $out_of_stock_products = Product::whereHas('purchase', function ($q) {
-            return $q->where('quantity', '<=', 0);
-        })->count();
-        // $total_expired_products = Purchase::whereDate('expiry_date', '=', Carbon::now())->count();
-        $total_expired_products = Product::whereHas('purchase', function ($q) {
-    $q->whereDate('expiry_date', '<=', now());
-})->count();
-
-        //jumlah uang penjualan hari ini
-        $today_sales = Sale::whereDate('created_at', '=', Carbon::now())->sum('total_price');
-        //jumlah total uang pendapatan penjualan
-        $total_pendapatan = Sale::sum('total_price');
-        //tabel penjualan hari ini
-        $latest_sales = Sale::whereDate('created_at', '=', Carbon::now())->get();
-        //tabel pembelian hari ini
-        $latest_purchases = Purchase::whereDate('created_at', '=', Carbon::now())->get();
-        
-        //jumlah produk yang masih ada stok
-        $stok_produk = Product::whereHas('purchase', function ($q) {
-            return $q->where('quantity', '>', 0);
-        })->count();
-
         return view('admin.dashboard', compact(
             'title',
             'pieChart',
-            'total_purchases',
             'total_expired_products',
             'latest_sales',
             'today_sales',
             'total_categories',
-            'total_products',           // ← kirim ke view
+            'total_products',
             'out_of_stock_products',
             'latest_purchases',
             'total_pembelian_produk',
@@ -78,9 +82,10 @@ class DashboardController extends Controller
             'total_suppliers',
             'total_pendapatan',
             'total_pengeluaran',
-            'stok_produk',
+            'stok_produk'
         ));
     }
+
 
     public function kasirDashboard()
     {
@@ -105,5 +110,4 @@ class DashboardController extends Controller
             'total_categories'
         ));
     }
-
 }

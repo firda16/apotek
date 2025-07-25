@@ -19,17 +19,24 @@ class PurchaseController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Purchase::query()->with(['purchaseItems.supplier', 'purchaseItems.category', 'purchaseItems']);
+        $query = Purchase::query()->with([
+            'supplier',
+            'purchaseItems.product.category'
+        ]);
+
         $items = PurchaseItem::query();
         $products = Product::get();
         $category = Category::get();
-
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
 
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('product', 'like', '%' . $searchTerm . '%')
-                    ->orWhereHas('category', function ($q_cat) use ($searchTerm) {
+                $q->orWhereHas('purchaseItems', function ($q_item) use ($searchTerm) {
+                    $q_item->whereHas('product', function ($q_prod) use ($searchTerm) {
+                        $q_prod->where('name', 'like', '%' . $searchTerm . '%');
+                    });
+                })
+                    ->orWhereHas('purchaseItems.product.category', function ($q_cat) use ($searchTerm) {
                         $q_cat->where('name', 'like', '%' . $searchTerm . '%');
                     })
                     ->orWhereHas('supplier', function ($q_sup) use ($searchTerm) {
@@ -37,6 +44,7 @@ class PurchaseController extends Controller
                     });
             });
         }
+
 
         // $pembelians = $query->get();
         $pembelians = $query->orderBy('created_at', 'desc')->paginate(15);
@@ -53,7 +61,7 @@ class PurchaseController extends Controller
         return view('admin.purchases.create', compact('title', 'categories', 'suppliers', 'products'));
     }
 
-public function store(Request $request)
+    public function store(Request $request)
     {
         // Debugging: Lihat semua input yang diterima
         // dd($request->all());
@@ -77,8 +85,9 @@ public function store(Request $request)
             // Buat entri pembelian utama
             $purchase = Purchase::create([
                 'supplier_id' => $request->supplier_id,
-                'payment_method' => $request->payment_method, // Tambahkan metode pembayaran ke Purchase
-                'total' => 0, // Akan diupdate nanti setelah subtotal dihitung
+                'payment_method' => $request->payment_method,
+                'total_price' => 0, // karena field-nya di tabel purchases = total_price
+
             ]);
 
             $total = 0;
@@ -118,11 +127,11 @@ public function store(Request $request)
                     'product_id' => $product->id, // Gunakan ID produk yang sudah ada atau yang baru dibuat
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'], // Ini adalah harga beli per unit
-                    'subtotal' => $subtotal,
+                    'total_price' => $subtotal,
                     'expiry_date' => $item['expiry_date'] ?? null, // Tambahkan expiry_date
                     // 'image' => $imagePath, // Kolom gambar biasanya di tabel produk, bukan purchase_items.
-                                            // Jika Anda ingin menyimpan gambar per item pembelian, pastikan tabel purchase_items memiliki kolom 'image'.
-                                            // Untuk saat ini, asumsikan gambar terkait dengan produk itu sendiri.
+                    // Jika Anda ingin menyimpan gambar per item pembelian, pastikan tabel purchase_items memiliki kolom 'image'.
+                    // Untuk saat ini, asumsikan gambar terkait dengan produk itu sendiri.
                 ]);
 
                 // Tambahkan stok produk yang sudah ada atau yang baru dibuat
@@ -132,13 +141,13 @@ public function store(Request $request)
             }
 
             // Update total pembelian di tabel purchases
-            $purchase->update(['total' => $total]);
+            $purchase->update(['total_price' => $total]);
 
             DB::commit();
             return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log the error for debugging purposes            
+            // Log the error for debugging purposes
             return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan pembelian: ' . $e->getMessage());
         }
     }
@@ -149,43 +158,73 @@ public function store(Request $request)
         $title = 'edit purchase';
         $categories = Category::get();
         $suppliers = Supplier::get();
-        return view('admin.purchases.edit', compact('title', 'purchase', 'categories', 'suppliers'));
+        $products = Product::get(); // ✅ Tambahkan ini
+        $purchase->load('purchaseItems.product');
+
+        return view('admin.purchases.edit', compact('title', 'purchase', 'categories', 'suppliers',  'products'));
     }
+
 
     public function update(Request $request, Purchase $purchase)
     {
+
+        //dd($request->all());
+
         $request->validate([
-            'product' => 'required|max:200',
-            'category' => 'required',
-            'cost_price' => 'required|min:1',
-            'quantity' => 'required|min:1',
-            'expiry_date' => 'required',
-            'supplier' => 'required',
-            'image' => 'file|image|mimes:jpg,jpeg,png,gif',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'payment_method' => 'required|string',
+            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|numeric|min:1',
+            'products.*.unit_price' => 'required|numeric|min:0',
+            'products.*.expiry_date' => 'nullable|date',
         ]);
 
-        $imageName = $purchase->image;
-        if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('storage/purchases'), $imageName);
+        DB::beginTransaction();
+
+        try {
+            $purchase->update([
+                'supplier_id' => $request->supplier_id,
+                'payment_method' => $request->payment_method,
+            ]);
+
+            $total = 0;
+
+            // Kembalikan stok lama sebelum update
+            foreach ($purchase->purchaseItems as $item) {
+                Product::find($item->product_id)->decrement('stock', $item->quantity);
+            }
+
+            // Hapus item lama
+            $purchase->purchaseItems()->delete();
+
+            foreach ($request->products as $productData) {
+                $subtotal = $productData['unit_price'] * $productData['quantity'];
+                $total += $subtotal;
+
+                PurchaseItem::create([
+                    'purchase_id' => $purchase->id,
+                    'product_id' => $productData['product_id'],
+                    'quantity' => $productData['quantity'],
+                    'unit_price' => $productData['unit_price'],
+                    'total_price' => $subtotal,
+                    'expiry_date' => $productData['expiry_date'] ?? null,
+                ]);
+
+                // Tambahkan stok baru
+                Product::find($productData['product_id'])->increment('stock', $productData['quantity']);
+            }
+
+            $purchase->update(['total_price' => $total]);
+
+            DB::commit();
+            return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat memperbarui pembelian: ' . $e->getMessage());
         }
-
-        // Bersihkan input cost_price
-        $cleanCostPrice = str_replace(['Rp', '.', ',', ' '], '', $request->cost_price);
-
-        $purchase->update([
-            'product' => $request->product,
-            'category_id' => $request->category,
-            'supplier_id' => $request->supplier,
-            'cost_price' => $cleanCostPrice,
-            'quantity' => $request->quantity,
-            'expiry_date' => $request->expiry_date,
-            'image' => $imageName,
-        ]);
-
-        $notifications = notify("Purchase has been updated");
-        return redirect()->route('purchases.index')->with($notifications);
     }
+
+
 
     public function reports()
     {
@@ -207,7 +246,9 @@ public function store(Request $request)
 
     public function destroy(Request $request, Purchase $purchase)
     {
-        $purchase->delete();
+        foreach ($purchase->purchaseItems as $item) {
+            Product::find($item->product_id)->decrement('stock', $item->quantity);
+        }
         return redirect()->route('purchases.index')->with('success', 'Data pembelian berhasil dihapus.');
     }
 }

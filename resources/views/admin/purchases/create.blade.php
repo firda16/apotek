@@ -92,7 +92,7 @@
                                                 @error("products.{$index}.product_id")
                                                     <div class="text-danger small">{{ $message }}</div>
                                                 @enderror
-                                            </td>                                           
+                                            </td>
                                             <td>
                                                 <select name="products[{{ $index }}][category_id]" class="form-control @error("products.{$index}.category_id") is-invalid @enderror" required>
                                                     <option value="">-- Pilih Kategori --</option>
@@ -139,10 +139,10 @@
                                         <select name="products[0][product_id]" class="form-control product-select select2">
                                             <option value="">-- Pilih Produk --</option>
                                             @foreach ($products as $product)
-                                                <option value="{{ $product->id }}">{{ $product->nama_produk }}</option>
+                                                <option value="{{ $product->id }}">{{ $product->name }}</option>
                                             @endforeach
                                         </select>
-                                    </td>                                    
+                                    </td>
                                     <td>
                                         <select name="products[0][category_id]" class="form-control" required>
                                             <option value="">-- Pilih Kategori --</option>
@@ -218,7 +218,7 @@
                 <select name="products[${i}][product_id]" class="form-control product-select select2-enable">
                     ${productsOptions}
                 </select>
-            </td>            
+            </td>
             <td>
                 <select name="products[${i}][category_id]" class="form-control" required>
                     ${categoriesOptions}

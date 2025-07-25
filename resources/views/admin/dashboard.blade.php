@@ -60,7 +60,7 @@
                     </div>
                 </div>
             </div>
-        </div>                
+        </div>
 
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
@@ -84,7 +84,7 @@
                     </div>
                 </a>
             </div>
-        </div>        
+        </div>
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
                 <a class="{{ route_is('sales.*') ? 'active' : '' }}" href="{{ route('sales.index') }}">
@@ -107,7 +107,7 @@
                     </div>
                 </a>
             </div>
-        </div>        
+        </div>
 
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
@@ -199,7 +199,7 @@
                     </div>
                 </a>
             </div>
-        </div>        
+        </div>
     </div>
 
     <div class="row">
@@ -231,7 +231,7 @@
                                     @foreach ($latest_purchases as $purchase)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $purchase->product ?? '-' }}</td>
+                                            <td>{{ $purchase->product->name ?? '-' }}</td>
                                             <td>{{ $purchase->quantity }}</td>
                                             <td class="text-center">Rp
                                                 {{ number_format($purchase->cost_price, 0, ',', '.') }}</td>

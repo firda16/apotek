@@ -64,69 +64,48 @@
                                 </tr>
                             </thead>
                             <tbody>
-                             @foreach ($pembelians as $pembelian)
-                             @foreach ($pembelian->purchaseItems as $item)
-                             <tr>
-                                 <td>{{ $pembelians->firstItem() + $loop->parent->index }}</td>          
-                                 <td>{{ $pembelian->created_at ? date('d M, Y', strtotime($pembelian->created_at)) : '-' }}</td>
-                                 <td>{{ $pembelian->supplier->name ?? '-' }}</td>
-                                 <td>{{ $pembelian->payment_method ?? '-' }}</td>
-                                 <td>
-                                    <ul>
-                                        <li>Nama produk: {{ $item->product->nama_produk ?? '-' }}</li>
-                                        <li>Jumlah: {{ $item->quantity ?? '-' }}</li>
-                                        <li>Harga: Rp {{ number_format($item->unit_price ?? 0, 0, ',', '.') }}</li>
-                                        <li>Subtotal: Rp {{ number_format($item->subtotal ?? 0, 0, ',', '.') }}</li>
-                                        <li>Kategori: {{ $item->product->category->name ?? '-' }}</li>                                        
-                                        <li>Expired: {{ $item->expiry_date ? date('d M, Y', strtotime($item->expiry_date)) : '-' }}</li>
-                                    </ul>
-                                </td>
-            {{-- <td>{{ $item->product->nama_produk ?? '-' }}</td>
-            <td>
-                @php
-                    $basePath = public_path('assets/img/purchases/');
-                    $baseUrl = asset('assets/img/purchases/');
-                    $imageName = Str::slug($item->product->name ?? 'gambar'); // pakai relasi produk
-                    $extensions = ['jpg', 'jpeg', 'png'];
-                    $foundImage = null;
-
-                    foreach ($extensions as $ext) {
-                        if (file_exists($basePath . $imageName . '.' . $ext)) {
-                            $foundImage = $imageName . '.' . $ext;
-                            break;
-                        }
-                    }
-                @endphp
-                @if ($foundImage)
-                    <img src="{{ $baseUrl . '/' . $foundImage }}" width="100">
-                @else
-                    <span style="color:red">Gambar tidak ditemukan</span>
-                @endif
-            </td>
-            
-            
-            <td>{{ $item->product->category->name ?? '-' }}</td>
-            <td>Rp {{ number_format($item->unit_price ?? 0, 0, ',', '.') }}</td>
-            <td>{{ $item->quantity ?? '-' }}</td>
-            <td>{{ $pembelian->expiry_date ? date('d M, Y', strtotime($pembelian->expiry_date)) : '-' }}</td>     --}}
-            <td>
-                <a href="{{ route('purchases.edit', $pembelian->id) }}" class="editbtn">
-                    <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
-                </a>
-                <form action="{{ route('purchases.destroy', $pembelian->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger"
-                        onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </form>
-            </td>
-        </tr>
-    @endforeach
-@endforeach
-
+                                @foreach ($pembelians as $pembelian)
+                                    <tr>
+                                        <td>{{ $pembelians->firstItem() + $loop->index }}</td>
+                                        <td>{{ $pembelian->created_at ? $pembelian->created_at->format('d M Y') : '-' }}
+                                        </td>
+                                        <td>{{ $pembelian->supplier->name ?? '-' }}</td>
+                                        <td>{{ $pembelian->payment_method ?? '-' }}</td>
+                                        <td>
+                                            <ul class="mb-0">
+                                                @foreach ($pembelian->purchaseItems as $item)
+                                                    <li>
+                                                        <strong>{{ $item->product->name ?? '-' }}</strong><br>
+                                                        Kategori: {{ $item->product->category->name ?? '-' }}<br>
+                                                        Jumlah: {{ $item->quantity }}<br>
+                                                        Harga: Rp {{ number_format($item->unit_price, 0, ',', '.') }}<br>
+                                                        Total: Rp {{ number_format($item->total_price, 0, ',', '.') }}<br>
+                                                        Exp:
+                                                        {{ $item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-' }}
+                                                    </li>
+                                                    <hr class="my-1">
+                                                @endforeach
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('purchases.edit', $pembelian->id) }}"
+                                                class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('purchases.destroy', $pembelian->id) }}" method="POST"
+                                                style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Yakin ingin menghapus pembelian ini?');">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
+
                         </table>
                         {{-- Pagination --}}
                     </div>
