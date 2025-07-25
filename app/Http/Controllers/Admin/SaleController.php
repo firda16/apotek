@@ -33,8 +33,11 @@ class SaleController extends Controller
 
         $sales = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        return view('admin.sales.index',compact(
-        'sales', 'items', 'products', 'category' 
+        return view('admin.sales.index', compact(
+            'sales',
+            'items',
+            'products',
+            'category'
         ));
     }
 
@@ -95,8 +98,10 @@ class SaleController extends Controller
         $title = 'create sales';
         $products = Product::get();
         $categories = Category::get();
-        return view('admin.sales.create',compact(
-            'title', 'categories','products'
+        return view('admin.sales.create', compact(
+            'title',
+            'categories',
+            'products'
         ));
     }
 
@@ -109,46 +114,50 @@ class SaleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'product'=>'required',
-            'quantity'=>'required|integer|min:1'
+            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|numeric|min:1',
+            'products.*.unit_price' => 'required|numeric|min:0',
+            'products.*.discount' => 'nullable|numeric|min:0',
         ]);
-        $sold_product = Product::find($request->product);
 
-        /**update quantity of
-            sold item from
-         purchases
-        **/
-        $purchased_item = Purchase::find($sold_product->purchase->id);
-        $new_quantity = ($purchased_item->quantity) - ($request->quantity);
-        $notification = '';
-        if (!($new_quantity < 0)){
+        DB::beginTransaction();
 
-            $purchased_item->update([
-                'quantity'=>$new_quantity,
+        try {
+            $sale = Sale::create([
+                'queue_number' => $request->queue_number,
+                'payment_method' => $request->payment_method,
+                'discount' => $request->discount ?? 0,
+                'total_price' => 0,
             ]);
 
-            /**
-             * calcualting item's total price
-            **/
-            $total_price = ($request->quantity) * ($sold_product->price);
-            Sale::create([
-                'product_id'=>$request->product,
-                'quantity'=>$request->quantity,
-                'total_price'=>$total_price,
-            ]);
+            $total = 0;
 
-            $notification = notify("Product has been sold");
+            foreach ($request->products as $product) {
+                $subtotal = ($product['unit_price'] * $product['quantity']) - ($product['discount'] ?? 0);
+                $total += $subtotal;
+
+                SaleItem::create([
+                    'sale_id' => $sale->id,
+                    'product_id' => $product['product_id'],
+                    'quantity' => $product['quantity'],
+                    'unit_price' => $product['unit_price'],
+                    'unit' => $product['unit'] ?? null,
+                    'discount' => $product['discount'] ?? 0,
+                    'total_price' => $subtotal,
+                ]);
+
+                // Kurangi stok
+                Product::find($product['product_id'])->decrement('stock', $product['quantity']);
+            }
+
+            $sale->update(['total_price' => $total]);
+
+            DB::commit();
+            return redirect()->route('sales.index')->with('success', 'Penjualan berhasil disimpan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menyimpan penjualan: ' . $e->getMessage());
         }
-        if($new_quantity <=1 && $new_quantity !=0){
-            // send notification
-            $product = Purchase::where('quantity', '<=', 1)->first();
-            event(new PurchaseOutStock($product));
-            // end of notification
-            $notification = notify("Product is running out of stock!!!");
-
-        }
-
-        return redirect()->route('sales.index')->with($notification);
     }
 
 
@@ -163,10 +172,17 @@ class SaleController extends Controller
     {
         $title = 'edit sale';
         $products = Product::get();
-        return view('admin.sales.edit',compact(
-            'title','sale','products'
+        $categories = Category::get();
+        $sale->load('saleItems.product');
+
+        return view('admin.sales.edit', compact(
+            'title',
+            'sale',
+            'products',
+            'categories'
         ));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -178,58 +194,68 @@ class SaleController extends Controller
     public function update(Request $request, Sale $sale)
     {
         $request->validate([
-            'product'=>'required',
-            'quantity'=>'required|integer|min:1'
+            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|numeric|min:1',
+            'products.*.unit_price' => 'required|numeric|min:0',
+            'products.*.discount' => 'nullable|numeric|min:0',
         ]);
-        $sold_product = Product::find($request->product);
-        /**
-         * update quantity of sold item from purchases
-        **/
-        $purchased_item = Purchase::find($sold_product->purchase->id);
-        if(!empty($request->quantity)){
-            $new_quantity = ($purchased_item->quantity) - ($request->quantity);
-        }
-        $new_quantity = $sale->quantity;
-        $notification = '';
-        if (!($new_quantity < 0)){
-            $purchased_item->update([
-                'quantity'=>$new_quantity,
-            ]);
 
-            /**
-             * calcualting item's total price
-            **/
-            if(!empty($request->quantity)){
-                $total_price = ($request->quantity) * ($sold_product->price);
+        DB::beginTransaction();
+
+        try {
+            // Kembalikan stok lama
+            foreach ($sale->saleItems as $item) {
+                Product::find($item->product_id)->increment('stock', $item->quantity);
             }
-            $total_price = $sale->total_price;
+
+            // Hapus item lama
+            $sale->saleItems()->delete();
+
+            // Update sale
             $sale->update([
-                'product_id'=>$request->product,
-                'quantity'=>$request->quantity,
-                'total_price'=>$total_price,
+                'payment_method' => $request->payment_method,
+                'discount' => $request->discount ?? 0,
             ]);
 
-            $notification = notify("Product has been updated");
-        }
-        if($new_quantity <=1 && $new_quantity !=0){
-            // send notification
-            $product = Purchase::where('quantity', '<=', 1)->first();
-            event(new PurchaseOutStock($product));
-            // end of notification
-            $notification = notify("Product is running out of stock!!!");
+            $total = 0;
 
+            foreach ($request->products as $product) {
+                $subtotal = ($product['unit_price'] * $product['quantity']) - ($product['discount'] ?? 0);
+                $total += $subtotal;
+
+                SaleItem::create([
+                    'sale_id' => $sale->id,
+                    'product_id' => $product['product_id'],
+                    'quantity' => $product['quantity'],
+                    'unit_price' => $product['unit_price'],
+                    'discount' => $product['discount'] ?? 0,
+                    'total_price' => $subtotal,
+                ]);
+
+                // Kurangi stok baru
+                Product::find($product['product_id'])->decrement('stock', $product['quantity']);
+            }
+
+            $sale->update(['total_price' => $total]);
+
+            DB::commit();
+            return redirect()->route('sales.index')->with('success', 'Penjualan berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat memperbarui penjualan: ' . $e->getMessage());
         }
-        return redirect()->route('sales.index')->with($notification);
     }
+
 
     /**
      * Generate sales reports index
      *
      * @return \Illuminate\Http\Response
      */
-    public function reports(Request $request){
+    public function reports(Request $request)
+    {
         $title = 'sales reports';
-        return view('admin.sales.reports',compact(
+        return view('admin.sales.reports', compact(
             'title'
         ));
     }
@@ -240,15 +266,17 @@ class SaleController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function generateReport(Request $request){
+    public function generateReport(Request $request)
+    {
         $request->validate([
             'from_date' => 'required',
             'to_date' => 'required',
         ]);
         $title = 'sales reports';
         $sales = Sale::whereBetween(DB::raw('DATE(created_at)'), array($request->from_date, $request->to_date))->get();
-        return view('admin.sales.reports',compact(
-            'sales','title'
+        return view('admin.sales.reports', compact(
+            'sales',
+            'title'
         ));
     }
 
