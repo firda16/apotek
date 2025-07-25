@@ -158,7 +158,7 @@ class PurchaseController extends Controller
         $title = 'edit purchase';
         $categories = Category::get();
         $suppliers = Supplier::get();
-        $products = Product::get(); // ✅ Tambahkan ini
+        $products = Product::get(); 
         $purchase->load('purchaseItems.product');
 
         return view('admin.purchases.edit', compact('title', 'purchase', 'categories', 'suppliers',  'products'));
