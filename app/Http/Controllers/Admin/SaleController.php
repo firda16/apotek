@@ -5,112 +5,36 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\Purchase;
 use App\Models\SaleItem;
 use Illuminate\Http\Request;
-use App\Events\PurchaseOutStock;
-use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Events\PurchaseOutStock;
 
 class SaleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-
     public function index(Request $request)
     {
+        $sales = Sale::with(['saleItems.product.category'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
-        // $products = Product::get();
-        $query = Sale::query()->with(['saleItems.product.category', 'saleItems.product', 'saleItems']);
-        $items = SaleItem::query();
-        $products = Product::get();
-        $category = Category::get();
+        $items = SaleItem::all();
+        $products = Product::all();
+        $category = Category::all();
 
-        $sales = $query->orderBy('created_at', 'desc')->paginate(15);
-
-        return view('admin.sales.index', compact(
-            'sales',
-            'items',
-            'products',
-            'category'
-        ));
+        return view('admin.sales.index', compact('sales', 'items', 'products', 'category'));
     }
 
-    // public function data(Request $request)
-    // {
-    //     $title = 'sales';
-    //     if($request->ajax()){
-    //         $sales = Sale::latest()->with((['category']));
-    //         return DataTables::of($sales)
-    //                 ->addIndexColumn()
-    //                 ->addColumn('product',function($sale){
-    //                     $image = '';
-    //                     if(!empty($sale->product)){
-    //                         $image = null;
-    //                         if(!empty($sale->product->purchase->image)){
-    //                             $image = '<span class="avatar avatar-sm mr-2">
-    //                             <img class="avatar-img" src="'.asset("storage/purchases/".$sale->product->purchase->image).'" alt="image">
-    //                             </span>';
-    //                         }
-    //                         return $sale->product->purchase->product. ' ' . $image;
-    //                     }
-    //                 })
-    //                 ->addColumn('total_price',function($sale){
-    //                     return settings('app_currency','Rp').' '. $sale->total_price;
-    //                 })
-    //                 ->addColumn('date',function($row){
-    //                     return date_format(date_create($row->created_at),'d M, Y');
-    //                 })
-    //                 ->addColumn('action', function ($row) {
-    //                     $editbtn = '<a href="'.route("sales.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-    //                     $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('sales.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-    //                     if (!auth()->user()->hasPermissionTo('edit-sale')) {
-    //                         $editbtn = '';
-    //                     }
-    //                     if (!auth()->user()->hasPermissionTo('destroy-sale')) {
-    //                         $deletebtn = '';
-    //                     }
-    //                     $btn = $editbtn.' '.$deletebtn;
-    //                     return $btn;
-    //                 })
-    //                 ->rawColumns(['product','action'])
-    //                 ->make(true);
-
-    //     }
-    //     // $products = Product::get();
-    //     return view('admin.sales.index',compact(
-    //         'title','products',
-    //     ));
-    // }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         $title = 'create sales';
-        $products = Product::get();
-        $categories = Category::get();
-        return view('admin.sales.create', compact(
-            'title',
-            'categories',
-            'products'
-        ));
+        $products = Product::all();
+        $categories = Category::all();
+
+        return view('admin.sales.create', compact('title', 'products', 'categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -118,6 +42,8 @@ class SaleController extends Controller
             'products.*.quantity' => 'required|numeric|min:1',
             'products.*.unit_price' => 'required|numeric|min:0',
             'products.*.discount' => 'nullable|numeric|min:0',
+            'queue_number' => 'required|string',
+            'payment_method' => 'required|string',
         ]);
 
         DB::beginTransaction();
@@ -127,7 +53,7 @@ class SaleController extends Controller
                 'queue_number' => $request->queue_number,
                 'payment_method' => $request->payment_method,
                 'discount' => $request->discount ?? 0,
-                'total_price' => 0,
+                'total_price' => 0, // Diupdate setelah hitung
             ]);
 
             $total = 0;
@@ -140,57 +66,40 @@ class SaleController extends Controller
                     'sale_id' => $sale->id,
                     'product_id' => $product['product_id'],
                     'quantity' => $product['quantity'],
-                    'unit_price' => $product['unit_price'],
                     'unit' => $product['unit'] ?? null,
+                    'unit_price' => $product['unit_price'],
                     'discount' => $product['discount'] ?? 0,
                     'total_price' => $subtotal,
                 ]);
 
-                // Kurangi stok
-                Product::find($product['product_id'])->decrement('stock', $product['quantity']);
+                $productModel = Product::find($product['product_id']);
+                $productModel->decrement('stock', $product['quantity']);
+
+                if ($productModel->stock <= 1) {
+                    event(new PurchaseOutStock($productModel));
+                }
             }
 
             $sale->update(['total_price' => $total]);
 
             DB::commit();
             return redirect()->route('sales.index')->with('success', 'Penjualan berhasil disimpan.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal menyimpan penjualan: ' . $e->getMessage());
         }
     }
 
-
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \app\Models\Sale $sale
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Sale $sale)
     {
         $title = 'edit sale';
-        $products = Product::get();
-        $categories = Category::get();
-        $sale->load('saleItems.product');
+        $products = Product::all();
+        $categories = Category::all();
+        $sale->load('saleItems.product.category');
 
-        return view('admin.sales.edit', compact(
-            'title',
-            'sale',
-            'products',
-            'categories'
-        ));
+        return view('admin.sales.edit', compact('title', 'sale', 'products', 'categories'));
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \app\Models\Sale $sale
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, Sale $sale)
     {
         $request->validate([
@@ -198,6 +107,7 @@ class SaleController extends Controller
             'products.*.quantity' => 'required|numeric|min:1',
             'products.*.unit_price' => 'required|numeric|min:0',
             'products.*.discount' => 'nullable|numeric|min:0',
+            'payment_method' => 'required|string',
         ]);
 
         DB::beginTransaction();
@@ -211,7 +121,7 @@ class SaleController extends Controller
             // Hapus item lama
             $sale->saleItems()->delete();
 
-            // Update sale
+            // Update data sale
             $sale->update([
                 'payment_method' => $request->payment_method,
                 'discount' => $request->discount ?? 0,
@@ -227,69 +137,53 @@ class SaleController extends Controller
                     'sale_id' => $sale->id,
                     'product_id' => $product['product_id'],
                     'quantity' => $product['quantity'],
+                    'unit' => $product['unit'] ?? null,
                     'unit_price' => $product['unit_price'],
                     'discount' => $product['discount'] ?? 0,
                     'total_price' => $subtotal,
                 ]);
 
-                // Kurangi stok baru
-                Product::find($product['product_id'])->decrement('stock', $product['quantity']);
+                $productModel = Product::find($product['product_id']);
+                $productModel->decrement('stock', $product['quantity']);
+
+                if ($productModel->stock <= 1) {
+                    event(new PurchaseOutStock($productModel));
+                }
             }
 
             $sale->update(['total_price' => $total]);
 
             DB::commit();
             return redirect()->route('sales.index')->with('success', 'Penjualan berhasil diperbarui.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan saat memperbarui penjualan: ' . $e->getMessage());
         }
     }
 
+    public function destroy(Request $request)
+    {
+        $sale = Sale::findOrFail($request->id);
+        $sale->delete();
+        return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus.');
+    }
 
-    /**
-     * Generate sales reports index
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function reports(Request $request)
     {
         $title = 'sales reports';
-        return view('admin.sales.reports', compact(
-            'title'
-        ));
+        return view('admin.sales.reports', compact('title'));
     }
 
-    /**
-     * Generate sales report form post
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function generateReport(Request $request)
     {
         $request->validate([
-            'from_date' => 'required',
-            'to_date' => 'required',
+            'from_date' => 'required|date',
+            'to_date' => 'required|date',
         ]);
+
+        $sales = Sale::whereBetween(DB::raw('DATE(created_at)'), [$request->from_date, $request->to_date])->get();
         $title = 'sales reports';
-        $sales = Sale::whereBetween(DB::raw('DATE(created_at)'), array($request->from_date, $request->to_date))->get();
-        return view('admin.sales.reports', compact(
-            'sales',
-            'title'
-        ));
-    }
 
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request)
-    {
-        Sale::findOrFail($request->id)->delete();
-        return redirect()->route('sales.index')->with(notify("Sale has been deleted"));
+        return view('admin.sales.reports', compact('sales', 'title'));
     }
 }
