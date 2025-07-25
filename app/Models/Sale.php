@@ -11,9 +11,10 @@ class Sale extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'product_id',
-        'quantity',
-        'total_price'
+        'queue_number',
+        'payment_method',
+        'discount',
+        'total_price',
     ];
 
     public function product()
