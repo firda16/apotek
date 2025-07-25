@@ -106,50 +106,69 @@ class SaleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'product'=>'required',
-            'quantity'=>'required|integer|min:1'
+   public function store(Request $request)
+{
+    $request->validate([
+        'queue_number' => 'required|string',
+        'product' => 'required|exists:products,id',
+        'quantity' => 'required|integer|min:1',
+        'unit' => 'nullable|string',
+        'unit_price' => 'required|numeric|min:0',
+        'discount' => 'nullable|numeric|min:0|max:100',
+        'payment_method' => 'required|string',
+    ]);
+
+    DB::beginTransaction();
+    try {
+        $product = Product::findOrFail($request->product);
+
+        if ($product->quantity < $request->quantity) {
+            return back()->withErrors(['Stok tidak mencukupi. Stok tersedia: ' . $product->quantity]);
+        }
+
+        // Hitung total harga
+        $quantity = $request->quantity;
+        $unit_price = $request->unit_price;
+        $discount = $request->discount ?? 0;
+        $total_price_before_discount = $unit_price * $quantity;
+        $discount_amount = ($discount / 100) * $total_price_before_discount;
+        $final_total = $total_price_before_discount - $discount_amount;
+
+        // Buat sale
+        $sale = Sale::create([
+            'queue_number' => $request->queue_number,
+            'discount' => $discount,
+            'payment_method' => $request->payment_method,
+            'total_price' => $final_total, // total semua produk, kalau 1 saja langsung isi
         ]);
-        $sold_product = Product::find($request->product);
 
-        /**update quantity of
-            sold item from
-         purchases
-        **/
-        $purchased_item = Purchase::find($sold_product->purchase->id);
-        $new_quantity = ($purchased_item->quantity) - ($request->quantity);
-        $notification = '';
-        if (!($new_quantity < 0)){
+        // Buat sale item
+        SaleItem::create([
+            'sale_id' => $sale->id,
+            'product_id' => $product->id,
+            'quantity' => $quantity,
+            'unit' => $request->unit,
+            'unit_price' => $unit_price,
+            'total_price' => $final_total,
+        ]);
 
-            $purchased_item->update([
-                'quantity'=>$new_quantity,
-            ]);
+        // Kurangi stok produk
+        $product->decrement('quantity', $quantity);
 
-            /**
-             * calcualting item's total price
-            **/
-            $total_price = ($request->quantity) * ($sold_product->price);
-            Sale::create([
-                'product_id'=>$request->product,
-                'quantity'=>$request->quantity,
-                'total_price'=>$total_price,
-            ]);
-
-            $notification = notify("Product has been sold");
-        }
-        if($new_quantity <=1 && $new_quantity !=0){
-            // send notification
-            $product = Purchase::where('quantity', '<=', 1)->first();
+        // Kirim event kalau hampir habis
+        if ($product->quantity <= 1) {
             event(new PurchaseOutStock($product));
-            // end of notification
-            $notification = notify("Product is running out of stock!!!");
-
         }
 
-        return redirect()->route('sales.index')->with($notification);
+        DB::commit();
+        return redirect()->route('sales.index')->with(notify('Penjualan berhasil ditambahkan.'));
+    } catch (\Throwable $th) {
+        DB::rollback();
+        return back()->withErrors(['Terjadi kesalahan: ' . $th->getMessage()]);
     }
+}
+
+
 
 
 
@@ -162,7 +181,9 @@ class SaleController extends Controller
     public function edit(Sale $sale)
     {
         $title = 'edit sale';
+        $categories = Category::get();
         $products = Product::get();
+        $sale->load( 'saleItems');        
         return view('admin.sales.edit',compact(
             'title','sale','products'
         ));

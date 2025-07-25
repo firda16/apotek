@@ -54,14 +54,16 @@
                                         <td>{{ $sale->queue_number ?? '-' }}</td>
                                         <td>{{ $sale->payment_method ?? '-' }}</td>
                                         <td>
-                                            <ul>                                                
-                                                <li>
-                                                    Nama produk: {{ $sale->product->nama_produk ?? '-' }}
-                                                </li>
-                                                <li>Jumlah: {{ $sale->quantity }}</li>
-                                                <li>Kategori: {{ $sale->product->category->name ?? '-' }}</li>
-                                                <li>Harga per Produk: Rp {{ number_format($sale->price_per_product, 0, ',', '.') }}</li>                                                
-                                                <li>Sub total: Rp {{ number_format($sale->subtotal, 0, ',', '.') }}                                                </li>
+                                            <ul>
+                                                @foreach ($sale->saleItems as $item)
+                                                    <li>
+                                                        Nama produk: {{ $item->product->name ?? '-' }}
+                                                    </li>
+                                                    <li>Jumlah: {{ $item->quantity }}</li>
+                                                    <li>Kategori: {{ $item->product->category->name ?? '-' }}</li>
+                                                    <li>Harga per Produk: Rp {{ number_format($item->unit_price, 0, ',', '.') }}</li>
+                                                    <li>Total: Rp {{ number_format($item->total_price, 0, ',', '.') }}</li>
+                                                @endforeach
                                             </ul>
                                         </td>
                                         <td>{{ $sale->discount ?? 0 }}%</td>
@@ -70,7 +72,7 @@
                                         <td>{{ $item->product->category->name ?? '-' }}</td>
                                         <td>{{ $sale->quantity }}</td>
                                         <td>{{ $sale->unit ?? '-' }}</td>
-                                        <td>Rp {{ number_format($sale->price_per_product, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($sale->price_per_product, 0, ',', '.') }}</td> --}}
                                        
                                         <td>
                                             <a href="{{ route('sales.edit', $sale->id) }}" class="editbtn">

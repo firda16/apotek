@@ -27,23 +27,37 @@
 							<div class="form-group">
 								<label>Nama Obat <span class="text-danger">*</span></label>
 								<select class="select2 form-select form-control edit_product" name="product">
-									@foreach ($products as $product)
-										@if (!empty($product->purchase) && $product->purchase->quantity > 0)
-											<option value="{{ $product->id }}" {{ ($product->purchase->id == $sale->product->purchase_id) ? 'selected' : '' }}>
-												{{ $product->purchase->product }}
+									{{-- @foreach ($sale->saleItems->product as $product)
+										@if (!empty($product->quantity > 0))
+											<option value="{{ $product->id }}" {{ ($product->id == $sale->product->id) ? 'selected' : '' }}>
+												{{ $product->name }}
 											</option>
 										@endif
+									@endforeach --}}
+									
+									 @foreach ($products as $product)
+										{{-- @if (!empty($product->quantity > 0)) --}}
+											<option value="{{ $product->id }}" {{ ($product->id == $sale->product_id) ? 'selected' : '' }}>
+												{{ $product->name }}
+											</option>
+										{{-- @endif --}}
+										{{-- <option value="{{ $item->product->id }}" {{ ($item->product->id == $item->product_id) ? 'selected' : '' }}>
+											{{ $item->product->name }}
+										</option> --}}
 									@endforeach
+									
+									
+
 								</select>
 							</div>
 						</div>
 
-						<div class="col-md-6">
+						{{-- <div class="col-md-6">
 							<div class="form-group">
 								<label>Kategori</label>
 								<input type="text" class="form-control" value="{{ $sale->product->purchase->category->name ?? '-' }}" readonly>
 							</div>
-						</div>
+						</div> --}}
 
 						<div class="col-md-4">
 							<div class="form-group">
@@ -61,8 +75,12 @@
 
 						<div class="col-md-4">
 							<div class="form-group">
-								<label>Harga per Produk</label>
-								<input type="number" class="form-control" name="price_per_product" value="{{ $sale->price_per_product ?? $sale->product->purchase->cost_price }}">
+								<label>Harga jual</label>
+								{{-- <input type="number" class="form-control" name="price_per_product" value="{{ number_format($sale->saleItems->first()->product->price ?? 0, 0, ',', '.') }}"> --}}
+								<input type="number" class="form-control" name="price_per_product"
+								    value="{{ number_format($sale->saleItems->first()->unit_price ?? 0, 0, ',', '.') }}">
+
+
 							</div>
 						</div>
 
@@ -94,7 +112,7 @@
 						<div class="col-md-6">
 							<div class="form-group">
 								<label>Total Harga</label>
-								<input type="number" class="form-control" name="total_price" value="{{ $sale->total_price ?? ($sale->quantity * $sale->price_per_product) }}">
+								<input type="number" class="form-control" name="total_price" value="{{ $sale->total_price ?? ($sale->quantity * $sale->price_per_product) }}">								
 							</div>
 						</div>
 					</div>
