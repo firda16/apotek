@@ -36,6 +36,7 @@
                                     <th>Stok</th>
                                     <th>Satuan</th>
                                     <th>Deskripsi</th>
+                                    <th>Tanggal Kedaluwarsa</th>
                                     <th class="action-btn">Aksi</th>
                                 </tr>
                             </thead>
@@ -58,6 +59,14 @@
                                         <td>{{ $product->stock }}</td>
                                         <td>{{ $product->unit }}</td>
                                         <td>{{ $product->description ?? '-' }}</td>
+                                         @php
+                                        // Ambil item kedaluwarsa paling awal (terdekat)
+                                            $expiredItem = $product->purchaseItems->sortBy('expiry_date')->first();
+                                        @endphp
+
+                                        <td>
+                                            {{ $expiredItem ? \Carbon\Carbon::parse($expiredItem->expiry_date)->translatedFormat('d F Y') : '-' }}
+                                        </td>
 
 
                                         {{-- Deskripsi Produk (Opsional, kalau mau ditampilkan) --}}

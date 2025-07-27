@@ -39,7 +39,7 @@
 						<tbody>    
         @foreach($products as $product) {{-- Iterate through products for each purchase --}}
             <tr>
-				<td>{{ $loop->iteration }}</td>
+				<td>{{ $products->firstItem() + $loop->index }}</td>
                 <td>{{ $product->name }}</td> {{-- Assuming 'description' is the product name/description --}}
                 <td>{{ $product->category->name }}</td>                
 				<td>{{ (settings('app_currency') ?? 'Rp') . ' ' . $product->price }}</td>
@@ -51,8 +51,9 @@
 				@endphp
 
 				<td>
-    				{{ $expiredItem ? date('d M Y', strtotime($expiredItem->expiry_date)) : '-' }}
+					{{ $expiredItem ? \Carbon\Carbon::parse($expiredItem->expiry_date)->translatedFormat('d F Y') : '-' }}
 				</td>
+
                 <td>
                     <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-primary">Edit</a>
                     <a href="javascript:void(0)" class="btn btn-sm btn-danger" id="deletebtn" data-id="{{ $product->id }}" data-route="{{ route('products.destroy', $product->id) }}">Hapus</a>
@@ -62,6 +63,9 @@
 </tbody>
 					</table>
 				</div>
+				<div class="mt-3">
+                        {{ $products->links('pagination::bootstrap-5') }}
+                    </div>
 			</div>
 		</div>
 		<!-- /Produk Kedaluwarsa -->

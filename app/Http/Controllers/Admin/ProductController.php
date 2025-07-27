@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
 use QCod\AppSettings\Setting\AppSettings;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Models\PurchaseItem;
 
 class ProductController extends Controller
 {
@@ -22,6 +23,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        App::setLocale('id');
         //    $products = Product::get();
         $query = Product::query()->with(['purchase.category', 'purchaseItems']);
         $products = $query->orderBy('created_at', 'desc')->paginate(15);
@@ -133,23 +135,22 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function expired()
-    {
-        $title = 'Produk Kedaluwarsa';
-        
-        // $products = Product::with('purchaseItems')
-        // ->where('stock', '>', 0)        
-        // ->paginate(10);
+  public function expired()
+{
+    $title = 'Produk Kedaluwarsa';
+    App::setLocale('id');
 
-        $products = Product::with(['purchaseItems' => function ($query) {
+    $products = Product::whereHas('purchaseItems', function ($query) {
             $query->whereDate('expiry_date', '<=', now());
-        }])        
+        })
+        ->with(['purchaseItems' => function ($query) {
+            $query->whereDate('expiry_date', '<=', now());
+        }])
         ->paginate(10);
 
+    return view('admin.products.expired', compact('title', 'products'));
+}
 
-
-        return view('admin.products.expired', compact('title', 'products'));
-    }
 
     /**
      * Display a listing of out of stock resources.
