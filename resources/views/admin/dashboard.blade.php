@@ -20,6 +20,7 @@
 
         {{-- Total Pengeluaran --}}
         <div class="col-xl-3 col-sm-6 col-12">
+            <a href="{{ route('riwayat.pembelian') }}" class="text-decoration-none text-dark" style="position: relative; z-index: 2;">
             <div class="card">
                 <div class="card-body">
                     <div class="dash-widget-header">
@@ -38,6 +39,7 @@
                     </div>
                 </div>
             </div>
+            </a>
         </div>
 
         {{-- Total Pendapatan --}}
@@ -53,10 +55,12 @@
                         </div>
                     </div>
                     <div class="dash-widget-info">
+                        <a href="{{ route('riwayat.penjualan') }}" class="text-decoration-none text-dark">
                         <h6 class="text-muted">Total pendapatan</h6>
                         <div class="progress progress-sm">
                             <div class="progress-bar bg-success w-50"></div>
                         </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -108,9 +112,10 @@
                 </a>
             </div>
         </div>
-
+        <!-- Produk Tersedia -->
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
+                <a href="{{ route('products.index') }}" class="text-decoration-none {{ route_is('products.*') ? 'active' : '' }}">
                 <div class="card-body">
                     <div class="dash-widget-header">
                         <span class="dash-widget-icon text-primary border-primary">
@@ -132,7 +137,7 @@
         {{-- stok habis --}}
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <a href="{{ route('outstock') }}" class="text-decoration-none {{ route_is('outstock') ? 'active' : '' }}">
+               <a href="{{ route('outstock') }}" class="text-decoration-none {{ route_is('outstock') ? 'active' : '' }}">
                     <div class="card-body">
                         <div class="dash-widget-header">
                             <span class="dash-widget-icon text-danger border-danger">
