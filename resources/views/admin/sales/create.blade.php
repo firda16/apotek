@@ -1,6 +1,166 @@
 @extends('admin.layouts.app')
 
 @push('page-css')
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.5rem;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #342af0 0%, #1637dc 100%);
+            color: white;
+            border-radius: 0.5rem 0.5rem 0 0 !important;
+            padding: 1.25rem 1.5rem;
+            border: none;
+        }
+        
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .section-divider {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, #e5e7eb 0%, #d1d5db 50%, #e5e7eb 100%);
+            margin: 2rem 0 1.5rem 0;
+        }
+        
+        .section-title {
+            color: #374151;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.625rem 0.75rem;
+            font-size: 0.875rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+        }
+        
+        .product-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+                        
+        .product-header .row > div {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        
+        .btn-add-product {
+            background: linear-gradient(135deg, #1728e2 0%, #1913c4 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-add-product:hover {
+            background: linear-gradient(135deg, #1728e2 0%, #0c088e 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(11, 73, 173, 0.4);
+            color: white;
+        }
+        
+        .btn-remove-product {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-remove-product:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: scale(1.05);
+            color: white;
+        }
+        
+        .summary-section {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #3b82f6;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .summary-title {
+            color: #1e40af;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .total-display {
+            background: white;
+            border: 2px solid #3b82f6;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e40af;
+            text-align: right;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #2219d2 0%, #200daf 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #0f119b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+            color: white;
+        }
+        
+        .required-asterisk {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .input-group-text {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            color: #6b7280;
+            font-weight: 600;
+        }
+    </style>
 @endpush
 
 @push('page-header')
@@ -15,103 +175,184 @@
 
 @section('content')
     <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-body custom-edit-service">
-                    <!-- Create Sale -->
+        <div class="col-12">
+            <div class="card">               
+                <div class="card-body">
                     <form method="POST" action="{{ route('sales.store') }}">
                         @csrf
+                        
+                        <!-- Informasi Pelanggan -->
                         <div class="row">
-                            <!-- No Antrian -->
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label>No Antrian (Queue Number)</label>
-                                    <input type="text" name="queue_number" class="form-control"
-                                        placeholder="Contoh: A001" required>
-                                </div>
-                            </div>
-
-                            <!-- Metode Pembayaran -->
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label>Metode Pembayaran <span class="text-danger">*</span></label>
-                                    <select name="payment_method" class="select2 form-control" required>
-                                        <option disabled selected>Pilih Metode</option>
-                                        <option value="Tunai">Tunai</option>
-                                        <option value="Transfer">Transfer</option>
-                                        <option value="QRIS">QRIS</option>
-                                        <option value="E-Wallet">E-Wallet</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Produk dinamis -->
                             <div class="col-12">
-                                <hr>
-                                <h5>Produk Penjualan</h5>
-
-                                <div id="product-wrapper">
-                                    <div class="row product-item mb-3">
-                                        <div class="col-md-3">
-                                            <label>Produk</label>
-                                            <select name="products[0][product_id]" class="form-control select2" required>
-                                                <option disabled selected>Pilih Produk</option>
-                                                @foreach ($products as $product)
-                                                    <option value="{{ $product->id }}"
-                                                        data-category="{{ $product->category->name ?? '-' }}">
-                                                        {{ $product->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-
-                                            <div class="col-md-2">
-                                                <label>Kategori</label>
-                                                <input type="text" class="form-control category" value="" readonly>
-                                            </div>
-
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label>Jumlah</label>
-                                            <input type="number" name="products[0][quantity]" class="form-control quantity"
-                                                required min="1">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label>Satuan</label>
-                                            <input type="text" name="products[0][unit]" class="form-control"
-                                                placeholder="misal: pcs, botol">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label>Harga per Produk</label>
-                                            <input type="number" name="products[0][unit_price]"
-                                                class="form-control unit_price" required min="0">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label>Subtotal</label>
-                                            <input type="number" class="form-control subtotal" disabled>
-                                        </div>
-                                        <div class="col-md-1 d-flex align-items-end">
-                                            <button type="button" class="btn btn-danger remove-product">-</button>
-                                        </div>
+                                <h6 class="section-title"><i class="fas fa-user me-2" style="margin-right: 10px;" ></i>Informasi Pelanggan</h6>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Nama Pelanggan <span class="required-asterisk">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                        <input type="text" name="customer" class="form-control" 
+                                               placeholder="Masukkan nama pelanggan" required>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-secondary" id="add-product">+ Tambah Produk</button>
                             </div>
-
-                            <!-- Diskon -->
-                            <div class="col-md-4 mt-4">
+                            <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label>Diskon (%)</label>
-                                    <input type="number" name="discount" class="form-control" placeholder="contoh: 10"
-                                        min="0" max="100">
+                                    <label class="form-label">Nomor Telepon <span class="required-asterisk">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                        <input type="text" name="number_phone" class="form-control" 
+                                               placeholder="Contoh: 0876 5245 8976" required>
+                                    </div>
                                 </div>
                             </div>
+                        </div>                                                                        
 
-                            <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-primary w-100">Simpan Penjualan</button>
+                        <!-- Produk Penjualan -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h6 class="section-title"><i class="fas fa-box me-2" style="margin-right: 10px;" ></i>Produk Penjualan</h6>
+                            </div>
+                        </div>
+                        
+
+                        <div id="product-wrapper">
+                            <div class="product-card product-item">
+                                <div class="row align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Produk <span class="required-asterisk">*</span></label>
+                                        <select name="products[0][product_id]" class="form-select select2" required>
+                                            <option disabled selected>Pilih Produk</option>
+                                            @foreach ($products as $product)
+                                                <option value="{{ $product->id }}"
+                                                    data-category="{{ $product->category->name ?? '-' }}"
+                                                    data-price="{{ $product->price }}">
+                                                    {{ $product->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Jumlah <span class="required-asterisk">*</span></label>
+                                        <input type="number" name="products[0][quantity]" 
+                                               class="form-control quantity" required min="1" placeholder="0">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Harga satuan <span class="required-asterisk">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="number" value="{{ $product->price }}" 
+                                                   data-category="{{ $product->price}}" 
+                                                   name="products[0][price]" class="form-control price" 
+                                                   required min="0" placeholder="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Subtotal</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="number" class="form-control subtotal" 
+                                                   disabled placeholder="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 d-flex justify-content-center">
+                                        <button type="button" class="btn btn-remove-product remove-product" 
+                                                title="Hapus produk">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-primary" id="add-product">
+                                    <i class="fas fa-plus me-2" style="margin-right: 10px;" ></i>Tambah Produk
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Jumlah Harga (Total Semua Produk)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control total_price" 
+                                               disabled placeholder="0" style="font-weight: 600; background: #f8fafc;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <!-- Summary Section -->
+                        <div class="summary-section">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6 class="summary-title"><i class="fas fa-calculator me-2" style="margin-right: 10px;"></i>Ringkasan Pembayaran</h6>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">Diskon (%)</label>
+                                        <div class="input-group">
+                                            <input type="number" name="discount" class="form-control" 
+                                                   placeholder="0" min="0" max="100">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <small class="text-muted">Masukkan persentase diskon (0-100)</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">Total Harga</label>
+                                        <input type="text" class="form-control total-display total_price" 
+                                               disabled placeholder="Rp 0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6 class="section-title"><i class="fas fa-user" style="margin-right: 10px;"></i>Pembayaran</h6>
+                            </div>
+                        </div>                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Metode Pembayaran <span class="required-asterisk">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
+                                        <select name="payment_method" class="form-select" required>
+                                            <option disabled selected>Pilih Metode Pembayaran</option>
+                                            <option value="Tunai">Tunai</option>
+                                            <option value="Transfer">Transfer Bank</option>
+                                            <option value="QRIS">QRIS</option>
+                                            <option value="E-Wallet">E-Wallet</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                        <!-- Submit Button -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-submit w-100">
+                                    <i class="fas fa-save me-2" style="margin-right: 10px;"></i>Simpan Penjualan
+                                </button>
                             </div>
                         </div>
                     </form>
-                    <!--/ Create Sale -->
                 </div>
             </div>
         </div>
@@ -125,33 +366,56 @@
         // Tambah produk
         $('#add-product').click(function() {
             let html = `
-        <div class="row product-item mb-3">
-            <div class="col-md-3">
-                <select name="products[${index}][product_id]" class="form-control select2" required>
-                    <option disabled selected>Pilih Produk</option>
-                    @foreach ($products as $product)
-                        <option value="{{ $product->id }}">{{ $product->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-2">
-                <input type="number" name="products[${index}][quantity]" class="form-control quantity" required min="1">
-            </div>
-            <div class="col-md-2">
-                <input type="text" name="products[${index}][unit]" class="form-control" placeholder="Satuan">
-            </div>
-            <div class="col-md-2">
-                <input type="number" name="products[${index}][unit_price]" class="form-control unit_price" required min="0">
-            </div>
-            <div class="col-md-2">
-                <input type="number" class="form-control subtotal" disabled>
-            </div>
-            <div class="col-md-1 d-flex align-items-end">
-                <button type="button" class="btn btn-danger remove-product">-</button>
+        <div class="product-card product-item">
+            <div class="row align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Produk <span class="required-asterisk">*</span></label>
+                    <select name="products[${index}][product_id]" class="form-select select2" required>
+                        <option disabled selected>Pilih Produk</option>
+                        @foreach ($products as $product)
+                            <option value="{{ $product->id }}"
+                                data-category="{{ $product->category->name ?? '-' }}"
+                                data-price="{{ $product->price }}">{{ $product->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Jumlah <span class="required-asterisk">*</span></label>
+                    <input type="number" name="products[${index}][quantity]" class="form-control quantity" required min="1" placeholder="0">
+                </div>            
+                <div class="col-md-2">
+                    <label class="form-label">Harga satuan <span class="required-asterisk">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input type="number" value="{{ $product->price }}" data-category="{{ $product->price}}" name="products[${index}][price]" class="form-control price" required min="0" placeholder="0">                                            
+                    </div>
+                </div>                         
+                <div class="col-md-3">
+                    <label class="form-label">Subtotal</label>
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input type="number" class="form-control subtotal" disabled placeholder="0">
+                    </div>
+                </div>
+                <div class="col-md-1 d-flex justify-content-center">
+                    <button type="button" class="btn btn-remove-product remove-product" title="Hapus produk">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </div>
         </div>`;
             $('#product-wrapper').append(html);
             index++;
+        });
+
+        $(document).on('change', 'select[name^="products"]', function() {
+            const selected = $(this).find(':selected');
+            const category = selected.data('category') || '-';
+            const price = selected.data('price') || 0;
+
+            const row = $(this).closest('.product-item');
+            row.find('.category').val(category);
+            row.find('.price').val(price).trigger('input'); // supaya subtotal otomatis update
         });
 
         // Hapus produk
@@ -160,10 +424,10 @@
         });
 
         // Hitung subtotal otomatis
-        $(document).on('input', '.quantity, .unit_price', function() {
+        $(document).on('input', '.quantity, .price', function() {
             const row = $(this).closest('.product-item');
             const qty = parseFloat(row.find('.quantity').val()) || 0;
-            const price = parseFloat(row.find('.unit_price').val()) || 0;
+            const price = parseFloat(row.find('.price').val()) || 0;
             const subtotal = qty * price;
             row.find('.subtotal').val(subtotal);
         });

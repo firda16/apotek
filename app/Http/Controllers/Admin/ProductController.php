@@ -26,13 +26,16 @@ class ProductController extends Controller
         ));
     }
 
-    public function create()
+        public function create()
     {
-        $title = 'Tambah Produk';
-        $categories = Category::all();
-        $products = Product::with('category')->get(); // tambahkan baris ini
-
-        return view('admin.products.create', compact('title', 'categories', 'products'));
+        $title = 'add product';
+        $purchases = Purchase::get();
+        $products = Product::get();
+        return view('admin.products.create', compact(
+            'title',
+            'purchases',
+            'products' // Pass the fetched products to the view
+        ));
     }
 
     public function store(Request $request)
@@ -58,11 +61,15 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with(notify("Produk berhasil ditambahkan"));
     }
 
-    public function edit(Product $product)
+        public function edit(Product $product)
     {
-        $title = 'Edit Produk';
-        $categories = Category::all();
-        return view('admin.products.edit', compact('title', 'product', 'categories'));
+        $title = 'edit product';
+        $purchases = Purchase::get();
+        return view('admin.products.edit', compact(
+            'title',
+            'product',
+            'purchases'
+        ));
     }
 
     public function update(Request $request, Product $product)
