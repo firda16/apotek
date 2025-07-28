@@ -52,9 +52,11 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
     // Route::put('categories',[CategoryController::class,'update'])->name('categories.update');
     Route::post('categories/update', [CategoryController::class, 'update'])->name('categories.update');
     Route::resource('purchases',PurchaseController::class)->except('show');
+        Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
     Route::get('purchases/reports',[PurchaseController::class,'reports'])->name('purchases.report');
     Route::post('purchases/reports',[PurchaseController::class,'generateReport']);
     Route::resource('products',ProductController::class)->except('show');
+    Route::get('products', [ProductController::class, 'index'])->name('products.index');
     Route::get('products/available', [ProductController::class, 'available'])->name('available');
     Route::get('products/outstock',[ProductController::class,'outstock'])->name('outstock');
     Route::get('products/expired',[ProductController::class,'expired'])->name('expired');
@@ -65,8 +67,9 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
 
       // Route::get('history', [HistoryController::class,'index'])->name('history.index');
     Route::get('/admin/riwayat/penjualan', [HistoryController::class, 'penjualan'])->name('riwayat.penjualan');
+    Route::get('/riwayat-penjualan', [HistoryController::class, 'penjualan'])->name('riwayat.penjualan');
     Route::get('/admin/riwayat/pembelian', [HistoryController::class, 'pembelian'])->name('riwayat.pembelian');
-
+    Route::get('/riwayat-pembelian', [HistoryController::class, 'pembelian'])->name('riwayat.pembelian');
     Route::put('backup/create', [HistoryController::class,'create'])->name('backup.store');
     Route::get('backup/download/{file_name?}', [HistoryController::class,'download'])->name('backup.download');
     Route::delete('backup/delete/{file_name?}', [HistoryController::class,'destroy'])->where('file_name', '(.*)')->name('backup.destroy');
