@@ -44,6 +44,7 @@ class SaleController extends Controller
             'products.*.discount' => 'nullable|numeric|min:0',
             'queue_number' => 'required|string',
             'payment_method' => 'required|string',
+            'customer_id' => 'nullable|name,phone,id',
         ]);
 
         DB::beginTransaction();
@@ -70,6 +71,7 @@ class SaleController extends Controller
                     'unit_price' => $product['unit_price'],
                     'discount' => $product['discount'] ?? 0,
                     'total_price' => $subtotal,
+                    'customer_id' => $request->customer_id,
                 ]);
 
                 $productModel = Product::find($product['product_id']);
