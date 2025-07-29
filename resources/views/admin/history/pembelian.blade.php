@@ -46,7 +46,7 @@
                                             <td>{{ $item->product->category->name ?? '-' }}</td>
                                             <td>{{ $item->product->unit ?? '-' }}</td>
                                             <td>Rp{{ number_format($item->unit_price, 0, ',', '.') }}</td>
-                                            <td>{{ $item->qty }}</td>
+                                            <td>{{ $item->quantity }}</td>
                                             <td>{{ ucfirst($purchase->payment_method ?? '-') }}</td>
                                             <td>Rp{{ number_format($item->subtotal ?? $item->qty * $item->unit_price, 0, ',', '.') }}</td>
                                             <td>

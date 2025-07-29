@@ -57,7 +57,7 @@ class PurchaseController extends Controller
         $title = 'create purchase';
         $categories = Category::get();
         $suppliers = Supplier::get();
-        $products = Product::all();
+        $products = Product::with('category')->get();
         return view('admin.purchases.create', compact('title', 'categories', 'suppliers', 'products'));
     }
 
@@ -158,7 +158,7 @@ class PurchaseController extends Controller
         $title = 'edit purchase';
         $categories = Category::get();
         $suppliers = Supplier::get();
-        $products = Product::get(); 
+        $products = Product::get();
         $purchase->load('purchaseItems.product');
 
         return view('admin.purchases.edit', compact('title', 'purchase', 'categories', 'suppliers',  'products'));

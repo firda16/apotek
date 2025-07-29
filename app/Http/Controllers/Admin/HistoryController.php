@@ -91,7 +91,7 @@ class HistoryController extends Controller
     {
         $title = 'Riwayat Pembelian';
 
-        $query = Purchase::query()->with(['category', 'supplier']);
+        $query = Purchase::query()->with(['items.product.category', 'supplier']);
 
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
