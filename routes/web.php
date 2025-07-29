@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\KasirController;
+use App\Http\Controllers\Admin\CustomerController;
 
 
 /*
@@ -64,6 +65,7 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
     Route::get('sales/data', [SaleController::class, 'getData'])->name('sales.data');
     Route::get('sales/reports',[SaleController::class,'reports'])->name('sales.report');
     Route::post('sales/reports',[SaleController::class,'generateReport']);
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
 
       // Route::get('history', [HistoryController::class,'index'])->name('history.index');
     Route::get('/admin/riwayat/penjualan', [HistoryController::class, 'penjualan'])->name('riwayat.penjualan');

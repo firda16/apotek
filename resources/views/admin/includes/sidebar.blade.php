@@ -62,6 +62,8 @@
                                 href="{{ route('sales.index') }}">Data Penjualan</a></li>
                         <li><a class="{{ route_is('sales.create') ? 'active' : '' }}"
                                 href="{{ route('sales.create') }}">Transaksi Baru</a></li>
+                        <li><a class="{{ route_is('customers.index') ? 'active' : '' }}"
+                                href="{{ route('customers.index') }}">Data Pelanggan</a></li>
                     </ul>
                 </li>
 

@@ -32,6 +32,7 @@
                                     <th>No</th>
                                     <th>Tanggal Penjualan</th>
                                     <th>Nama Pelanggan</th>
+                                    <th>Nomor Hp</th>
                                     <th>Metode Pembayaran</th>
                                     <th>Item</th>
                                     <th>Diskon</th>
@@ -51,7 +52,8 @@
                                     <tr>
                                         <td>{{ $sales->firstItem() + $loop->index }}</td>
                                         <td>{{ date('d M, Y', strtotime($sale->created_at)) }}</td>
-                                        <td>{{ $sale->customer->name ?? '-' }}</td>
+                                        <td>{{ $sale->customer->nama ?? '-' }}</td>
+                                        <td>{{ $sale->customer->telepon ?? '-' }}</td>
                                         <td>{{ $sale->payment_method ?? '-' }}</td>
                                         <td>
                                             <ul>
@@ -67,13 +69,13 @@
                                             </ul>
                                         </td>
                                         <td>{{ $sale->discount ?? 0 }}%</td>
-                                        <td>Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td> 
+                                        <td>Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td>
                                         {{-- <td>{{ $item->product->nama_produk ?? '-' }}</td>
                                         <td>{{ $item->product->category->name ?? '-' }}</td>
                                         <td>{{ $sale->quantity }}</td>
                                         <td>{{ $sale->unit ?? '-' }}</td>
                                         <td>Rp {{ number_format($sale->price_per_product, 0, ',', '.') }}</td> --}}
-                                       
+
                                         <td>
                                             <a href="{{ route('sales.edit', $sale->id) }}" class="editbtn">
                                                 <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
