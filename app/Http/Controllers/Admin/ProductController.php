@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Purchase;
+use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
+use Yajra\DataTables\DataTables;
+use QCod\AppSettings\Setting\AppSettings;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::with('category')->orderBy('created_at', 'desc')->paginate(15);
+        App::setLocale('id');
+        $products = Product::with(['purchase.category', 'purchaseItems'])->orderBy('created_at', 'desc')->paginate(15);
         return view('admin.products.index', compact('products'));
     }
 
@@ -20,9 +27,10 @@ class ProductController extends Controller
     {
         $title = 'Tambah Produk';
         $categories = Category::all();
+        $purchases = Purchase::get();
         $products = Product::with('category')->get();
 
-        return view('admin.products.create', compact('title', 'categories', 'products'));
+        return view('admin.products.create', compact('title', 'categories', 'purchases', 'products'));
     }
 
     public function store(Request $request)
@@ -58,8 +66,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $title = 'Edit Produk';
-        $categories = Category::all();
-        return view('admin.products.edit', compact('title', 'product', 'categories'));
+        $purchases = Purchase::get();
+        return view('admin.products.edit', compact('title', 'product', 'purchases'));
     }
 
     public function update(Request $request, Product $product)
@@ -95,11 +103,15 @@ class ProductController extends Controller
     public function expired()
     {
         $title = 'Produk Kedaluwarsa';
+        App::setLocale('id');
+
         $products = Product::whereHas('purchaseItems', function ($query) {
             $query->whereDate('expiry_date', '<=', now());
-        })->with(['purchaseItems' => function ($query) {
+        })
+        ->with(['purchaseItems' => function ($query) {
             $query->whereDate('expiry_date', '<=', now());
-        }])->paginate(10);
+        }])
+        ->paginate(10);
 
         return view('admin.products.expired', compact('title', 'products'));
     }

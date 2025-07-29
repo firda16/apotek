@@ -31,7 +31,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Tanggal Penjualan</th>
-                                    <th>No Antrian</th>
+                                    <th>Nama Pelanggan</th>
                                     <th>Metode Pembayaran</th>
                                     <th>Item</th>
                                     <th>Diskon</th>
@@ -51,7 +51,7 @@
                                     <tr>
                                         <td>{{ $sales->firstItem() + $loop->index }}</td>
                                         <td>{{ date('d M, Y', strtotime($sale->created_at)) }}</td>
-                                        <td>{{ $sale->queue_number ?? '-' }}</td>
+                                        <td>{{ $sale->customer->name ?? '-' }}</td>
                                         <td>{{ $sale->payment_method ?? '-' }}</td>
                                         <td>
                                             <ul>
