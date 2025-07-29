@@ -16,7 +16,18 @@
                 </li>
 
                 <li class="submenu">
-                    <a href="#"><i class="fe fe-document"></i> <span>Produk</span> <span
+                    <a href="#"><i class="fe fe-user"></i> <span>Pemasok</span> <span
+                            class="menu-arrow"></span></a>
+                    <ul style="display: none;">
+                        <li><a class="{{ route_is('suppliers.*') ? 'active' : '' }}"
+                                href="{{ route('suppliers.index') }}">Data Pemasok</a></li>
+                        <li><a class="{{ route_is('suppliers.create') ? 'active' : '' }}"
+                                href="{{ route('suppliers.create') }}">Tambah Pemasok</a></li>
+                    </ul>
+                </li>
+
+                <li class="submenu">
+                    <a href="#"><i class="fe fe-document"></i> <span>Master Data Obat</span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a class="{{ route_is('products.*') ? 'active' : '' }}"
@@ -50,20 +61,11 @@
                         <li><a class="{{ route_is('sales.*') ? 'active' : '' }}"
                                 href="{{ route('sales.index') }}">Data Penjualan</a></li>
                         <li><a class="{{ route_is('sales.create') ? 'active' : '' }}"
-                                href="{{ route('sales.create') }}">Tambah Penjualan</a></li>
+                                href="{{ route('sales.create') }}">Transaksi Baru</a></li>
                     </ul>
                 </li>
 
-                <li class="submenu">
-                    <a href="#"><i class="fe fe-user"></i> <span>Pemasok</span> <span
-                            class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a class="{{ route_is('suppliers.*') ? 'active' : '' }}"
-                                href="{{ route('suppliers.index') }}">Data Pemasok</a></li>
-                        <li><a class="{{ route_is('suppliers.create') ? 'active' : '' }}"
-                                href="{{ route('suppliers.create') }}">Tambah Pemasok</a></li>
-                    </ul>
-                </li>
+
 
                 <li class="submenu">
                     <a href="#"><i class="fe fe-document"></i> <span>Laporan</span> <span
