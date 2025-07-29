@@ -66,8 +66,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $title = 'Edit Produk';
-        $purchases = Purchase::get();
-        return view('admin.products.edit', compact('title', 'product', 'purchases'));
+        $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
@@ -108,10 +108,10 @@ class ProductController extends Controller
         $products = Product::whereHas('purchaseItems', function ($query) {
             $query->whereDate('expiry_date', '<=', now());
         })
-        ->with(['purchaseItems' => function ($query) {
-            $query->whereDate('expiry_date', '<=', now());
-        }])
-        ->paginate(10);
+            ->with(['purchaseItems' => function ($query) {
+                $query->whereDate('expiry_date', '<=', now());
+            }])
+            ->paginate(10);
 
         return view('admin.products.expired', compact('title', 'products'));
     }
