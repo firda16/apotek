@@ -5,10 +5,10 @@
 
 @push('page-header')
     <div class="col-sm-12">
-        <h3 class="page-title">Tambah Produk</h3>
+        <h3 class="page-title">Tambah Detail Produk</h3>
         <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
-            <li class="breadcrumb-item active">Tambah Produk</li>
+            <li class="breadcrumb-item active">Tambah Detail Produk</li>
         </ul>
     </div>
 @endpush
@@ -23,7 +23,7 @@
                         @csrf
                         <div class="service-fields mb-3">
                             <div class="row">
-                                <!-- Pilih Produk (dari purchase/product) -->
+                                <!-- Pilih Produk -->
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>Nama Produk <span class="text-danger">*</span></label>
@@ -31,7 +31,8 @@
                                             <option disabled selected>Pilih Produk</option>
                                             @foreach ($products as $product)
                                                 <option value="{{ $product->id }}"
-                                                    data-category="{{ $product->category->name ?? '-' }}">
+                                                    data-category="{{ $product->category->name ?? '-' }}"
+                                                    data-categoryid="{{ $product->category->id ?? '' }}">
                                                     {{ $product->name }}
                                                 </option>
                                             @endforeach
@@ -44,9 +45,9 @@
                                     <div class="form-group">
                                         <label>Kategori</label>
                                         <input type="text" class="form-control" id="categoryDisplay" readonly>
+                                        <input type="hidden" name="category_id" id="categoryId">
                                     </div>
                                 </div>
-
                             </div>
                         </div>
 
@@ -82,6 +83,13 @@
                         <!-- Diskon & Deskripsi -->
                         <div class="service-fields mb-3">
                             <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Diskon (opsional)</label>
+                                        <input type="number" name="discount" class="form-control"
+                                            value="{{ old('discount') }}">
+                                    </div>
+                                </div>
 
                                 <div class="col-lg-6">
                                     <div class="form-group">
@@ -105,19 +113,18 @@
 @endsection
 
 @push('page-js')
-@push('page-js')
-<script>
-    $(document).ready(function () {
-        $('#productSelect').on('change', function () {
-            const selected = $(this).find(':selected');
-            const category = selected.data('category') || '-';
-            $('#categoryDisplay').val(category);
+    <script>
+        $(document).ready(function() {
+            $('#productSelect').on('change', function() {
+                const selected = $(this).find(':selected');
+                const categoryName = selected.data('category') || '-';
+                const categoryId = selected.data('categoryid') || '';
+
+                $('#categoryDisplay').val(categoryName);
+                $('#categoryId').val(categoryId);
+            });
+
+            $('#productSelect').trigger('change');
         });
-
-        // trigger sekali di awal kalau sudah dipilih
-        $('#productSelect').trigger('change');
-    });
-</script>
-@endpush
-
+    </script>
 @endpush

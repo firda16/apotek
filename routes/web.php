@@ -52,8 +52,9 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
     Route::resource('categories',CategoryController::class)->only(['index','edit','store','destroy']);
     // Route::put('categories',[CategoryController::class,'update'])->name('categories.update');
     Route::post('categories/update', [CategoryController::class, 'update'])->name('categories.update');
-    Route::resource('purchases',PurchaseController::class)->except('show');
-        Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::resource('purchases', App\Http\Controllers\Admin\PurchaseController::class);
+
+
     Route::get('purchases/reports',[PurchaseController::class,'reports'])->name('purchases.report');
     Route::post('purchases/reports',[PurchaseController::class,'generateReport']);
     Route::resource('products',ProductController::class)->except('show');

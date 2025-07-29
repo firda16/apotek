@@ -55,26 +55,26 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'=>'required|min:10|max:255',           
+            'name'=>'required|min:3|max:255',
             'email'=>'nullable|email|string',
             'phone'=>'nullable|min:10|max:20',
             'company'=>'nullable|max:200|required',
             'address'=>'nullable|required|max:200',
-            'comment' =>'nullable|max:255',
+          
         ]);
         Supplier::create([
             'name'=>$request->name,
             'email'=>$request->email,
             'phone'=>$request->phone,
             'company'=>$request->company,
-            'address'=>$request->address,           
-            'comment'=>$request->comment,
+            'address'=>$request->address,
+
         ]);
         $notification = notify("Supplier has been added");
         return redirect()->route('suppliers.index')->with($notification);
     }
 
-    
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -99,20 +99,20 @@ class SupplierController extends Controller
     public function update(Request $request, Supplier $supplier)
     {
         $request->validate([
-            'name'=>'required|min:10|max:255',            
+            'name'=>'required|min:3|max:255',
             'email'=>'nullable|email|string',
             'phone'=>'nullable|min:10|max:20',
             'company'=>'nullable|max:200|required',
             'address'=>'nullable|required|max:200',
-            'comment' =>'nullable|max:255',
+
         ]);
         $supplier->update([
             'name'=>$request->name,
             'email'=>$request->email,
             'phone'=>$request->phone,
             'company'=>$request->company,
-            'address'=>$request->address,           
-            'comment'=>$request->comment,
+            'address'=>$request->address,
+
         ]);
         $notification = notify("Supplier has been added");
         return redirect()->route('suppliers.index')->with($notification);

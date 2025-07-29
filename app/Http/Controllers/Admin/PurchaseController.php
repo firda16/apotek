@@ -12,8 +12,10 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Container\Attributes\Log;
+use Illuminate\Support\Facades\Log;
 use QCod\AppSettings\Setting\AppSettings;
+
+
 
 class PurchaseController extends Controller
 {
@@ -77,11 +79,15 @@ class PurchaseController extends Controller
             'products.*.expiry_date' => 'nullable|date',
             'products.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Untuk validasi gambar
             'payment_method' => 'required|string|in:Tunai,Transfer,QRIS,Ewallet', // Validasi payment method
+            'products' => 'required|array|min:1',
+
         ]);
 
         DB::beginTransaction();
 
         try {
+
+            Log::info('Mulai simpan pembelian');
             // Buat entri pembelian utama
             $purchase = Purchase::create([
                 'supplier_id' => $request->supplier_id,
@@ -89,6 +95,7 @@ class PurchaseController extends Controller
                 'total_price' => 0, // karena field-nya di tabel purchases = total_price
 
             ]);
+            Log::info('Pembelian berhasil dibuat', ['purchase_id' => $purchase->id]);
 
             $total = 0;
 

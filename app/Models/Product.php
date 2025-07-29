@@ -9,26 +9,31 @@ use App\Models\Category;
 
 class Product extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
-        'name','category_id','unit',
-        'price','stock','description',
+        'name',
+        'category_id',
+        'unit',
+        'price',
+        'stock',
+        'description',
     ];
 
-    public function purchase(){
+    public function purchase()
+    {
         return $this->belongsTo(Purchase::class);
     }
-    public function category(){
+    public function category()
+    {
         return $this->belongsTo(Category::class);
     }
 
-    public function purchaseItems() {
+    public function purchaseItems()
+    {
         return $this->hasMany(PurchaseItem::class);
     }
     public function saleItems()
     {
         return $this->hasMany(SaleItem::class);
     }
-
-
 }
