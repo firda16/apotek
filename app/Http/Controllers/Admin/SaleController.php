@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\SaleItem;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Events\PurchaseOutStock;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,6 +17,14 @@ use App\Http\Controllers\Controller;
 
 class SaleController extends Controller
 {
+
+    public function printInvoice(Sale $sale)
+    {
+        $pdf = Pdf::loadView('admin.sales.invoice', compact('sale'));
+        return $pdf->stream('invoice-' . $sale->invoice_number . '.pdf');
+    }
+
+
     public function index(Request $request)
     {
         $sales = Sale::with(['customer', 'saleItems'])

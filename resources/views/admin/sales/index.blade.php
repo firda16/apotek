@@ -31,7 +31,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Tanggal Penjualan</th>
-                                    <th>nomor invoice</th>                                    
+                                    <th>nomor invoice</th>
                                     <th>Nama Pelanggan</th>
                                     <th>Nomor Hp</th>
                                     <th>Metode Pembayaran</th>
@@ -86,6 +86,12 @@
                                             <a href="{{ route('sales.edit', $sale->id) }}" class="editbtn">
                                                 <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
                                             </a>
+
+                                            <a href="{{ route('sales.invoice', $sale->id) }}" target="_blank"
+                                                class="btn btn-info">
+                                                <i class="fas fa-print"></i>
+                                            </a>
+
                                             <form action="{{ route('sales.destroy', $sale->id) }}" method="POST"
                                                 style="display:inline;">
                                                 @csrf

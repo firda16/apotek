@@ -65,6 +65,7 @@ Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.l
     Route::get('products/outstock',[ProductController::class,'outstock'])->name('outstock');
     Route::get('products/expired',[ProductController::class,'expired'])->name('expired');
     Route::resource('sales',SaleController::class)->except('show');
+    Route::get('sales/{sale}/invoice', [SaleController::class, 'printInvoice'])->name('sales.invoice');
     Route::get('sales/data', [SaleController::class, 'getData'])->name('sales.data');
     Route::get('sales/reports',[SaleController::class,'reports'])->name('sales.report');
     Route::post('sales/reports',[SaleController::class,'generateReport']);
