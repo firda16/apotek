@@ -15,16 +15,6 @@
                     <a href="{{ route('categories.index') }}"><i class="fe fe-layout"></i> <span>Kategori</span></a>
                 </li>
 
-                <li class="submenu">
-                    <a href="#"><i class="fe fe-user"></i> <span>Pemasok</span> <span
-                            class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a class="{{ route_is('suppliers.*') ? 'active' : '' }}"
-                                href="{{ route('suppliers.index') }}">Data Pemasok</a></li>
-                        <li><a class="{{ route_is('suppliers.create') ? 'active' : '' }}"
-                                href="{{ route('suppliers.create') }}">Tambah Pemasok</a></li>
-                    </ul>
-                </li>
 
                 <li class="submenu">
                     <a href="#"><i class="fe fe-document"></i> <span>Master Data Obat</span> <span
@@ -43,6 +33,17 @@
                     </ul>
                 </li>
 
+                <li class="submenu">
+                    <a href="#"><i class="fe fe-user"></i> <span>Pemasok</span> <span
+                            class="menu-arrow"></span></a>
+                    <ul style="display: none;">
+                        <li><a class="{{ route_is('suppliers.*') ? 'active' : '' }}"
+                                href="{{ route('suppliers.index') }}">Data Pemasok</a></li>
+                        <li><a class="{{ route_is('suppliers.create') ? 'active' : '' }}"
+                                href="{{ route('suppliers.create') }}">Tambah Pemasok</a></li>
+                    </ul>
+                </li>
+                
                 <li class="submenu">
                     <a href="#"><i class="fe fe-star-o"></i> <span>Pembelian</span> <span
                             class="menu-arrow"></span></a>

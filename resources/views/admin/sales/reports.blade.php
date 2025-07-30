@@ -7,10 +7,10 @@
 
 @push('page-header')
     <div class="col-sm-7 col-auto">
-        <h3 class="page-title">Sales Reports</h3>
+        <h3 class="page-title">Laporan Penjualan</h3>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item active">Generate Sales Reports</li>
+            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
+            <li class="breadcrumb-item active">Laporan Penjualan</li>
         </ul>
     </div>
     <div class="col-sm-5 col">
