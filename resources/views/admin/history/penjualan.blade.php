@@ -23,7 +23,7 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th>No</th>
-                                    <th>No Antrian</th>
+                                    <th>Nama Pelanggan</th>
                                     <th>Nama Obat</th>
                                     <th>Kategori</th>
                                     <th>Jumlah</th>
@@ -37,19 +37,29 @@
                             </thead>
                             <tbody>
                                 @foreach ($sales as $sale)
-                                    <tr>
-                                      <td>{{ $sales->firstItem() + $loop->index }}</td>
-                                        <td>{{ $sale->no_antrian ?? '-' }}</td>
-                                        <td>{{ $sale->product->purchase->product ?? '-' }}</td>
-                                        <td>{{ $sale->product->purchase->category->name ?? '-' }}</td>
-                                        <td>{{ $sale->quantity ?? '-' }}</td>
-                                        <td>{{ $sale->unit ?? '-' }}</td>
-                                        <td>Rp{{ number_format($sale->price, 0, ',', '.') }}</td>
-                                        <td>{{ $sale->discount ?? 0 }}%</td>
-                                        <td>Rp{{ number_format($sale->total_price ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ ucfirst($sale->metode_pembayaran ?? '-') }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($sale->created_at ?? 'now')->format('d M Y') }}</td>
-                                    </tr>
+                                    @php $first = true; @endphp
+                                    @foreach ($sale->saleItems as $item)
+                                        <tr>
+                                            @if ($first)
+                                                <td rowspan="{{ $sale->saleItems->count() }}">
+                                                    {{ $loop->parent->iteration + $sales->firstItem() - 1 }}</td>
+                                                <td rowspan="{{ $sale->saleItems->count() }}">
+                                                    {{ $sale->customer->nama ?? '-' }}</td>
+                                                @php $first = false; @endphp
+                                            @endif
+
+                                            <td>{{ $item->product->name }}</td>
+                                            <td>{{ $item->product->category->name ?? '-' }}</td>
+                                            <td>{{ $item->quantity ?? '-' }}</td>
+                                            <td>{{ $item->product->unit ?? '-' }}</td>
+                                            <td>Rp{{ number_format($item->unit_price ?? 0, 0, ',', '.') }}</td>
+                                            <td>{{ number_format($sale->discount ?? 0, 2, ',', '.') }}%</td>
+                                            <td>Rp{{ number_format($sale->total_price ?? 0, 0, ',', '.') }}</td>
+                                            <td>{{ ucfirst($sale->payment_method ?? '-') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($sale->created_at ?? now())->format('d M Y') }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @endforeach
                             </tbody>
                         </table>

@@ -63,22 +63,8 @@
 									<input type="text" name="address" class="form-control">
 								</div>
 							</div>
-							<div class="col-lg-6">
-								<label>Produk</label>
-								<input type="text" name="product" class="form-control">
-							</div>
 						</div>
 					</div>
-
-					<div class="service-fields mb-3">
-						<div class="row">
-							<div class="col-12">
-								<label>Catatan</label>
-								<textarea name="comment" class="form-control" cols="30" rows="10"></textarea>
-							</div>
-						</div>
-					</div>
-
 					<div class="submit-section">
 						<button class="btn btn-primary submit-btn" type="submit" name="form_submit" value="submit">Kirim</button>
 					</div>

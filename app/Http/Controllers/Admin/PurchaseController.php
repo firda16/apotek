@@ -240,16 +240,23 @@ class PurchaseController extends Controller
     }
 
     public function generateReport(Request $request)
-    {
-        $request->validate([
-            'from_date' => 'required|date',
-            'to_date' => 'required|date|after_or_equal:from_date'
-        ]);
+{
+    $request->validate([
+        'from_date' => 'required|date',
+        'to_date' => 'required|date|after_or_equal:from_date'
+    ]);
 
-        $title = 'purchases reports';
-        $purchases = Purchase::whereBetween(DB::raw('DATE(created_at)'), [$request->from_date, $request->to_date])->get();
-        return view('admin.purchases.reports', compact('purchases', 'title'));
-    }
+    $title = 'purchases reports';
+
+    $pembelians = Purchase::with(['supplier', 'purchaseItems.product.category'])
+        ->whereDate('created_at', '>=', $request->from_date)
+        ->whereDate('created_at', '<=', $request->to_date)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('admin.purchases.reports', compact('pembelians', 'title'));
+}
+
 
     public function destroy(Request $request, Purchase $purchase)
     {

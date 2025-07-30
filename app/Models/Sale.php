@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Supplier;
 
 class Sale extends Model
 {
@@ -31,10 +32,13 @@ class Sale extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
     // Sale.php
     public function customer()
     {
         return $this->belongsTo(Customer::class);
     }
-
 }

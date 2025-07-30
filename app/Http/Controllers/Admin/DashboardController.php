@@ -21,7 +21,7 @@ class DashboardController extends Controller
         $title = 'dashboard';
 
         // Total pengeluaran hari ini (dari tabel purchase_items)
-        $total_pengeluaran = \App\Models\PurchaseItem::whereDate('created_at', Carbon::today())->sum('total_price');
+        $total_pengeluaran = PurchaseItem::sum('total_price');
 
         // Total pendapatan hari ini (dari tabel sale_items)
         $total_pendapatan = \App\Models\SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
@@ -82,7 +82,9 @@ class DashboardController extends Controller
             'total_suppliers',
             'total_pendapatan',
             'total_pengeluaran',
-            'stok_produk'
+            'stok_produk',
+            'total_pengeluaran'
+
         ));
     }
 

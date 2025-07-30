@@ -5,10 +5,10 @@
 
 @push('page-header')
     <div class="col-sm-12">
-        <h3 class="page-title">Tambah Detail Produk</h3>
+        <h3 class="page-title">Tambah Produk Baru</h3>
         <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
-            <li class="breadcrumb-item active">Tambah Detail Produk</li>
+            <li class="breadcrumb-item active">Tambah Produk</li>
         </ul>
     </div>
 @endpush
@@ -18,34 +18,33 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body custom-edit-service">
-                    <!-- Form Tambah Produk -->
+                    <!-- Form Tambah Produk Baru -->
                     <form method="POST" action="{{ route('products.store') }}">
                         @csrf
                         <div class="service-fields mb-3">
                             <div class="row">
-                                <!-- Pilih Produk -->
+                                <!-- Nama Produk -->
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>Nama Produk <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" name="product_id" id="productSelect" required>
-                                            <option disabled selected>Pilih Produk</option>
-                                            @foreach ($products as $product)
-                                                <option value="{{ $product->id }}"
-                                                    data-category="{{ $product->category->name ?? '-' }}"
-                                                    data-categoryid="{{ $product->category->id ?? '' }}">
-                                                    {{ $product->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <input type="text" name="name" class="form-control"
+                                            value="{{ old('name') }}" required>
                                     </div>
                                 </div>
 
-                                <!-- Kategori Otomatis -->
+                                <!-- Pilih Kategori -->
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        <label>Kategori</label>
-                                        <input type="text" class="form-control" id="categoryDisplay" readonly>
-                                        <input type="hidden" name="category_id" id="categoryId">
+                                        <label>Kategori <span class="text-danger">*</span></label>
+                                        <select name="category_id" class="form-control select2" required>
+                                            <option value="">-- Pilih Kategori --</option>
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}"
+                                                    {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                                    {{ $category->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -56,7 +55,7 @@
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div class="form-group">
-                                        <label>Harga Jual (Rp)<span class="text-danger">*</span></label>
+                                        <label>Harga Jual (Rp) <span class="text-danger">*</span></label>
                                         <input type="number" name="price" class="form-control"
                                             value="{{ old('price') }}" required>
                                     </div>
@@ -80,12 +79,12 @@
                             </div>
                         </div>
 
-                        <!-- Diskon & Deskripsi -->
+                        <!-- Diskon dan Deskripsi -->
                         <div class="service-fields mb-3">
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        <label>Diskon (opsional)</label>
+                                        <label>Diskon (%)</label>
                                         <input type="number" name="discount" class="form-control"
                                             value="{{ old('discount') }}">
                                     </div>
@@ -115,16 +114,7 @@
 @push('page-js')
     <script>
         $(document).ready(function() {
-            $('#productSelect').on('change', function() {
-                const selected = $(this).find(':selected');
-                const categoryName = selected.data('category') || '-';
-                const categoryId = selected.data('categoryid') || '';
-
-                $('#categoryDisplay').val(categoryName);
-                $('#categoryId').val(categoryId);
-            });
-
-            $('#productSelect').trigger('change');
+            $('.select2').select2();
         });
     </script>
 @endpush

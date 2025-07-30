@@ -36,10 +36,11 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @php $no = 1; @endphp
                                 @foreach ($purchases as $purchase)
                                     @foreach ($purchase->items as $item)
                                         <tr>
-                                            <td>{{ $loop->parent->iteration }}.{{ $loop->iteration }}</td>
+                                            <td>{{ $no++ }}</td>
                                             <td>{{ $purchase->supplier->name ?? '-' }}</td>
                                             <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d M Y') }}</td>
                                             <td>{{ $item->product->name ?? '-' }}</td>
@@ -48,7 +49,8 @@
                                             <td>Rp{{ number_format($item->unit_price, 0, ',', '.') }}</td>
                                             <td>{{ $item->quantity }}</td>
                                             <td>{{ ucfirst($purchase->payment_method ?? '-') }}</td>
-                                            <td>Rp{{ number_format($item->subtotal ?? $item->qty * $item->unit_price, 0, ',', '.') }}</td>
+                                            <td>Rp{{ number_format($item->subtotal ?? $item->quantity * $item->unit_price, 0, ',', '.') }}
+                                            </td>
                                             <td>
                                                 @php
                                                     $expired = \Carbon\Carbon::parse($item->expired_at);
@@ -65,7 +67,10 @@
                             </tbody>
                         </table>
                     </div>
-
+                    <div class="mt-3">
+                        <h5 class="text-end">Total Keseluruhan Pembelian:
+                            <strong>Rp{{ number_format($totalPembelian, 0, ',', '.') }}</strong></h5>
+                    </div>
                     <div class="d-flex justify-content-end mt-3">
                         {{ $purchases->links('pagination::bootstrap-5') }}
                     </div>

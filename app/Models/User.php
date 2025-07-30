@@ -52,16 +52,17 @@ class User extends Authenticatable
     'password' => 'hashed',
 ];
 
-public static function getRoleOptions(): array
+public static function getRoleOptions()
 {
     $type = DB::select("SHOW COLUMNS FROM users WHERE Field = 'role'")[0]->Type;
 
-    // Hasil: enum('admin','kasir')
-    preg_match('/enum\((.*)\)/', $type, $matches);
+    if (preg_match('/enum\((.*)\)/', $type, $matches)) {
+        return array_map(function ($value) {
+            return trim($value, " '");
+        }, explode(',', $matches[1]));
+    }
 
-    return array_map(function ($value) {
-        return trim($value, " '");
-    }, explode(',', $matches[1]));
+    return []; // fallback kalau bukan enum
 }
 
 
