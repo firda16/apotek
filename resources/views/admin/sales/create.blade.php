@@ -225,10 +225,13 @@
                                         <select name="sale_items[0][nama_produk]" class="form-select select2" required>
                                             <option disabled selected>Pilih Produk</option>
                                             @foreach ($products as $product)
-                                                <option value="{{ $product->id }}"
+                                                <option value="{{ $product->id }}"                                                   
                                                     data-category="{{ $product->category->name ?? '-' }}"
                                                     data-price="{{ $product->price }}">
                                                     {{ $product->name }}
+                                                    @if($product->stock == 0) 
+                                                    - [ stok kosong ] 
+                                                    @endif
                                                 </option>
                                             @endforeach
                                         </select>
@@ -276,7 +279,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-4">
+                        <div class="row mb-4 mt-4">
                             <div class="col-md-6">
                                 <button type="button" class="btn btn-primary" id="add-product">
                                     <i class="fas fa-plus me-2" style="margin-right: 10px;" ></i>Tambah Produk
@@ -355,7 +358,7 @@
                         <!-- Submit Button -->
                         <div class="row mt-4">
                             <div class="col-12">
-                                <button type="submit" class="btn btn-submit w-100">
+                                <button type="submit" class="btn btn-primary w-100">
                                     <i class="fas fa-save me-2" style="margin-right: 10px;"></i>Simpan Penjualan
                                 </button>
                             </div>
@@ -374,7 +377,7 @@
         // Tambah produk
         $('#add-product').click(function() {
             let html = `
-        <div class="product-card sale-items">
+        <div class="sale-items-card sale-items">
             <div class="row align-items-end">
                 <div class="col-md-4">
                     <label class="form-label">Produk <span class="required-asterisk">*</span></label>

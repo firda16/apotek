@@ -3,7 +3,6 @@
 <x-assets.datatables />
 
 @push('page-css')
-
 @endpush
 
 @push('page-header')
@@ -49,21 +48,25 @@
                             </thead>
                             <tbody>
                                 @foreach ($sales as $sale)
-                                {{-- @foreach ($sale->saleItems as $item) --}}
+                                    {{-- @foreach ($sale->saleItems as $item) --}}
                                     <tr>
                                         <td>{{ $sales->firstItem() + $loop->index }}</td>
                                         <td>{{ date('d M, Y', strtotime($sale->created_at)) }}</td>
                                         <td>{{ $sale->customer->nama ?? '-' }}</td>
+                                        <td>{{ $sale->customer->telepon ?? '-' }}</td>
                                         <td>{{ $sale->payment_method ?? '-' }}</td>
                                         <td>
                                             @foreach ($sale->saleItems as $item)
-                                                <div style="border-bottom: 1px solid #ccc; padding-bottom: 6px; margin-bottom: 6px;">
+                                                <div
+                                                    style="border-bottom: 1px solid #ccc; padding-bottom: 6px; margin-bottom: 6px;">
                                                     <strong>Item {{ $loop->iteration }}</strong>
                                                     <div>Nama produk: {{ $item->product->name ?? '-' }}</div>
                                                     <div>Jumlah: {{ $item->quantity }}</div>
                                                     <div>Kategori: {{ $item->product->category->name ?? '-' }}</div>
-                                                    <div>Harga per Produk: Rp {{ number_format($item->unit_price, 0, ',', '.') }}</div>
-                                                    <div>Total: Rp {{ number_format($item->total_price, 0, ',', '.') }}</div>
+                                                    <div>Harga per Produk: Rp
+                                                        {{ number_format($item->unit_price, 0, ',', '.') }}</div>
+                                                    <div>Total: Rp {{ number_format($item->total_price, 0, ',', '.') }}
+                                                    </div>
                                                 </div>
                                             @endforeach
                                         </td>
