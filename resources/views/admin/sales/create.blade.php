@@ -7,7 +7,7 @@
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             border-radius: 0.5rem;
         }
-        
+
         .card-header {
             background: linear-gradient(135deg, #342af0 0%, #1637dc 100%);
             color: white;
@@ -15,19 +15,19 @@
             padding: 1.25rem 1.5rem;
             border: none;
         }
-        
+
         .card-header h5 {
             margin: 0;
             font-weight: 600;
         }
-        
+
         .section-divider {
             border: none;
             height: 2px;
             background: linear-gradient(90deg, #e5e7eb 0%, #d1d5db 50%, #e5e7eb 100%);
             margin: 2rem 0 1.5rem 0;
         }
-        
+
         .section-title {
             color: #374151;
             font-weight: 600;
@@ -36,26 +36,28 @@
             padding-bottom: 0.5rem;
             border-bottom: 2px solid #e5e7eb;
         }
-        
+
         .form-label {
             font-weight: 600;
             color: #374151;
             margin-bottom: 0.5rem;
         }
-        
-        .form-control, .form-select {
+
+        .form-control,
+        .form-select {
             border: 1px solid #d1d5db;
             border-radius: 0.375rem;
             padding: 0.625rem 0.75rem;
             font-size: 0.875rem;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
-        
-        .form-control:focus, .form-select:focus {
+
+        .form-control:focus,
+        .form-select:focus {
             border-color: #4f46e5;
             box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
         }
-        
+
         .product-card {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -64,13 +66,13 @@
             margin-bottom: 1rem;
             transition: all 0.2s ease;
         }
-                        
-        .product-header .row > div {
+
+        .product-header .row>div {
             font-weight: 600;
             color: #374151;
             font-size: 0.875rem;
         }
-        
+
         .btn-add-product {
             background: linear-gradient(135deg, #1728e2 0%, #1913c4 100%);
             border: none;
@@ -80,14 +82,14 @@
             border-radius: 0.375rem;
             transition: all 0.2s ease;
         }
-        
+
         .btn-add-product:hover {
             background: linear-gradient(135deg, #1728e2 0%, #0c088e 100%);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(11, 73, 173, 0.4);
             color: white;
         }
-        
+
         .btn-remove-product {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             border: none;
@@ -98,13 +100,13 @@
             font-weight: bold;
             transition: all 0.2s ease;
         }
-        
+
         .btn-remove-product:hover {
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             transform: scale(1.05);
             color: white;
         }
-        
+
         .summary-section {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             border: 1px solid #3b82f6;
@@ -112,14 +114,14 @@
             padding: 1.5rem;
             margin-top: 1.5rem;
         }
-        
+
         .summary-title {
             color: #1e40af;
             font-weight: 700;
             font-size: 1.1rem;
             margin-bottom: 1rem;
         }
-        
+
         .total-display {
             background: white;
             border: 2px solid #3b82f6;
@@ -130,7 +132,7 @@
             color: #1e40af;
             text-align: right;
         }
-        
+
         .btn-submit {
             background: linear-gradient(135deg, #2219d2 0%, #200daf 100%);
             border: none;
@@ -141,19 +143,19 @@
             border-radius: 0.5rem;
             transition: all 0.2s ease;
         }
-        
+
         .btn-submit:hover {
             background: linear-gradient(135deg, #4338ca 0%, #0f119b 100%);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
             color: white;
         }
-        
+
         .required-asterisk {
             color: #ef4444;
             font-weight: bold;
         }
-        
+
         .input-group-text {
             background: #f3f4f6;
             border-color: #d1d5db;
@@ -176,25 +178,43 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <div class="card">               
+            <div class="card">
                 <div class="card-body">
                     <form method="POST" action="{{ route('sales.store') }}">
                         @csrf
-                        
+
                         <!-- Informasi Pelanggan -->
                         <div class="row">
                             <div class="col-12">
-                                <h6 class="section-title"><i class="fas fa-user me-2" style="margin-right: 10px;" ></i>Informasi Pelanggan</h6>
+                                <h6 class="section-title"><i class="fas fa-user me-2"
+                                        style="margin-right: 10px;"></i>Informasi Pelanggan</h6>
                             </div>
                         </div>
-                        
+
+
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">Nama Pelanggan <span class="required-asterisk">*</span></label>
+                                    <label class="form-label">Nomor Invoice</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-file-invoice"></i></span>
+                                        <input type="text" name="invoice_number" class="form-control"
+                                            value="{{ $invoice_number }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Nama Pelanggan <span
+                                            class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <input type="text" name="nama_customer" class="form-control" placeholder="Masukkan nama pelanggan" required>
+                                        <input type="text" name="nama_customer" class="form-control"
+                                            placeholder="Masukkan nama pelanggan" required>
                                     </div>
                                 </div>
                             </div>
@@ -203,19 +223,21 @@
                                     <label class="form-label">Nomor Telepon <span class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                        <input type="text" name="nomor_telepon" class="form-control" placeholder="Contoh: 0876 5245 8976" required>
+                                        <input type="text" name="nomor_telepon" class="form-control"
+                                            placeholder="Contoh: 0876 5245 8976" required>
                                     </div>
                                 </div>
                             </div>
-                        </div>                                                                        
+                        </div>
 
                         <!-- Produk Penjualan -->
                         <div class="row">
                             <div class="col-12">
-                                <h6 class="section-title"><i class="fas fa-box me-2" style="margin-right: 10px;" ></i>Produk Penjualan</h6>
+                                <h6 class="section-title"><i class="fas fa-box me-2" style="margin-right: 10px;"></i>Produk
+                                    Penjualan</h6>
                             </div>
                         </div>
-                        
+
 
                         <div id="sale-items-wrapper">
                             <div class="sale-items-card sale-items">
@@ -225,12 +247,12 @@
                                         <select name="sale_items[0][nama_produk]" class="form-select select2" required>
                                             <option disabled selected>Pilih Produk</option>
                                             @foreach ($products as $product)
-                                                <option value="{{ $product->id }}"                                                   
+                                                <option value="{{ $product->id }}"
                                                     data-category="{{ $product->category->name ?? '-' }}"
                                                     data-price="{{ $product->price }}">
                                                     {{ $product->name }}
-                                                    @if($product->stock == 0) 
-                                                    - [ stok kosong ] 
+                                                    @if ($product->stock == 0)
+                                                        - [ stok kosong ]
                                                     @endif
                                                 </option>
                                             @endforeach
@@ -238,8 +260,8 @@
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label">Jumlah <span class="required-asterisk">*</span></label>
-                                        <input type="number" name="sale_items[0][quantity]" 
-                                               class="form-control quantity" required value="1" min="1" placeholder="1">
+                                        <input type="number" name="sale_items[0][quantity]" class="form-control quantity"
+                                            required value="1" min="1" placeholder="1">
                                     </div>
                                     {{-- <div class="col-md-2">
                                         <label class="form-label">Harga satuan <span class="required-asterisk">*</span></label>
@@ -252,26 +274,26 @@
                                         </div>
                                     </div> --}}
                                     <div class="col-md-2">
-                                        <label class="form-label">Harga satuan <span class="required-asterisk">*</span></label>
+                                        <label class="form-label">Harga satuan <span
+                                                class="required-asterisk">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-text">Rp</span>
-                                            <input type="number" 
-                                                   data-category="{{ $product->price}}" 
-                                                   name="sale_items[0][unit_price]" class="form-control price" 
-                                                   required min="0" placeholder="0">
+                                            <input type="number" data-category="{{ $product->price }}"
+                                                name="sale_items[0][unit_price]" class="form-control price" required
+                                                min="0" placeholder="0">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label">Subtotal</label>
                                         <div class="input-group">
                                             <span class="input-group-text">Rp</span>
-                                            <input type="number" class="form-control subtotal" 
-                                                placeholder="0" name="sale_items[0][total_price]" readonly>
+                                            <input type="number" class="form-control subtotal" placeholder="0"
+                                                name="sale_items[0][total_price]" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-1 d-flex justify-content-center">
-                                        <button type="button" class="btn btn-remove-product remove-product" 
-                                                title="Hapus produk">
+                                        <button type="button" class="btn btn-remove-product remove-product"
+                                            title="Hapus produk">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -282,7 +304,7 @@
                         <div class="row mb-4 mt-4">
                             <div class="col-md-6">
                                 <button type="button" class="btn btn-primary" id="add-product">
-                                    <i class="fas fa-plus me-2" style="margin-right: 10px;" ></i>Tambah Produk
+                                    <i class="fas fa-plus me-2" style="margin-right: 10px;"></i>Tambah Produk
                                 </button>
                             </div>
                             <div class="col-md-6">
@@ -290,8 +312,8 @@
                                     <label class="form-label">Jumlah Harga (Total Semua Produk)</label>
                                     <div class="input-group">
                                         <span class="input-group-text">Rp</span>
-                                        <input type="number" class="form-control total_price" 
-                                               disabled placeholder="0" style="font-weight: 600; background: #f8fafc;">
+                                        <input type="number" class="form-control total_price" disabled placeholder="0"
+                                            style="font-weight: 600; background: #f8fafc;">
                                     </div>
                                 </div>
                             </div>
@@ -303,17 +325,18 @@
                         <div class="summary-section">
                             <div class="row">
                                 <div class="col-12">
-                                    <h6 class="summary-title"><i class="fas fa-calculator me-2" style="margin-right: 10px;"></i>Ringkasan Pembayaran</h6>
+                                    <h6 class="summary-title"><i class="fas fa-calculator me-2"
+                                            style="margin-right: 10px;"></i>Ringkasan Pembayaran</h6>
                                 </div>
                             </div>
-                            
+
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label class="form-label">Diskon (%)</label>
                                         <div class="input-group">
-                                            <input type="number" name="discount" id="discount" class="form-control" 
-                                                   placeholder="0" min="0" max="100">
+                                            <input type="number" name="discount" id="discount" class="form-control"
+                                                placeholder="0" min="0" max="100">
                                             <span class="input-group-text">%</span>
                                         </div>
                                         <small class="text-muted">Masukkan persentase diskon (0-100)</small>
@@ -322,24 +345,26 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label class="form-label">Total Harga</label>
-                                        <input type="text" name="total_price" id="final_total" class="form-control total-display total_price" 
-                                               disabled placeholder="Rp 0">
+                                        <input type="text" name="total_price" id="final_total"
+                                            class="form-control total-display total_price" disabled placeholder="Rp 0">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        
-                        
+
+
                         <div class="row mt-4">
                             <div class="col-12">
-                                <h6 class="section-title"><i class="fas fa-user" style="margin-right: 10px;"></i>Pembayaran</h6>
+                                <h6 class="section-title"><i class="fas fa-user"
+                                        style="margin-right: 10px;"></i>Pembayaran</h6>
                             </div>
-                        </div>                        
+                        </div>
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">Metode Pembayaran <span class="required-asterisk">*</span></label>
+                                    <label class="form-label">Metode Pembayaran <span
+                                            class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
                                         <select name="payment_method" class="form-select" required>
@@ -353,7 +378,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
 
                         <!-- Submit Button -->
                         <div class="row mt-4">
@@ -398,7 +423,7 @@
                     <label class="form-label">Harga satuan <span class="required-asterisk">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text">Rp</span>
-                        <input type="number" data-category="{{ $product->price}}" name="sale_items[${index}][unit_price]" class="form-control price" required min="0" placeholder="0">                                            
+                        <input type="number" data-category="{{ $product->price }}" name="sale_items[${index}][unit_price]" class="form-control price" required min="0" placeholder="0">                                            
                     </div>
                 </div>                         
                 <div class="col-md-3">
@@ -416,14 +441,14 @@
             </div>
         </div>`;
             $('#sale-items-wrapper').append(html);
-            index++;            
+            index++;
         });
 
         $(document).on('change', 'select[name^="sale_items"]', function() {
-            const selected = $(this).find(':selected');            
+            const selected = $(this).find(':selected');
             const price = selected.data('price') || 0;
 
-            const row = $(this).closest('.sale-items');            
+            const row = $(this).closest('.sale-items');
             row.find('.price').val(price).trigger('input'); // supaya subtotal otomatis update
         });
 
@@ -442,42 +467,42 @@
         });
 
         // Hitung total semua subtotal
-function updateTotalPrice() {
-    let total = 0;
-    $('.subtotal').each(function() {
-        const val = parseFloat($(this).val()) || 0;
-        total += val;
-    });
+        function updateTotalPrice() {
+            let total = 0;
+            $('.subtotal').each(function() {
+                const val = parseFloat($(this).val()) || 0;
+                total += val;
+            });
 
-    // Update tampilan
-    $('.form-control.total_price').val(total);
-    $('.total-display.total_price').val('Rp ' + total.toLocaleString('id-ID'));
-}
+            // Update tampilan
+            $('.form-control.total_price').val(total);
+            $('.total-display.total_price').val('Rp ' + total.toLocaleString('id-ID'));
+        }
 
-// Jalankan fungsi saat kuantitas atau harga berubah
-$(document).on('input', '.quantity, .price', function() {
-    const row = $(this).closest('.sale-items');
-    const qty = parseFloat(row.find('.quantity').val()) || 0;
-    const price = parseFloat(row.find('.price').val()) || 0;
-    const subtotal = qty * price;
-    row.find('.subtotal').val(subtotal);
+        // Jalankan fungsi saat kuantitas atau harga berubah
+        $(document).on('input', '.quantity, .price', function() {
+            const row = $(this).closest('.sale-items');
+            const qty = parseFloat(row.find('.quantity').val()) || 0;
+            const price = parseFloat(row.find('.price').val()) || 0;
+            const subtotal = qty * price;
+            row.find('.subtotal').val(subtotal);
 
-    updateTotalPrice();
-});
+            updateTotalPrice();
+        });
 
-// Jalankan ulang saat menghapus item
-$(document).on('click', '.remove-product', function() {
-    $(this).closest('.sale-items').remove();
-    updateTotalPrice();
-});
+        // Jalankan ulang saat menghapus item
+        $(document).on('click', '.remove-product', function() {
+            $(this).closest('.sale-items').remove();
+            updateTotalPrice();
+        });
 
-// Jalankan juga saat produk dipilih (karena harga bisa berubah)
-$(document).on('change', 'select[name^="sale_items"]', function() {
-    const selected = $(this).find(':selected');
-    const price = selected.data('price') || 0;
-    const row = $(this).closest('.sale-items');
-    row.find('.price').val(price).trigger('input'); // Trigger input agar subtotal dan total update
-});
+        // Jalankan juga saat produk dipilih (karena harga bisa berubah)
+        $(document).on('change', 'select[name^="sale_items"]', function() {
+            const selected = $(this).find(':selected');
+            const price = selected.data('price') || 0;
+            const row = $(this).closest('.sale-items');
+            row.find('.price').val(price).trigger('input'); // Trigger input agar subtotal dan total update
+        });
 
 
         $(document).on('change', 'select[name^="products"]', function() {
@@ -487,38 +512,37 @@ $(document).on('change', 'select[name^="sale_items"]', function() {
 
 
         function updateFinalTotal() {
-    let total = 0;
-    $('.subtotal').each(function () {
-        total += parseFloat($(this).val()) || 0;
-    });
+            let total = 0;
+            $('.subtotal').each(function() {
+                total += parseFloat($(this).val()) || 0;
+            });
 
-    let discount = parseFloat($('#discount').val()) || 0;
-    if (discount < 0) discount = 0;
-    if (discount > 100) discount = 100;
+            let discount = parseFloat($('#discount').val()) || 0;
+            if (discount < 0) discount = 0;
+            if (discount > 100) discount = 100;
 
-    let discountedTotal = total - (discount / 100 * total);
+            let discountedTotal = total - (discount / 100 * total);
 
-    // Update tampilan
-    $('.form-control.total_price').val(total); // input total di atas diskon
-    $('#final_total').val('Rp ' + discountedTotal.toLocaleString('id-ID'));
-}
+            // Update tampilan
+            $('.form-control.total_price').val(total); // input total di atas diskon
+            $('#final_total').val('Rp ' + discountedTotal.toLocaleString('id-ID'));
+        }
 
-// Trigger saat diskon berubah
-$(document).on('input', '#discount', function () {
-    updateFinalTotal();
-});
+        // Trigger saat diskon berubah
+        $(document).on('input', '#discount', function() {
+            updateFinalTotal();
+        });
 
-// Integrasikan ke updateTotalPrice
-function updateTotalPrice() {
-    let total = 0;
-    $('.subtotal').each(function () {
-        const val = parseFloat($(this).val()) || 0;
-        total += val;
-    });
+        // Integrasikan ke updateTotalPrice
+        function updateTotalPrice() {
+            let total = 0;
+            $('.subtotal').each(function() {
+                const val = parseFloat($(this).val()) || 0;
+                total += val;
+            });
 
-    $('.form-control.total_price').val(total);
-    updateFinalTotal(); // Update total setelah diskon juga
-}
-
+            $('.form-control.total_price').val(total);
+            updateFinalTotal(); // Update total setelah diskon juga
+        }
     </script>
 @endpush

@@ -31,6 +31,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Tanggal Penjualan</th>
+                                    <th>nomor invoice</th>                                    
                                     <th>Nama Pelanggan</th>
                                     <th>Nomor Hp</th>
                                     <th>Metode Pembayaran</th>
@@ -52,6 +53,7 @@
                                     <tr>
                                         <td>{{ $sales->firstItem() + $loop->index }}</td>
                                         <td>{{ date('d M, Y', strtotime($sale->created_at)) }}</td>
+                                        <td>{{ $sale->invoice_number ?? '-' }}</td>
                                         <td>{{ $sale->customer->nama ?? '-' }}</td>
                                         <td>{{ $sale->customer->telepon ?? '-' }}</td>
                                         <td>{{ $sale->payment_method ?? '-' }}</td>

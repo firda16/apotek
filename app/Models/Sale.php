@@ -11,6 +11,7 @@ class Sale extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'invoice_number',
         'customer_id',
         'queue_number',
         'payment_method',

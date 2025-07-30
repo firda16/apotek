@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\SaleItem;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Events\PurchaseOutStock;
 use Illuminate\Support\Facades\DB;
@@ -35,13 +36,17 @@ class SaleController extends Controller
         $products = Product::all();
         $categories = Category::all();
 
-        return view('admin.sales.create', compact('title', 'products', 'categories'));
+        // Generate invoice number secara acak, contoh: INV-20250730-XXXX
+        $invoice_number = 'INV-' . now()->format('Ymd') . '-' . strtoupper(Str::random(4));
+
+        return view('admin.sales.create', compact('title', 'products', 'categories', 'invoice_number'));
     }
 
 
     public function store(Request $request)
     {
         $request->validate([
+            'invoice_number' => 'required|string|max:255',
             'nama_customer' => 'required|string|max:255',
             'nomor_telepon' => 'required|string|max:20',
             'sale_items' => 'required|array|min:1',
@@ -91,6 +96,7 @@ class SaleController extends Controller
                 'payment_method' => $request->payment_method,
                 'discount' => $discount_percentage,
                 'total_price' => $overall_total_price,
+                'invoice_number' => $request->invoice_number,
             ]);
 
             foreach ($request->sale_items as $item) {
@@ -221,111 +227,111 @@ class SaleController extends Controller
 
 
     public function update(Request $request, Sale $sale)
-{
-    Log::info('--- Update Penjualan Dijalankan ---');
-    Log::info('Request data:', $request->all());
-    Log::info('Sale sebelum update:', $sale->toArray());
+    {
+        Log::info('--- Update Penjualan Dijalankan ---');
+        Log::info('Request data:', $request->all());
+        Log::info('Sale sebelum update:', $sale->toArray());
 
-    $request->validate([
-        'nama_customer' => 'required|string|max:255',
-        'nomor_telepon' => 'required|string|max:20',
-        'sale_items' => 'required|array|min:1',
-        'sale_items.*.nama_produk' => 'required|exists:products,id',
-        'sale_items.*.quantity' => 'required|numeric|min:1',
-        'sale_items.*.unit_price' => 'nullable|numeric|min:0',
-        'discount' => 'nullable|numeric|min:0|max:100',
-        'payment_method' => 'required|string|max:50',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        // Validasi stok
-        foreach ($request->sale_items as $item) {
-            $product = Product::find($item['nama_produk']);
-            if (!$product) {
-                Log::error("Produk tidak ditemukan: ID {$item['nama_produk']}");
-                return back()->withErrors(['stok' => 'Produk tidak ditemukan.']);
-            }
-            if ($product->stock < $item['quantity']) {
-                Log::error("Stok tidak cukup untuk produk: {$product->name}");
-                return back()->withErrors(['stok' => "Stok untuk produk {$product->name} tidak mencukupi."]);
-            }
-        }
-
-        // Kembalikan stok lama
-        foreach ($sale->saleItems as $item) {
-            Log::info("Kembalikan stok produk ID {$item->product_id} sebanyak {$item->quantity}");
-            Product::find($item->product_id)->increment('stock', $item->quantity);
-        }
-
-        // Hitung total harga
-        $overall_total_price = 0;
-        foreach ($request->sale_items as $item) {
-            $overall_total_price += $item['unit_price'] * $item['quantity'];
-        }
-
-        $discount_percentage = (float) ($request->discount ?? 0);
-        $discounted_total = $overall_total_price * (1 - $discount_percentage / 100);
-
-        Log::info("Total harga sebelum diskon: {$overall_total_price}");
-        Log::info("Diskon: {$discount_percentage}%");
-        Log::info("Total setelah diskon: {$discounted_total}");
-
-        // Hapus item lama
-        $sale->saleItems()->delete();
-        Log::info("Item lama dihapus.");
-
-        // Update customer
-        $customer = $sale->customer;
-        $customer->update([
-            'nama' => $request->nama_customer,
-            'telepon' => $request->nomor_telepon,
+        $request->validate([
+            'nama_customer' => 'required|string|max:255',
+            'nomor_telepon' => 'required|string|max:20',
+            'sale_items' => 'required|array|min:1',
+            'sale_items.*.nama_produk' => 'required|exists:products,id',
+            'sale_items.*.quantity' => 'required|numeric|min:1',
+            'sale_items.*.unit_price' => 'nullable|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0|max:100',
+            'payment_method' => 'required|string|max:50',
         ]);
-        Log::info("Customer diperbarui: ", $customer->toArray());
 
-        // Update penjualan
-        $sale->update([
-            'customer_id' => $customer->id,
-            'payment_method' => $request->payment_method,
-            'discount' => $discount_percentage,
-            // 'total_price' => $discounted_total,
-        ]);
-        Log::info("Sale diperbarui: ", $sale->fresh()->toArray());
+        DB::beginTransaction();
 
-        // Tambahkan item baru
-        foreach ($request->sale_items as $item) {
-            $subtotal = ($item['unit_price'] * $item['quantity']) - ($item['discount'] ?? 0);
+        try {
+            // Validasi stok
+            foreach ($request->sale_items as $item) {
+                $product = Product::find($item['nama_produk']);
+                if (!$product) {
+                    Log::error("Produk tidak ditemukan: ID {$item['nama_produk']}");
+                    return back()->withErrors(['stok' => 'Produk tidak ditemukan.']);
+                }
+                if ($product->stock < $item['quantity']) {
+                    Log::error("Stok tidak cukup untuk produk: {$product->name}");
+                    return back()->withErrors(['stok' => "Stok untuk produk {$product->name} tidak mencukupi."]);
+                }
+            }
 
-            SaleItem::create([
-                'sale_id' => $sale->id,
-                'product_id' => $item['nama_produk'],
-                'quantity' => $item['quantity'],
-                'unit' => $item['unit'] ?? null,
-                'unit_price' => $item['unit_price'],
-                'discount' => $item['discount'] ?? 0,
-                // 'total_price' => $subtotal,
+            // Kembalikan stok lama
+            foreach ($sale->saleItems as $item) {
+                Log::info("Kembalikan stok produk ID {$item->product_id} sebanyak {$item->quantity}");
+                Product::find($item->product_id)->increment('stock', $item->quantity);
+            }
+
+            // Hitung total harga
+            $overall_total_price = 0;
+            foreach ($request->sale_items as $item) {
+                $overall_total_price += $item['unit_price'] * $item['quantity'];
+            }
+
+            $discount_percentage = (float) ($request->discount ?? 0);
+            $discounted_total = $overall_total_price * (1 - $discount_percentage / 100);
+
+            Log::info("Total harga sebelum diskon: {$overall_total_price}");
+            Log::info("Diskon: {$discount_percentage}%");
+            Log::info("Total setelah diskon: {$discounted_total}");
+
+            // Hapus item lama
+            $sale->saleItems()->delete();
+            Log::info("Item lama dihapus.");
+
+            // Update customer
+            $customer = $sale->customer;
+            $customer->update([
+                'nama' => $request->nama_customer,
+                'telepon' => $request->nomor_telepon,
             ]);
+            Log::info("Customer diperbarui: ", $customer->toArray());
 
-            $product = Product::find($item['nama_produk']);
-            $product->decrement('stock', $item['quantity']);
-            Log::info("Stok produk ID {$item['nama_produk']} dikurangi sebanyak {$item['quantity']}");
+            // Update penjualan
+            $sale->update([
+                'customer_id' => $customer->id,
+                'payment_method' => $request->payment_method,
+                'discount' => $discount_percentage,
+                'total_price' => $discounted_total,
+            ]);
+            Log::info("Sale diperbarui: ", $sale->fresh()->toArray());
 
-            if ($product->stock <= 1) {
-                event(new PurchaseOutStock($product));
-                Log::warning("Produk {$product->name} hampir habis stok.");
+            // Tambahkan item baru
+            foreach ($request->sale_items as $item) {
+                $subtotal = ($item['unit_price'] * $item['quantity']) - ($item['discount'] ?? 0);
+
+                SaleItem::create([
+                    'sale_id' => $sale->id,
+                    'product_id' => $item['nama_produk'],
+                    'quantity' => $item['quantity'],
+                    'unit' => $item['unit'] ?? null,
+                    'unit_price' => $item['unit_price'],
+                    'discount' => $item['discount'] ?? 0,
+                    // 'total_price' => $subtotal,
+                ]);
+
+                $product = Product::find($item['nama_produk']);
+                $product->decrement('stock', $item['quantity']);
+                Log::info("Stok produk ID {$item['nama_produk']} dikurangi sebanyak {$item['quantity']}");
+
+                if ($product->stock <= 1) {
+                    event(new PurchaseOutStock($product));
+                    Log::warning("Produk {$product->name} hampir habis stok.");
+                }
             }
-        }
 
-        DB::commit();
-        Log::info('--- Update penjualan berhasil ---');
-        return redirect()->route('sales.index')->with('success', 'Penjualan berhasil diperbarui.');
-    } catch (\Throwable $e) {
-        DB::rollBack();
-        Log::error('Gagal update penjualan: ' . $e->getMessage());
-        return back()->with('error', 'Terjadi kesalahan saat memperbarui penjualan: ' . $e->getMessage());
+            DB::commit();
+            Log::info('--- Update penjualan berhasil ---');
+            return redirect()->route('sales.index')->with('success', 'Penjualan berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Gagal update penjualan: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memperbarui penjualan: ' . $e->getMessage());
+        }
     }
-}
 
 
 
@@ -452,13 +458,19 @@ class SaleController extends Controller
     //     }
     // }
 
-
-    public function destroy(Request $request)
+    public function destroy(Sale $sale)
     {
-        $sale = Sale::findOrFail($request->id);
         $sale->delete();
         return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus.');
     }
+
+
+    // public function destroy(Request $request)
+    // {
+    //     $sale = Sale::findOrFail($request->id);
+    //     $sale->delete();
+    //     return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus.');
+    // }
 
     public function reports(Request $request)
     {
