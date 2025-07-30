@@ -3,6 +3,7 @@
 <x-assets.datatables />
 
 @push('page-css')
+
 @endpush
 
 @push('page-header')
@@ -56,18 +57,19 @@
                                         <td>{{ $sale->customer->telepon ?? '-' }}</td>
                                         <td>{{ $sale->payment_method ?? '-' }}</td>
                                         <td>
-                                            <ul>
-                                                @foreach ($sale->saleItems as $item)
-                                                    <li>
-                                                        Nama produk: {{ $item->product->name ?? '-' }}
-                                                    </li>
-                                                    <li>Jumlah: {{ $item->quantity }}</li>
-                                                    <li>Kategori: {{ $item->product->category->name ?? '-' }}</li>
-                                                    <li>Harga per Produk: Rp {{ number_format($item->unit_price, 0, ',', '.') }}</li>
-                                                    <li>Total: Rp {{ number_format($item->total_price, 0, ',', '.') }}</li>
-                                                @endforeach
-                                            </ul>
+                                            @foreach ($sale->saleItems as $item)
+                                                <div style="border-bottom: 1px solid #ccc; padding-bottom: 6px; margin-bottom: 6px;">
+                                                    <strong>Item {{ $loop->iteration }}</strong>
+                                                    <div>Nama produk: {{ $item->product->name ?? '-' }}</div>
+                                                    <div>Jumlah: {{ $item->quantity }}</div>
+                                                    <div>Kategori: {{ $item->product->category->name ?? '-' }}</div>
+                                                    <div>Harga per Produk: Rp {{ number_format($item->unit_price, 0, ',', '.') }}</div>
+                                                    <div>Total: Rp {{ number_format($item->total_price, 0, ',', '.') }}</div>
+                                                </div>
+                                            @endforeach
                                         </td>
+
+
                                         <td>{{ $sale->discount ?? 0 }}%</td>
                                         <td>Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td>
                                         {{-- <td>{{ $item->product->nama_produk ?? '-' }}</td>
@@ -124,3 +126,7 @@
     });
 </script>
 @endpush --}}
+
+
+
+{{-- ini sudah benar --}}

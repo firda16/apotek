@@ -11,8 +11,8 @@ class Customer extends Model
 
     // Kolom yang boleh diisi mass-assignment
     protected $fillable = [
-        'name',
-        'phone',
+        'nama',
+        'telepon',
         'email',
         'address',
     ];
