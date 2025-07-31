@@ -82,13 +82,6 @@
                         <!-- Diskon dan Deskripsi -->
                         <div class="service-fields mb-3">
                             <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label>Diskon (%)</label>
-                                        <input type="number" name="discount" class="form-control"
-                                            value="{{ old('discount') }}">
-                                    </div>
-                                </div>
 
                                 <div class="col-lg-6">
                                     <div class="form-group">
