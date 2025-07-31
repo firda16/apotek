@@ -53,6 +53,7 @@
                                     <th>Pemasok</th>
                                     <th>Pembayaran</th>
                                     <th>Item</th>
+                                    <th>Total Harga</th>
                                     {{-- <th>Jumlah Produk</th>
                                     <th>Gambar</th>
                                     <th>Nama Obat</th>
@@ -76,17 +77,17 @@
                                                 @foreach ($pembelian->purchaseItems as $item)
                                                     <li>
                                                         <strong>{{ $item->product->name ?? '-' }}</strong><br>
+                                                        Exp: {{ $item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-' }} <br>
                                                         Kategori: {{ $item->product->category->name ?? '-' }}<br>
                                                         Jumlah: {{ $item->quantity }}<br>
                                                         Harga: Rp {{ number_format($item->unit_price, 0, ',', '.') }}<br>
-                                                        Total: Rp {{ number_format($item->total_price, 0, ',', '.') }}<br>
-                                                        Exp:
-                                                        {{ $item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-' }}
+                                                        Sub Total: Rp {{ number_format($item->total_price, 0, ',', '.') }}<br>                                                        
                                                     </li>
                                                     <hr class="my-1">
                                                 @endforeach
                                             </ul>
                                         </td>
+                                        <td>{{ number_format($pembelian->total_price, 0, ',', '.') }}</td>
                                         <td>
                                             <a href="{{ route('purchases.edit', $pembelian->id) }}"
                                                 class="btn btn-sm btn-primary">
