@@ -77,7 +77,7 @@
         </div>
     </div>
 @else
-    <div class="alert alert-info">Belum ada data pembelian pada rentang tanggal yang dipilih.</div>
+   
 @endif
 
 <!-- Modal Buat Laporan -->

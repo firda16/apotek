@@ -136,92 +136,92 @@ class SaleController extends Controller
 
 
     //     public function store(Request $request)
-//     {    
+    //     {
 
     //     $request->validate([
-//         'nama_customer' => 'required|string|max:255',
-//         'nomor_telepon' => 'required|string|max:20',
-//         'sale_items' => 'required|array|min:1', 
-//         'sale_items.*.nama_produk' => 'required|exists:products,id', 
-//         'sale_items.*.quantity' => 'required|numeric|min:1',
-//         'sale_items.*.unit_price' => 'nullable|numeric|min:0',     
-//         'discount' => 'nullable|numeric|min:0|max:100', // Diskon dalam persen
-//         'payment_method' => 'required|string|max:50', 
-//     ]);
+    //         'nama_customer' => 'required|string|max:255',
+    //         'nomor_telepon' => 'required|string|max:20',
+    //         'sale_items' => 'required|array|min:1',
+    //         'sale_items.*.nama_produk' => 'required|exists:products,id',
+    //         'sale_items.*.quantity' => 'required|numeric|min:1',
+    //         'sale_items.*.unit_price' => 'nullable|numeric|min:0',
+    //         'discount' => 'nullable|numeric|min:0|max:100', // Diskon dalam persen
+    //         'payment_method' => 'required|string|max:50',
+    //     ]);
 
 
     //     // 2. Hitung Total Harga Keseluruhan (DI BACKEND)
-//     $overall_total_price = 0;
-//     foreach ($request->sale_items as $item) {
-//         $quantity = (float) $item['quantity'];
-//         $unit_price = (float) $item['unit_price'];
-//         $overall_total_price += ($quantity * $unit_price);
-//     }
+    //     $overall_total_price = 0;
+    //     foreach ($request->sale_items as $item) {
+    //         $quantity = (float) $item['quantity'];
+    //         $unit_price = (float) $item['unit_price'];
+    //         $overall_total_price += ($quantity * $unit_price);
+    //     }
 
     //     // Terapkan diskon jika ada
-//     $discount_percentage = (float) $request->discount ?? 0;
-//     if ($discount_percentage > 0) {
-//         $overall_total_price = $overall_total_price * (1 - ($discount_percentage / 100));
-//     }
+    //     $discount_percentage = (float) $request->discount ?? 0;
+    //     if ($discount_percentage > 0) {
+    //         $overall_total_price = $overall_total_price * (1 - ($discount_percentage / 100));
+    //     }
 
     //     $customer = Customer::create([
-//        'nama' => $request->nama_customer,
-//        'telepon' => $request->nomor_telepon,
-//    ]);
-//     // 3. Buat Entri Sale (Penjualan Utama)
-//     $sale = Sale::create([
-//         'customer_id' => $customer->id,
-//         'payment_method' => $request->payment_method,
-//         'discount' => $discount_percentage, // Simpan diskon dalam persen
-//         'total_price' => $overall_total_price, // Total harga setelah diskon
-//     ]);
+    //        'nama' => $request->nama_customer,
+    //        'telepon' => $request->nomor_telepon,
+    //    ]);
+    //     // 3. Buat Entri Sale (Penjualan Utama)
+    //     $sale = Sale::create([
+    //         'customer_id' => $customer->id,
+    //         'payment_method' => $request->payment_method,
+    //         'discount' => $discount_percentage, // Simpan diskon dalam persen
+    //         'total_price' => $overall_total_price, // Total harga setelah diskon
+    //     ]);
 
     //     // 4. Buat Entri SaleItem (Detail Produk)
-//     // Sekarang kita mengiterasi array 'sale_items' yang benar
-//     foreach ($request->sale_items as $item) {
-//         $item_quantity = (float) $item['quantity'];
-//         $item_unit_price = (float) $item['unit_price'];
-//         $item_subtotal = $item_quantity * $item_unit_price; // Subtotal per item
+    //     // Sekarang kita mengiterasi array 'sale_items' yang benar
+    //     foreach ($request->sale_items as $item) {
+    //         $item_quantity = (float) $item['quantity'];
+    //         $item_unit_price = (float) $item['unit_price'];
+    //         $item_subtotal = $item_quantity * $item_unit_price; // Subtotal per item
 
     //         // $product = Product::find($item['nama_produk']);
-//         // if (!$product || $product->stock < $item['quantity']) {
-//         //     return back()->withErrors(['stok' => "Stok untuk produk {$product->name} tidak mencukupi."]);
-//         // }
+    //         // if (!$product || $product->stock < $item['quantity']) {
+    //         //     return back()->withErrors(['stok' => "Stok untuk produk {$product->name} tidak mencukupi."]);
+    //         // }
 
     //         $product = Product::find($item['nama_produk']);
 
     //         if (!$product) {
-//             return back()->withErrors(['stok' => 'Produk tidak ditemukan.']);
-//         }
+    //             return back()->withErrors(['stok' => 'Produk tidak ditemukan.']);
+    //         }
 
     //         if ($product->stock < $item_quantity) {
-//             return back()->withErrors(['stok' => "Stok untuk produk {$product->name} tidak mencukupi."]);
-//         }
+    //             return back()->withErrors(['stok' => "Stok untuk produk {$product->name} tidak mencukupi."]);
+    //         }
 
 
     //         SaleItem::create([
-//             'sale_id' => $sale->id,
-//             'product_id' => $item['nama_produk'], // Sesuaikan dengan 'nama_produk' dari request
-//             'quantity' => $item_quantity,
-//             'unit_price' => $item_unit_price,
-//             'discount' => 0, // Jika diskon hanya global, set 0 di sini.
-//                             // Jika ada diskon per item, Anda perlu tambahkan input di HTML dan validasi di sini.
-//             // 'total_price' => $item_subtotal, // Subtotal per item
-//         ]);
-//         // // Kurangi stok produk
-//         // $product = Product::find($item['nama_produk']);
-//         // if ($product) {
-//         //     $product->stock -= $item_quantity;
-//         //     $product->save();
-//         // }
+    //             'sale_id' => $sale->id,
+    //             'product_id' => $item['nama_produk'], // Sesuaikan dengan 'nama_produk' dari request
+    //             'quantity' => $item_quantity,
+    //             'unit_price' => $item_unit_price,
+    //             'discount' => 0, // Jika diskon hanya global, set 0 di sini.
+    //                             // Jika ada diskon per item, Anda perlu tambahkan input di HTML dan validasi di sini.
+    //             // 'total_price' => $item_subtotal, // Subtotal per item
+    //         ]);
+    //         // // Kurangi stok produk
+    //         // $product = Product::find($item['nama_produk']);
+    //         // if ($product) {
+    //         //     $product->stock -= $item_quantity;
+    //         //     $product->save();
+    //         // }
 
     //         $product->stock -= $item_quantity;
-//         $product->save();
-//     }
+    //         $product->save();
+    //     }
 
     //     // 5. Redirect atau kembalikan response sukses
-//     return redirect()->route('sales.index')->with('success', 'Penjualan berhasil ditambahkan!');
-//     }
+    //     return redirect()->route('sales.index')->with('success', 'Penjualan berhasil ditambahkan!');
+    //     }
 
     public function edit(Sale $sale)
     {
@@ -481,12 +481,6 @@ class SaleController extends Controller
     //     return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus.');
     // }
 
-    public function reports(Request $request)
-    {
-        $title = 'sales reports';
-        return view('admin.sales.reports', compact('title'));
-    }
-
     public function generateReport(Request $request)
     {
         $request->validate([
@@ -494,9 +488,29 @@ class SaleController extends Controller
             'to_date' => 'required|date',
         ]);
 
-        $sales = Sale::whereBetween(DB::raw('DATE(created_at)'), [$request->from_date, $request->to_date])->get();
+        $sales = Sale::with(['saleItems.product', 'customer']) // ← ini wajib!
+            ->whereBetween(DB::raw('DATE(created_at)'), [$request->from_date, $request->to_date])
+            ->get();
+
         $title = 'sales reports';
 
         return view('admin.sales.reports', compact('sales', 'title'));
+    }
+    public function reports()
+    {
+        $title = 'Sales Reports';
+
+        $salesReport = SaleItem::select(
+            'product_id',
+            DB::raw('SUM(quantity) as total_quantity'),
+            DB::raw('SUM(total_price) as total_price'),
+            DB::raw('DATE(created_at) as date')
+        )
+            ->with('product')
+            ->groupBy('product_id', 'date')
+            ->orderBy('date', 'desc')
+            ->get();
+
+        return view('admin.sales.reports', compact('title', 'salesReport'));
     }
 }
