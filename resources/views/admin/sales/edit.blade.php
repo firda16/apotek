@@ -195,12 +195,26 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
+                                    <label class="form-label">Nomor Invoice</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-file-invoice"></i></span>
+                                        <input type="text" name="invoice_number" class="form-control"
+                                            value="{{ $sale->invoice_number }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
                                     <label class="form-label">Nama Pelanggan <span
                                             class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <input type="text" name="nama_customer" value="{{ old('nama_customer', $customer->nama) }}"
-                                            class="form-control" placeholder="Masukkan nama pelanggan" required>
+                                        <input type="text" name="nama_customer"
+                                            value="{{ old('nama_customer', $customer->nama) }}" class="form-control"
+                                            placeholder="Masukkan nama pelanggan" required>
                                     </div>
                                 </div>
                             </div>
@@ -209,8 +223,9 @@
                                     <label class="form-label">Nomor Telepon <span class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                        <input type="text" name="nomor_telepon" value="{{ old('nomor_telepon', $customer->telepon) }}"
-                                            class="form-control" placeholder="Contoh: 0876 5245 8976" required>
+                                        <input type="text" name="nomor_telepon"
+                                            value="{{ old('nomor_telepon', $customer->telepon) }}" class="form-control"
+                                            placeholder="Contoh: 0876 5245 8976" required>
                                     </div>
                                 </div>
                             </div>
@@ -326,7 +341,8 @@
                                         <label class="form-label">Diskon (%)</label>
                                         <div class="input-group">
                                             <input type="number" name="discount" id="discount" class="form-control"
-                                                placeholder="0" value="{{ old('discount', $sale->discount) }}" min="0" max="100">
+                                                placeholder="0" value="{{ old('discount', $sale->discount) }}"
+                                                min="0" max="100">
                                             <span class="input-group-text">%</span>
                                         </div>
                                         <small class="text-muted">Masukkan persentase diskon (0-100)</small>
@@ -335,9 +351,14 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label class="form-label">Total Harga</label>
-                                        <input type="text" name="total_price" id="final_total"
-                                            class="form-control total-display total_price" disabled placeholder="Rp 0">
+                                        <input type="text" id="final_total_display"
+                                            class="form-control total-display total_price" readonly placeholder="Rp 0">
+
+                                        <!-- Hidden input untuk mengirimkan nilai sebenarnya ke controller -->
+                                        <input type="hidden" name="total_price" id="final_total"
+                                            value="{{ old('total_price', $sale->total_price) }}">
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -514,7 +535,6 @@
             $(this).closest('.sale-items').find('.category').val(category);
         });
 
-
         function updateFinalTotal() {
             let total = 0;
             $('.subtotal').each(function() {
@@ -527,9 +547,9 @@
 
             let discountedTotal = total - (discount / 100 * total);
 
-            // Update tampilan
-            $('.form-control.total_price').val(total); // input total di atas diskon
-            $('#final_total').val('Rp ' + discountedTotal.toLocaleString('id-ID'));
+            // Update tampilan display dan hidden input
+            $('#final_total_display').val('Rp ' + discountedTotal.toLocaleString('id-ID'));
+            $('#final_total').val(discountedTotal); // <-- ini penting agar bisa ditangkap controller
         }
 
         // Trigger saat diskon berubah
