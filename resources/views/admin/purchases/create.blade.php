@@ -77,23 +77,22 @@
                                 <thead>
                                     <tr>
                                         <th>Pilih Produk (Opsional)</th>
-                                        {{-- <th>Nama Produk Baru (Jika Tidak Memilih Produk)</th> --}}
                                         <th>Kategori</th>
                                         <th>Jumlah</th>
                                         <th>Harga Beli Satuan</th>
                                         <th>Tanggal Kedaluwarsa</th>
-                                        <th>Gambar</th>
+                                        <th>Sub Total</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="purchase-items">
-                                    @if (old('products'))
-                                        @foreach (old('products') as $index => $item)
+                                    @if (old('purchase_items'))
+                                        @foreach (old('purchase_items') as $index => $item)
                                             <tr>
                                                 <td>
-                                                    <select name="products[{{ $index }}][product_id]"
+                                                    <select name="purchase_items[{{ $index }}][product_id]"
                                                         class="form-control product-select select2">
-                                                        <option value="">-- Pilih Produk --</option>
+                                                        <option disabled selected>-- Pilih Produk --</option>
                                                         @foreach ($products as $product)
                                                             <option value="{{ $product->id }}"
                                                                 {{ $item['product_id'] == $product->id ? 'selected' : '' }}>
@@ -101,56 +100,59 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                    @error("products.{$index}.product_id")
+                                                    @error("purchase_items.{$index}.product_id")
                                                         <div class="text-danger small">{{ $message }}</div>
                                                     @enderror
                                                 </td>
                                                 <td>
-                                                    <select name="products[{{ $index }}][category_id]"
-                                                        class="form-control @error("products.{$index}.category_id") is-invalid @enderror"
+                                                    <select name="purchase_items[{{ $index }}][category_id]"
+                                                        class="form-control @error("purchase_items.{$index}.category_id") is-invalid @enderror"
                                                         required>
-                                                        <option value=""></option>
+                                                        <option disabled selected>-- Pilih Kategori --</option>
                                                         @foreach ($categories as $category)
                                                             <option value="{{ $category->id }}"
-                                                                {{ old("products.{$index}.category_id") == $category->id ? 'selected' : '' }}>
+                                                                {{ old("purchase_items.{$index}.category_id") == $category->id ? 'selected' : '' }}>
                                                                 {{ $category->name }}</option>
                                                         @endforeach
                                                     </select>
-                                                    @error("products.{$index}.category_id")
+                                                    @error("purchase_items.{$index}.category_id")
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="products[{{ $index }}][quantity]"
-                                                        class="form-control @error("products.{$index}.quantity") is-invalid @enderror"
+                                                    <input type="number"
+                                                        name="purchase_items[{{ $index }}][quantity]"
+                                                        class="form-control purchase-quantity @error("purchase_items.{$index}.quantity") is-invalid @enderror"
                                                         min="1" required
-                                                        value="{{ old("products.{$index}.quantity") }}">
-                                                    @error("products.{$index}.quantity")
+                                                        value="{{ old("purchase_items.{$index}.quantity") }}">
+                                                    @error("purchase_items.{$index}.quantity")
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </td>
                                                 <td>
                                                     <input type="number" step="0.01"
-                                                        name="products[{{ $index }}][unit_price]"
-                                                        class="form-control @error("products.{$index}.unit_price") is-invalid @enderror"
-                                                        required value="{{ old("products.{$index}.unit_price") }}">
-                                                    @error("products.{$index}.unit_price")
+                                                        name="purchase_items[{{ $index }}][unit_price]"
+                                                        class="form-control purchase-unit-price @error("purchase_items.{$index}.unit_price") is-invalid @enderror"
+                                                        required value="{{ old("purchase_items.{$index}.unit_price") }}">
+                                                    @error("purchase_items.{$index}.unit_price")
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </td>
                                                 <td>
-                                                    <input type="date" name="products[{{ $index }}][expiry_date]"
-                                                        class="form-control @error("products.{$index}.expiry_date") is-invalid @enderror"
-                                                        value="{{ old("products.{$index}.expiry_date") }}">
-                                                    @error("products.{$index}.expiry_date")
+                                                    <input type="date"
+                                                        name="purchase_items[{{ $index }}][expiry_date]"
+                                                        class="form-control @error("purchase_items.{$index}.expiry_date") is-invalid @enderror"
+                                                        value="{{ old("purchase_items.{$index}.expiry_date") }}">
+                                                    @error("purchase_items.{$index}.expiry_date")
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </td>
                                                 <td>
-                                                    <input type="file" name="products[{{ $index }}][image]"
-                                                        class="form-control @error("products.{$index}.image") is-invalid @enderror"
-                                                        accept="image/*">
-                                                    @error("products.{$index}.image")
+                                                    <input type="number" step="0.01"
+                                                        name="purchase_items[{{ $index }}][total_price]"
+                                                        class="form-control purchase-total_price" readonly
+                                                        value="{{ old("purchase_items.{$index}.total_price") }}">
+                                                    @error("purchase_items.{$index}.total_price")
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </td>
@@ -163,7 +165,7 @@
                                     @else
                                         <tr>
                                             <td>
-                                                <select name="products[0][product_id]"
+                                                <select name="purchase_items[0][product_id]"
                                                     class="form-control product-select select2">
                                                     <option value="">-- Pilih Produk --</option>
                                                     @foreach ($products as $product)
@@ -172,7 +174,8 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <select name="products[0][category_id]" class="form-control" required>
+                                                <select name="purchase_items[0][category_id]" class="form-control"
+                                                    required>
                                                     <option value=""></option>
                                                     @foreach ($categories as $category)
                                                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -180,19 +183,22 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <input type="number" name="products[0][quantity]" class="form-control"
-                                                    min="1" required>
+                                                <input type="number" name="purchase_items[0][quantity]"
+                                                    class="form-control purchase-quantity" min="1" required>
                                             </td>
                                             <td>
-                                                <input type="number" step="0.01" name="products[0][unit_price]"
-                                                    class="form-control" required>
+                                                <input type="number" step="0.01"
+                                                    name="purchase_items[0][unit_price]"
+                                                    class="form-control purchase-unit-price" required>
                                             </td>
                                             <td>
-                                                <input type="date" name="products[0][expiry_date]" class="form-control">
+                                                <input type="date" name="purchase_items[0][expiry_date]"
+                                                    class="form-control">
                                             </td>
                                             <td>
-                                                <input type="file" name="products[0][image]" class="form-control"
-                                                    accept="image/*">
+                                                <input type="number" step="0.01"
+                                                    name="purchase_items[0][total_price]" class="form-control purchase-total_price"
+                                                    readonly>
                                             </td>
                                             <td>
                                                 <button type="button"
@@ -204,6 +210,11 @@
                             </table>
                             <button type="button" class="btn btn-secondary btn-sm" id="add-row">+ Tambah
                                 Produk</button>
+                        </div>
+                        <div class="mb-3 mt-3">
+                            <label for="total_price">Total Harga</label>
+                            <input type="number" step="0.01" name="total_price" id="total_price" class="form-control"
+                                readonly required>
                         </div>
 
                         <div class="submit-section mt-4">
@@ -218,88 +229,115 @@
 @endsection
 
 @push('page-js')
-<script src="{{ asset('assets/js/moment.min.js') }}"></script>
-<script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ asset('assets/js/moment.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<script>
-    function initializeSelect2() {
-        $('.select2').select2();
-    }
-
-    let i = {{ old('products') ? count(old('products')) : 1 }}; // Lanjutkan indeks jika ada old input
-
-    $(document).on('change', '.product-select', function() {
-        const selectedProductId = $(this).val();
-        const row = $(this).closest('tr');
-        const categorySelect = row.find('select[name$="[category_id]"]');
-        const categoryId = productCategoryMap[selectedProductId];
-
-        if (categoryId) {
-            categorySelect.val(categoryId).trigger('change');
-        } else {
-            categorySelect.val('');
+    <script>
+        function initializeSelect2() {
+            $('.select2').select2();
         }
-    });
 
-    const productCategoryMap = @json($products->mapWithKeys(fn($p) => [$p->id => $p->category_id]));
+        let i = {{ old('purchase_items') ? count(old('purchase_items')) : 1 }}; // Lanjutkan indeks jika ada old input
 
-    const productsOptions = `
+        const productCategoryMap = @json($products->mapWithKeys(fn($p) => [$p->id => $p->category_id]));
+
+        const productsOptions = `
         <option value="">-- Pilih Produk --</option>
         @foreach ($products as $product)
             <option value="{{ $product->id }}">{{ $product->name }}</option>
         @endforeach
     `;
 
-    const categoriesOptions = `
+        const categoriesOptions = `
         <option value="">-- Pilih Kategori --</option>
         @foreach ($categories as $category)
             <option value="{{ $category->id }}">{{ $category->name }}</option>
         @endforeach
     `;
 
-    $(document).ready(function () {
-        initializeSelect2();
-    });
-
-    document.getElementById('add-row').addEventListener('click', function () {
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td>
-                <select name="products[${i}][product_id]" class="form-control product-select select2">
-                    ${productsOptions}
-                </select>
-            </td>
-            <td>
-                <select name="products[${i}][category_id]" class="form-control" required>
-                    ${categoriesOptions}
-                </select>
-            </td>
-            <td>
-                <input type="number" name="products[${i}][quantity]" class="form-control" min="1" required>
-            </td>
-            <td>
-                <input type="number" step="0.01" name="products[${i}][unit_price]" class="form-control" required>
-            </td>
-            <td>
-                <input type="date" name="products[${i}][expiry_date]" class="form-control">
-            </td>
-            <td>
-                <input type="file" name="products[${i}][image]" class="form-control" accept="image/*">
-            </td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm remove-row">Hapus</button>
-            </td>
-        `;
-        document.getElementById('purchase-items').appendChild(newRow);
-        initializeSelect2();
-        i++;
-    });
-
-    document.addEventListener('click', function (e) {
-        if (e.target.classList.contains('remove-row')) {
-            e.target.closest('tr').remove();
+        function calculatetotal_price(row) {
+            const quantity = parseFloat(row.find('.purchase-quantity').val()) || 0;
+            const unitPrice = parseFloat(row.find('.purchase-unit-price').val()) || 0;
+            const total_price = quantity * unitPrice;
+            row.find('.purchase-total_price').val(total_price.toFixed(2));
+            updateTotalPrice();
         }
-    });
-</script>
+
+        function updateTotalPrice() {
+            let total = 0;
+            $('.purchase-total_price').each(function() {
+                total += parseFloat($(this).val()) || 0;
+            });
+            $('#total_price').val(total.toFixed(2));
+        }
+
+        $(document).ready(function() {
+            initializeSelect2();
+            updateTotalPrice(); // Calculate initial total on page load if old data exists
+
+            // Event listener for product selection to update category
+            $(document).on('change', '.product-select', function() {
+                const selectedProductId = $(this).val();
+                const row = $(this).closest('tr');
+                const categorySelect = row.find('select[name$="[category_id]"]');
+                const categoryId = productCategoryMap[selectedProductId];
+
+                if (categoryId) {
+                    categorySelect.val(categoryId).trigger('change');
+                } else {
+                    categorySelect.val('');
+                }
+            });
+
+            // Event listener for quantity and unit price changes
+            $(document).on('input', '.purchase-quantity, .purchase-unit-price', function() {
+                calculatetotal_price($(this).closest('tr'));
+            });
+
+            // Add new row
+            document.getElementById('add-row').addEventListener('click', function() {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                <td>
+                    <select name="purchase_items[${i}][product_id]" class="form-control product-select select2">
+                        ${productsOptions}
+                    </select>
+                </td>
+                <td>
+                    <select name="purchase_items[${i}][category_id]" class="form-control" required>
+                        ${categoriesOptions}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" min="1" required>
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="purchase_items[${i}][unit_price]" class="form-control purchase-unit-price" required>
+                </td>
+                <td>
+                    <input type="date" name="purchase_items[${i}][expiry_date]" class="form-control">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="purchase_items[${i}][total_price]" class="form-control purchase-total_price" readonly>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm remove-row">Hapus</button>
+                </td>
+            `;
+                document.getElementById('purchase-items').appendChild(newRow);
+                initializeSelect2();
+                i++;
+                updateTotalPrice(); // Update total after adding a new row
+            });
+
+            // Remove row
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-row')) {
+                    e.target.closest('tr').remove();
+                    updateTotalPrice(); // Update total after removing a row
+                }
+            });
+        });
+    </script>
 @endpush
