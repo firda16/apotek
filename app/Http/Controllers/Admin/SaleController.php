@@ -45,12 +45,10 @@ class SaleController extends Controller
     {
         $title = 'create sales';
         // $products = Product::all();
-        $products = Product::with([
-            'purchaseItems' => function ($query) {
-                $query->whereDate('expiry_date', '>=', Carbon::today()); // hanya ambil item yang belum expired
-            }
-        ])
-            ->get();
+        // produk yang kadaluarsa tidak muncul di form penjualan.
+        $products = Product::whereHas('purchaseItems', function ($query) {
+            $query->whereDate('expiry_date', '>', Carbon::today());
+        })->get();
         $categories = Category::all();
 
         // Generate invoice number secara acak, contoh: INV-20250730-XXXX
@@ -82,6 +80,19 @@ class SaleController extends Controller
             // Cek stok terlebih dahulu
             foreach ($request->sale_items as $item) {
                 $product = Product::find($item['nama_produk']);
+
+                // validasi tambahan saat menyimpan penjualan
+                $expired = $product->purchaseItems()
+                    ->whereColumn('product_id', $product->id)
+                    ->whereDate('expiry_date', '<=', now())
+                    ->where('quantity', '>', 0)
+                    ->exists();
+
+
+                if ($expired) {
+                    return back()->withErrors(['expired' => "Produk {$product->name} sudah kadaluarsa dan tidak bisa dijual."]);
+                }
+
 
                 if (!$product) {
                     return back()->withErrors(['stok' => 'Produk tidak ditemukan.']);
