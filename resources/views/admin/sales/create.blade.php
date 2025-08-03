@@ -251,7 +251,7 @@
                                                     data-category="{{ $product->category->name ?? '-' }}"
                                                     data-price="{{ $product->price }}">
                                                     {{ $product->name }}
-                                                    @if ($product->stock == 0)
+                                                    @if ($product->purchaseItems->sum('quantity') == 0)
                                                         - [ stok kosong ]
                                                     @endif
                                                 </option>
