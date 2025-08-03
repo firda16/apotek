@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Carbon\Carbon;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\SaleItem;
 use Illuminate\Support\Str;
+use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Events\PurchaseOutStock;
@@ -42,7 +44,13 @@ class SaleController extends Controller
     public function create()
     {
         $title = 'create sales';
-        $products = Product::all();
+        // $products = Product::all();
+        $products = Product::with([
+            'purchaseItems' => function ($query) {
+                $query->whereDate('expiry_date', '>=', Carbon::today()); // hanya ambil item yang belum expired
+            }
+        ])
+            ->get();
         $categories = Category::all();
 
         // Generate invoice number secara acak, contoh: INV-20250730-XXXX
@@ -50,6 +58,8 @@ class SaleController extends Controller
 
         return view('admin.sales.create', compact('title', 'products', 'categories', 'invoice_number'));
     }
+
+
 
 
     public function store(Request $request)
@@ -132,6 +142,8 @@ class SaleController extends Controller
             return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data.'])->withInput();
         }
     }
+
+
 
 
 

@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Purchase;
+use App\Models\SaleItem;
 use App\Models\Supplier;
 use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use QCod\AppSettings\Setting\AppSettings;
 
 
@@ -160,6 +163,7 @@ class PurchaseController extends Controller
 
 
 
+
     public function edit(Purchase $purchase)
     {
         $title = 'edit purchase';
@@ -174,21 +178,25 @@ class PurchaseController extends Controller
 
     public function update(Request $request, Purchase $purchase)
     {
-
-        //dd($request->all());
-
+        Log::info('--- Update Pembelian Dijalankan ---');
+        Log::info('Request data:', $request->all());
+        Log::info('Pembelian sebelum update:', $purchase->toArray());
+        // Validasi request
         $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'payment_method' => 'required|string',
-            'products.*.product_id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|numeric|min:1',
-            'products.*.unit_price' => 'required|numeric|min:0',
-            'products.*.expiry_date' => 'nullable|date',
+            'purchase_items' => 'required|array|min:1',
+            'purchase_items.*.product_id' => 'required|exists:products,id',
+            'purchase_items.*.quantity' => 'required|numeric|min:1',
+            'purchase_items.*.unit_price' => 'required|numeric|min:0',
+            'purchase_items.*.expiry_date' => 'nullable|date',
         ]);
+
 
         DB::beginTransaction();
 
         try {
+            // Update data utama pembelian
             $purchase->update([
                 'supplier_id' => $request->supplier_id,
                 'payment_method' => $request->payment_method,
@@ -196,15 +204,17 @@ class PurchaseController extends Controller
 
             $total = 0;
 
-            // Kembalikan stok lama sebelum update
+            // Langkah 1: Kembalikan stok dari item lama
             foreach ($purchase->purchaseItems as $item) {
                 Product::find($item->product_id)->decrement('stock', $item->quantity);
             }
 
-            // Hapus item lama
+            // Langkah 2: Hapus seluruh item pembelian lama
             $purchase->purchaseItems()->delete();
 
-            foreach ($request->products as $productData) {
+            // Langkah 3: Tambahkan item pembelian baru
+            foreach ($request->purchase_items as $productData) {
+
                 $subtotal = $productData['unit_price'] * $productData['quantity'];
                 $total += $subtotal;
 
@@ -213,23 +223,26 @@ class PurchaseController extends Controller
                     'product_id' => $productData['product_id'],
                     'quantity' => $productData['quantity'],
                     'unit_price' => $productData['unit_price'],
-                    'total_price' => $subtotal,
+                    // 'total_price' => $subtotal,
                     'expiry_date' => $productData['expiry_date'] ?? null,
                 ]);
 
-                // Tambahkan stok baru
+                // Tambahkan stok produk sesuai jumlah baru
                 Product::find($productData['product_id'])->increment('stock', $productData['quantity']);
             }
 
+            // Update total harga di tabel purchases
             $purchase->update(['total_price' => $total]);
 
             DB::commit();
             return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil diperbarui.');
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Terjadi kesalahan saat memperbarui pembelian: ' . $e->getMessage());
         }
     }
+
 
 
 
