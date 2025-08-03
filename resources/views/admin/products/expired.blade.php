@@ -31,6 +31,7 @@
 								<th>Kategori</th>
 								<th>Harga</th>
 								<th>Jumlah</th>
+								{{-- <th>stok kondisi kadaluarsa</th>								 --}}
 								{{-- <th>Diskon</th> --}}
 								<th>Tanggal Kedaluwarsa</th>
 								<th class="action-btn">Aksi</th>
@@ -43,7 +44,8 @@
                 <td>{{ $product->name }}</td> {{-- Assuming 'description' is the product name/description --}}
                 <td>{{ $product->category->name }}</td>                
 				<td>{{ (settings('app_currency') ?? 'Rp') . ' ' . $product->price }}</td>
-                <td>{{ $product->stock }}</td> {{-- This quantity might be for the whole purchase, not individual product --}}
+                {{-- <td>{{ $product->stock }}</td> This quantity might be for the whole purchase, not individual product --}}
+				<td>{{ $product->purchaseItems->sum('quantity') }}</td> {{-- total expired qty --}}
                 {{-- <td>{{ $product->discount }}%</td> --}}
                 @php
     			// Ambil item kedaluwarsa paling awal (terdekat)
