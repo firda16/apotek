@@ -5,11 +5,12 @@
         <h3 class="page-title">{{ $title }}</h3>
         <ul class="breadcrumb">
             <li class="breadcrumb-sale"><a href="{{ route('dashboard') }}">Beranda</a></li>
-            <li class="breadcrumb-sale"><a href="{{ route('riwayat.penjualan') }}">Riwayat</a></li>
-            <li class="breadcrumb-sale active">Penjualan</li>
+            <li class="breadcrumb-sale"><span class="mx-1">/</span><a href="{{ route('riwayat.penjualan') }}">Riwayat</a></li>
+            <li class="breadcrumb-sale active"><span class="mx-1">/</span>Penjualan</li>
         </ul>
     </div>
 @endpush
+
 
 @section('content')
     <div class="row">
@@ -64,6 +65,14 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="mt-4">
+                        <h5 class="text-end">
+                            <strong>Total Keseluruhan Penjualan:</strong>
+                            <span><strong>Rp {{ number_format($total_pendapatan, 0, ',', '.') }}</strong></span>
+                        </h5>
+                    </div>
+
+
                     <div class="d-flex justify-content-end mt-3">
                         {{ $sales->links('pagination::bootstrap-5') }}
                     </div>

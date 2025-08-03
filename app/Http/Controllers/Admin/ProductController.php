@@ -19,7 +19,24 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         App::setLocale('id');
-        $products = Product::with(['purchase.category', 'purchaseItems'])->orderBy('created_at', 'desc')->paginate(15);
+        // filter produk kadaluawarsa dari data produk
+        $products = Product::whereHas('purchaseItems', function ($query) {
+            $query->whereDate('expiry_date', '>', now());
+        })
+            ->with(['purchase.category', 'purchaseItems' => function ($query) {
+                $query->whereDate('expiry_date', '>', now());
+            }])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        $query = Product::with('category', 'purchaseItems');
+
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+
+
         return view('admin.products.index', compact('products'));
     }
 
