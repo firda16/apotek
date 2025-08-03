@@ -47,11 +47,22 @@ class HistoryController extends Controller
     public function penjualan(Request $request)
     {
         $title = 'Riwayat Penjualan';
-        $query = Sale::with(['customer', 'saleItems.product.category']);
-        $sales = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        return view('admin.history.penjualan', compact('title', 'sales'));
+        // Ambil data penjualan dengan relasi
+        $query = Sale::with(['customer', 'saleItems.product.category']);
+        $sales = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        // Hitung total pendapatan dari semua sale_items
+        $total_pendapatan = 0;
+        foreach (Sale::with('saleItems')->get() as $sale) {
+            foreach ($sale->saleItems as $item) {
+                $total_pendapatan += $item->total_price ?? ($item->quantity * $item->unit_price);
+            }
+        }
+
+        return view('admin.history.penjualan', compact('title', 'sales', 'total_pendapatan'));
     }
+
 
 
     // RIWAYAT PEMBELIAN
@@ -104,7 +115,7 @@ class HistoryController extends Controller
             });
         }
 
-        $purchases = $query->orderBy('created_at', 'desc')->paginate(15);
+        $purchases = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Ambil semua data untuk total keseluruhan
         $allPurchases = Purchase::with('items')->get();

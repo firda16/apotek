@@ -23,8 +23,8 @@ class DashboardController extends Controller
         // Total pengeluaran (dari tabel purchase_items)
         $total_pengeluaran = PurchaseItem::sum('total_price');
 
-        // Total pendapatan hari ini (dari tabel sale_items)
-       $total_pendapatan = \App\Models\SaleItem::sum('total_price');
+        // Total keseluruhan pendapatan (dari tabel sale_items)
+       $total_pendapatan = SaleItem::sum('total_price');
 
         // Total kategori & supplier
         $total_categories = Category::count();
