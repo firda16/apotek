@@ -142,17 +142,19 @@ class ProductController extends Controller
     {
         $title = "Produk Tersedia";
 
-        $products = Product::where('stock', '>', 0)
-            ->whereHas('purchaseItems', function ($query) {
-                $query->whereDate('expiry_date', '>', now());
-            })
+        $products = Product::whereHas('purchaseItems', function ($query) {
+            $query->whereDate('expiry_date', '>', now())
+                ->whereColumn('quantity', '>', 'sold_quantity');
+        })
             ->with([
                 'category',
                 'purchaseItems' => function ($query) {
-                    $query->whereDate('expiry_date', '>', now());
+                    $query->whereDate('expiry_date', '>', now())
+                        ->whereColumn('quantity', '>', 'sold_quantity');
                 }
             ])
-            ->paginate(10); // Tetap pakai paginasi
+            ->paginate(10);
+
 
         return view('admin.products.available', compact('title', 'products'));
     }

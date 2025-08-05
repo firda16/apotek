@@ -56,11 +56,7 @@
                                         {{-- <td class="text-center">Rp {{ number_format($product->price, 0, ',', '.') }}</td> --}}
                                         {{-- stock dari field 'stock' pada model Purchase --}}
                                         <td>
-                                            @php
-                                                $availableStock = $product->purchaseItems->sum('quantity');
-                                            @endphp
-
-                                            {{ $availableStock > 0 ? $availableStock : '-' }}
+                                            {{ $product->purchaseItems->sum(fn($item) => $item->quantity - $item->sold_quantity) }}
                                         </td>
 
 

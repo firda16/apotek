@@ -130,6 +130,7 @@ class PurchaseController extends Controller
                     'unit_price' => $item['unit_price'],
                     // 'total_price' => $subtotal,
                     'expiry_date' => $item['expiry_date'] ?? null,
+                    'sold_quantity' => 0,
                 ]);
 
                 Log::info("Item pembelian berhasil disimpan.", ['product_id' => $product->id]);
