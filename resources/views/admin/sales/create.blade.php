@@ -247,7 +247,7 @@
                                         <select name="sale_items[0][nama_produk]" class="form-select select2" required>
                                             <option disabled selected>Pilih Produk</option>
                                             @foreach ($products as $product)
-                                                <option value="{{ $product->id }}"
+                                                {{-- <option value="{{ $product->id }}"
                                                     data-category="{{ $product->category->name ?? '-' }}"
                                                     data-price="{{ $product->price }}">
                                                     @php
@@ -255,11 +255,15 @@
                                                     @endphp
                                                     {{ $product->name }}
                                                     -
-                                                    {{ $product->available_stock > 0 ? $product->available_stock : 'stok kosong' }}
-
-                                                    @if ($available_stock <= 0)
-                                                        - [ stok kosong ]
-                                                    @endif
+                                                    {{ $product->available_stock > 0 ? $product->available_stock : 'stok kosong' }}                                                    
+                                                </option> --}}
+                                                <option value="{{ $product->id }}"
+                                                    {{ $product->available_stock <= 0 ? 'disabled' : '' }}
+                                                    data-category="{{ $product->category->name ?? '-' }}"
+                                                    data-price="{{ $product->price }}">
+                                                    {{ $product->name }}
+                                                    -
+                                                    {{ $product->available_stock > 0 ? $product->available_stock : 'Stok Kosong' }}
                                                 </option>
                                             @endforeach
                                         </select>

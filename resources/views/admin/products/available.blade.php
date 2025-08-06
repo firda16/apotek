@@ -56,7 +56,8 @@
                                         {{-- <td class="text-center">Rp {{ number_format($product->price, 0, ',', '.') }}</td> --}}
                                         {{-- stock dari field 'stock' pada model Purchase --}}
                                         <td>
-                                            {{ $product->purchaseItems->sum(fn($item) => $item->quantity - $item->sold_quantity) }}
+                                            {{-- {{ $product->purchaseItems->sum(fn($item) => $item->quantity - $item->sold_quantity) }} --}}
+                                            {{ $product->available_stock}}
                                         </td>
 
 
@@ -68,7 +69,12 @@
 
                                         {{-- Tanggal kadaluarsa dari field 'expiry_date' pada model Purchase --}}
                                         {{-- <td>{{ date_format(date_create($product->purchase?->expiry_date),'d M, Y') }}</td> --}}
-                                        <td>
+                                        <td>                                            
+                                            <a href="{{ route('products.stock-log', $product->id) }}"
+                                                class="btn btn-secondary btn-sm">
+                                                Lihat FIFO
+                                            </a>
+
                                             {{-- Tombol Edit: link ke produk yang berelasi --}}
                                             <a href="{{ route('products.edit', $product->id ?? '#') }}"
                                                 class="btn btn-sm btn-primary">Edit</a>
