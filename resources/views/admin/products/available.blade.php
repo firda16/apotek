@@ -26,76 +26,25 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="product-table" class="table table-hover table-center mb-0">
+                        <table id="product-table" class="table table-bordered">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Produk</th>
                                     <th>Kategori</th>
-                                    {{-- <th>Harga</th> --}}
-                                    <th>Jumlah</th>
-                                    {{-- <th>Diskon</th> --}}
-                                    {{-- <th>Tanggal Kedaluwarsa</th> --}}
-                                    <th class="action-btn">Aksi</th>
+                                    <th>Stok Tersedia</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {{-- Ingat: $product di sini adalah objek Purchase --}}
-                                @foreach ($products as $product)
-                                    <tr>
-                                        <td>{{ $products->firstItem() + $loop->index }}</td>
-
-                                        {{-- Nama produk dari field 'product' pada model Purchase --}}
-                                        <td>{{ $product->name ?? '-' }}</td>
-
-                                        {{-- Nama kategori dari relasi 'category' pada model Purchase --}}
-                                        <td>{{ $product->category->name ?? '-' }}</td>
-
-                                        {{-- Harga dari relasi 'purchaseProduct' (yang merupakan objek Product) --}}
-                                        {{-- <td>{{ settings('app_currency','Rp').' '. $product->price }}</td> --}}
-                                        {{-- <td class="text-center">Rp {{ number_format($product->price, 0, ',', '.') }}</td> --}}
-                                        {{-- stock dari field 'stock' pada model Purchase --}}
-                                        <td>
-                                            {{-- {{ $product->purchaseItems->sum(fn($item) => $item->quantity - $item->sold_quantity) }} --}}
-                                            {{ $product->available_stock}}
-                                        </td>
-
-
-                                        {{-- <td>{{ $product->stock }}</td> --}}
-                                        {{-- <td>{{ $product->purchaseItems->sum('quantity') }}</td> --}}
-
-                                        {{-- Diskon dari relasi 'purchaseProduct' (yang merupakan objek Product) --}}
-                                        {{-- <td>{{ ($product->discount ?? '0') }}%</td>  --}}
-
-                                        {{-- Tanggal kadaluarsa dari field 'expiry_date' pada model Purchase --}}
-                                        {{-- <td>{{ date_format(date_create($product->purchase?->expiry_date),'d M, Y') }}</td> --}}
-                                        <td>                                            
-                                            <a href="{{ route('products.stock-log', $product->id) }}"
-                                                class="btn btn-secondary btn-sm">
-                                                Lihat FIFO
-                                            </a>
-
-                                            {{-- Tombol Edit: link ke produk yang berelasi --}}
-                                            <a href="{{ route('products.edit', $product->id ?? '#') }}"
-                                                class="btn btn-sm btn-primary">Edit</a>
-                                            {{-- Tombol Hapus: link ke produk yang berelasi --}}
-                                            <form action="{{ route('products.destroy', $product->id) }}" method="POST"
-                                                style="display:inline;">
-                                                @csrf {{-- Wajib untuk CSRF Protection Laravel --}}
-                                                @method('DELETE') {{-- Method Spoofing untuk Laravel --}}
-                                                <button type="submit" class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini? Tindakan ini tidak dapat dibatalkan.');">Hapus</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
+
                     </div>
                     {{-- Pagination --}}
-                    <div class="mt-3">
+                    {{-- <div class="mt-3">
                         {{ $products->links('pagination::bootstrap-5') }}
-                    </div>
+                    </div> --}}
+                    <x-assets.datatables />
+
                 </div>
             </div>
             <!-- /Daftar Produk -->
@@ -104,23 +53,39 @@
     </div>
 @endsection
 
-{{-- @push('page-js')
-<script>
-    $(document).ready(function() {
-        var table = $('#product-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{route('products.index')}}",
-            columns: [
-                {data: 'product', name: 'product'},
-                {data: 'category', name: 'category'},
-                {data: 'price', name: 'price'},
-                {data: 'stock', name: 'stock'},
-                {data: 'discount', name: 'discount'},
-				{data: 'expiry_date', name: 'expiry_date'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
-            ]
+@push('page-js')
+    <script>
+        $(document).ready(function() {
+            $('#product-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('products.available') }}", // Ganti dengan route yg benar
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'category',
+                        name: 'category'
+                    },
+                    {
+                        data: 'available_stock',
+                        name: 'available_stock'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+            });
         });
-    });
-</script>
-@endpush --}}
+    </script>
+@endpush

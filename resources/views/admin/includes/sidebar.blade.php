@@ -24,7 +24,7 @@
                                 href="{{ route('products.index') }}">Data Produk</a></li>
                         <li><a class="{{ route_is('products.create') ? 'active' : '' }}"
                                 href="{{ route('products.create') }}">Tambah Produk</a></li>
-                        <li><a class="{{ route_is('available') ? 'active' : '' }}" href="{{ route('available') }}">Stok
+                        <li><a class="{{ route_is('products.available') ? 'active' : '' }}" href="{{ route('products.available') }}">Stok
                                 Tersedia</a></li>
                         <li><a class="{{ route_is('outstock') ? 'active' : '' }}" href="{{ route('outstock') }}">Stok
                                 Habis</a></li>
