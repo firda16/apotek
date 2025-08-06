@@ -85,6 +85,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
       // Route::get('history', [HistoryController::class,'index'])->name('history.index');
     Route::get('/admin/riwayat/penjualan', [HistoryController::class, 'penjualan'])->name('riwayat.penjualan');
     Route::get('/riwayat-penjualan', [HistoryController::class, 'penjualan'])->name('riwayat.penjualan');
+    Route::get('/riwayat-penjualan/{invoice_number}', [HistoryController::class, 'show'])
+    ->name('riwayat.penjualan.show');
     Route::get('/admin/riwayat/pembelian', [HistoryController::class, 'pembelian'])->name('riwayat.pembelian');
     Route::get('/riwayat-pembelian', [HistoryController::class, 'pembelian'])->name('riwayat.pembelian');
     Route::put('backup/create', [HistoryController::class,'create'])->name('backup.store');

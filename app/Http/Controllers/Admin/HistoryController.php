@@ -63,6 +63,17 @@ class HistoryController extends Controller
         return view('admin.history.penjualan', compact('title', 'sales', 'total_pendapatan'));
     }
 
+    public function show($invoice_number)
+    {
+        $sale = Sale::with(['saleItems.product.category', 'customer'])
+            ->where('invoice_number', $invoice_number)
+            ->firstOrFail();
+
+        return view('admin.history.show', compact('sale'));
+    }
+
+
+
 
 
     // RIWAYAT PEMBELIAN
