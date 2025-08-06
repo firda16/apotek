@@ -23,9 +23,12 @@ class ProductController extends Controller
         $products = Product::whereHas('purchaseItems', function ($query) {
             $query->whereDate('expiry_date', '>', now());
         })
-            ->with(['purchase.category', 'purchaseItems' => function ($query) {
-                $query->whereDate('expiry_date', '>', now());
-            }])
+            ->with([
+                'purchase.category',
+                'purchaseItems' => function ($query) {
+                    $query->whereDate('expiry_date', '>', now());
+                }
+            ])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
@@ -53,12 +56,12 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'        => 'required|string|max:200',
+            'name' => 'required|string|max:200',
             'category_id' => 'required|exists:categories,id',
-            'unit'        => 'required|string|max:50',
-            'stock'       => 'required|integer|min:0',
-            'price'       => 'required|numeric|min:0',
-            'discount'    => 'nullable|numeric|min:0',
+            'unit' => 'required|string|max:50',
+            'stock' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string|max:255',
         ]);
 
@@ -68,12 +71,12 @@ class ProductController extends Controller
         }
 
         Product::create([
-            'name'        => $request->name,
+            'name' => $request->name,
             'category_id' => $request->category_id,
-            'unit'        => $request->unit,
-            'stock'       => $request->stock,
-            'price'       => $price,
-            'discount'    => $request->discount,
+            'unit' => $request->unit,
+            'stock' => $request->stock,
+            'price' => $price,
+            'discount' => $request->discount,
             'description' => $request->description,
         ]);
 
@@ -90,12 +93,12 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'name'        => 'required|string|max:200',
+            'name' => 'required|string|max:200',
             'category_id' => 'required|exists:categories,id',
-            'unit'        => 'required|string|max:50',
-            'stock'       => 'required|integer|min:0',
-            'price'       => 'required|numeric|min:0',
-            'discount'    => 'nullable|numeric|min:0',
+            'unit' => 'required|string|max:50',
+            'stock' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string|max:255',
         ]);
 
@@ -105,12 +108,12 @@ class ProductController extends Controller
         }
 
         $product->update([
-            'name'        => $request->name,
+            'name' => $request->name,
             'category_id' => $request->category_id,
-            'unit'        => $request->unit,
-            'stock'       => $request->stock,
-            'price'       => $price,
-            'discount'    => $request->discount,
+            'unit' => $request->unit,
+            'stock' => $request->stock,
+            'price' => $price,
+            'discount' => $request->discount,
             'description' => $request->description,
         ]);
 
@@ -125,9 +128,11 @@ class ProductController extends Controller
         $products = Product::whereHas('purchaseItems', function ($query) {
             $query->whereDate('expiry_date', '<=', now());
         })
-            ->with(['purchaseItems' => function ($query) {
-                $query->whereDate('expiry_date', '<=', now());
-            }])
+            ->with([
+                'purchaseItems' => function ($query) {
+                    $query->whereDate('expiry_date', '<=', now());
+                }
+            ])
             ->paginate(10);
 
         return view('admin.products.expired', compact('title', 'products'));
@@ -136,10 +141,25 @@ class ProductController extends Controller
     public function available(Request $request)
     {
         $title = "Produk Tersedia";
-        $products = Product::where('stock', '>', 0)->with('category')->paginate(10);
+
+        $products = Product::whereHas('purchaseItems', function ($query) {
+            $query->whereDate('expiry_date', '>', now())
+                ->whereColumn('quantity', '>', 'sold_quantity');
+        })
+            ->with([
+                'category',
+                'purchaseItems' => function ($query) {
+                    $query->whereDate('expiry_date', '>', now())
+                        ->whereColumn('quantity', '>', 'sold_quantity');
+                }
+            ])
+            ->paginate(10);
+
 
         return view('admin.products.available', compact('title', 'products'));
     }
+
+
 
     public function outstock(Request $request)
     {

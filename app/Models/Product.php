@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Category;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
 {
@@ -15,9 +16,21 @@ class Product extends Model
         'category_id',
         'unit',
         'price',
-        'stock',
+        // 'stock',
         'description',
     ];
+
+    public function getAvailableStockAttribute()
+    {
+        $validItems = $this->purchaseItems()
+            ->whereDate('expiry_date', '>', Carbon::today())
+            ->get();
+
+        $totalPurchased = $validItems->sum('quantity');
+        $totalSold = $validItems->sum('sold_quantity');
+
+        return $totalPurchased - $totalSold;
+    }
 
     public function purchase()
     {

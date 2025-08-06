@@ -46,9 +46,10 @@ class SaleController extends Controller
         $title = 'create sales';
         // $products = Product::all();
         // produk yang kadaluarsa tidak muncul di form penjualan.
-        $products = Product::whereHas('purchaseItems', function ($query) {
-            $query->whereDate('expiry_date', '>', Carbon::today());
-        })->get();
+        $products = Product::with(['purchaseItems'])
+            ->whereHas('purchaseItems', function ($query) {
+                $query->whereDate('expiry_date', '>', Carbon::today());
+            })->get();
         $categories = Category::all();
 
         // Generate invoice number secara acak, contoh: INV-20250730-XXXX
@@ -57,11 +58,9 @@ class SaleController extends Controller
         return view('admin.sales.create', compact('title', 'products', 'categories', 'invoice_number'));
     }
 
-
-
-
     public function store(Request $request)
     {
+        // Validasi input
         $request->validate([
             'invoice_number' => 'required|string|max:255',
             'nama_customer' => 'required|string|max:255',
@@ -77,50 +76,68 @@ class SaleController extends Controller
         DB::beginTransaction();
 
         try {
-            // Cek stok terlebih dahulu
+            // 🔁 Cek stok & masa kedaluwarsa tiap produk
             foreach ($request->sale_items as $item) {
                 $product = Product::find($item['nama_produk']);
-
-                // validasi tambahan saat menyimpan penjualan
-                $expired = $product->purchaseItems()
-                    ->whereColumn('product_id', $product->id)
-                    ->whereDate('expiry_date', '<=', now())
-                    ->where('quantity', '>', 0)
-                    ->exists();
-
-
-                if ($expired) {
-                    return back()->withErrors(['expired' => "Produk {$product->name} sudah kadaluarsa dan tidak bisa dijual."]);
-                }
-
 
                 if (!$product) {
                     return back()->withErrors(['stok' => 'Produk tidak ditemukan.']);
                 }
 
+                // ❗ Cek apakah produk punya stok kadaluarsa
+                // $expired = $product->purchaseItems()
+                //     ->whereDate('expiry_date', '<=', now()) // expired atau hari ini
+                //     ->where('quantity', '>', 0)
+                //     ->exists();
+
+                // if ($expired) {
+                //     return back()->withErrors([
+                //         'expired' => "Produk {$product->name} sudah kadaluarsa dan tidak bisa dijual."
+                //     ]);
+                // }
+                $availableStock = $product->purchaseItems()
+                    ->whereDate('expiry_date', '>', now())
+                    ->get()
+                    ->sum(function ($item) {
+                        return $item->quantity - $item->sold_quantity;
+                    });
+
+                if ($availableStock < $item['quantity']) {
+                    return back()->withErrors([
+                        'stok' => "Stok untuk produk {$product->name} tidak mencukupi."
+                    ])->withInput();
+                }
+
+
+                // ❗ Cek ketersediaan stok
                 if ($product->stock < $item['quantity']) {
-                    return back()->withErrors(['stok' => "Stok untuk produk {$product->name} tidak mencukupi."]);
+                    return back()->withErrors([
+                        'stok' => "Stok untuk produk {$product->name} tidak mencukupi."
+                    ]);
                 }
             }
 
-            // Hitung total harga
+            // ✅ Hitung total harga
             $overall_total_price = 0;
             foreach ($request->sale_items as $item) {
                 $quantity = (float) $item['quantity'];
                 $unit_price = (float) $item['unit_price'];
-                $overall_total_price += ($quantity * $unit_price);
+                $overall_total_price += $quantity * $unit_price;
             }
 
-            $discount_percentage = (float) $request->discount ?? 0;
+            // ✅ Terapkan diskon jika ada
+            $discount_percentage = (float) ($request->discount ?? 0);
             if ($discount_percentage > 0) {
                 $overall_total_price *= (1 - ($discount_percentage / 100));
             }
 
+            // ✅ Simpan data customer
             $customer = Customer::create([
                 'nama' => $request->nama_customer,
                 'telepon' => $request->nomor_telepon,
             ]);
 
+            // ✅ Simpan data sale utama
             $sale = Sale::create([
                 'customer_id' => $customer->id,
                 'payment_method' => $request->payment_method,
@@ -129,10 +146,12 @@ class SaleController extends Controller
                 'invoice_number' => $request->invoice_number,
             ]);
 
+            // 🔁 Simpan item penjualan & kurangi stok
             foreach ($request->sale_items as $item) {
                 $item_quantity = (float) $item['quantity'];
                 $item_unit_price = (float) $item['unit_price'];
 
+                // ✅ Simpan item
                 SaleItem::create([
                     'sale_id' => $sale->id,
                     'product_id' => $item['nama_produk'],
@@ -141,18 +160,66 @@ class SaleController extends Controller
                     'discount' => 0,
                 ]);
 
+                // // ✅ Kurangi stok produk
+                // $product = Product::find($item['nama_produk']);
+                // $product->stock -= $item_quantity;
+                // $product->save();
+
                 $product = Product::find($item['nama_produk']);
-                $product->stock -= $item_quantity;
-                $product->save();
+                $remainingQty = $item_quantity;
+
+                // Ambil batch purchase_items yang belum expired dan masih punya stok, diurutkan dari yang paling awal (FIFO)
+                $purchases = $product->purchaseItems()
+                    ->whereDate('expiry_date', '>', now())
+                    ->whereColumn('sold_quantity', '<', 'quantity')
+                    ->orderBy('expiry_date') // FIFO: barang lama dijual lebih dulu
+                    ->get();
+
+                foreach ($purchases as $purchaseItem) {
+                    if ($product->available_stock < $item['quantity']) {
+                        return back()->withErrors([
+                            'stok' => "Stok untuk produk {$product->name} tidak mencukupi."
+                        ])->withInput();
+                    }
+
+                    $available = $purchaseItem->quantity - $purchaseItem->sold_quantity;
+
+                    if ($available >= $remainingQty) {
+                        // Cukup dari 1 batch
+                        $purchaseItem->sold_quantity += $remainingQty;
+                        $purchaseItem->save();
+                        $remainingQty = 0;
+                        break;
+                    } else {
+                        // Ambil semua yang tersedia dari batch ini, lanjut ke berikutnya
+                        $purchaseItem->sold_quantity = $purchaseItem->quantity;
+                        $purchaseItem->save();
+                        $remainingQty -= $available;
+                    }
+                }
+
+                if ($remainingQty > 0) {
+                    // Gagal: stok tidak cukup
+                    DB::rollBack();
+                    return back()->withErrors([
+                        'stok' => "Stok tidak mencukupi untuk produk {$product->name}."
+                    ])->withInput();
+                }
+
+
+
+
             }
 
             DB::commit();
             return redirect()->route('sales.index')->with('success', 'Penjualan berhasil ditambahkan!');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Gagal menyimpan penjualan: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data.'])->withInput();
         }
     }
+
 
 
 

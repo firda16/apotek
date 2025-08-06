@@ -250,8 +250,14 @@
                                                 <option value="{{ $product->id }}"
                                                     data-category="{{ $product->category->name ?? '-' }}"
                                                     data-price="{{ $product->price }}">
+                                                    @php
+                                                        $available_stock = $product->available_stock;
+                                                    @endphp
                                                     {{ $product->name }}
-                                                    @if ($product->purchaseItems->sum('quantity') == 0)
+                                                    -
+                                                    {{ $product->available_stock > 0 ? $product->available_stock : 'stok kosong' }}
+
+                                                    @if ($available_stock <= 0)
                                                         - [ stok kosong ]
                                                     @endif
                                                 </option>
