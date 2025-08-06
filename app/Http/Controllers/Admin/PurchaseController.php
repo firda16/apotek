@@ -22,6 +22,119 @@ use QCod\AppSettings\Setting\AppSettings;
 
 class PurchaseController extends Controller
 {
+
+    public function datatable(Request $request)
+    {
+        try {
+            $query = Purchase::with(['supplier', 'purchaseItems.product.category']);
+
+            // Manual filter jika ada pencarian
+            if ($search = $request->get('search')['value'] ?? null) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('supplier', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    })->orWhere('payment_method', 'like', "%{$search}%")
+                        ->orWhere('total_price', 'like', "%{$search}%")
+                        ->orWhereHas('purchaseItems.product', function ($q3) use ($search) {
+                            $q3->where('name', 'like', "%{$search}%")
+                                ->orWhereHas('category', function ($q4) use ($search) {
+                                    $q4->where('name', 'like', "%{$search}%");
+                                });
+                        });
+                });
+            }
+
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('tanggal', function ($purchase) {
+                    return $purchase->created_at ? $purchase->created_at->format('d M Y') : '-';
+                })
+                ->addColumn('supplier', function ($purchase) {
+                    return $purchase->supplier->name ?? '-';
+                })
+                ->addColumn('payment_method', function ($purchase) {
+                    return $purchase->payment_method ?? '-';
+                })
+                ->addColumn('items', function ($purchase) {
+                    $html = '<ul>';
+                    foreach ($purchase->purchaseItems as $item) {
+                        $product = optional($item->product);
+                        $category = optional($product->category);
+                        $html .= '<li>';
+                        $html .= '<strong>' . ($product->name ?? '-') . '</strong><br>';
+                        $html .= 'Exp: ' . ($item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-') . '<br>';
+                        $html .= 'Kategori: ' . ($category->name ?? '-') . '<br>';
+                        $html .= 'Jumlah: ' . $item->quantity . '<br>';
+                        $html .= 'Harga: Rp ' . number_format($item->unit_price, 0, ',', '.') . '<br>';
+                        $html .= 'Sub Total: Rp ' . number_format($item->total_price, 0, ',', '.') . '<br>';
+                        $html .= '</li><hr>';
+                    }
+                    $html .= '</ul>';
+                    return $html;
+                })
+                ->addColumn('total', function ($purchase) {
+                    return 'Rp ' . number_format($purchase->total_price, 0, ',', '.');
+                })
+                ->addColumn('action', function ($purchase) {
+                    $edit = route('purchases.edit', $purchase->id);
+                    $delete = route('purchases.destroy', $purchase->id);
+                    $csrf = csrf_field();
+                    $method = method_field('DELETE');
+
+                    return <<<HTML
+<a href="{$edit}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+<form action="{$delete}" method="POST" style="display:inline;">
+    {$csrf}
+    {$method}
+    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus pembelian ini?');">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
+HTML;
+                })
+                ->rawColumns(['items', 'action'])
+                ->filter(function ($query) use ($request) {
+                    if ($search = $request->get('search')['value'] ?? null) {
+                        $query->whereHas('supplier', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%");
+                        })->orWhereHas('purchaseItems.product', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%")
+                                ->orWhereHas('category', function ($q2) use ($search) {
+                                    $q2->where('name', 'like', "%{$search}%");
+                                });
+                        })->orWhereHas('purchaseItems', function ($q) use ($search) {
+                            $q->where('quantity', 'like', "%{$search}%")
+                                ->orWhere('unit_price', 'like', "%{$search}%")
+                                ->orWhere('total_price', 'like', "%{$search}%")
+                                ->orWhere('expiry_date', 'like', "%{$search}%");
+                        })->orWhere('payment_method', 'like', "%{$search}%")
+                            ->orWhere('total_price', 'like', "%{$search}%");
+                    }
+                })
+                ->make(true);
+
+
+        } catch (\Exception $e) {
+            Log::error('DataTable Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Terjadi kesalahan saat memuat data: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+
+    public function show($id)
+    {
+        // Misalnya fetch data pembelian berdasarkan ID
+        $purchase = Purchase::with('supplier', 'items')->findOrFail($id);
+
+        // Return JSON untuk DataTables atau tampilan detail
+        return response()->json($purchase);
+    }
+
+
     public function index(Request $request)
     {
         $query = Purchase::query()->with([
