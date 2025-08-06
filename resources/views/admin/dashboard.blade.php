@@ -238,8 +238,7 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $purchase->product->name ?? '-' }}</td>
                                             <td>{{ $purchase->quantity }}</td>
-                                            <td class="text-center">Rp
-                                                {{ number_format($purchase->cost_price, 0, ',', '.') }}</td>
+                                            <td class="text-center">Rp {{ number_format($purchase->total_price, 0, ',', '.') }}</td>
                                             <td>{{ $purchase->created_at->format('d M Y H:i') }}</td>
                                         </tr>
                                     @endforeach
@@ -280,7 +279,7 @@
                                     @foreach ($latest_sales as $sale)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $sale->product->purchase->product ?? '-' }}</td>
+                                            <td>{{ $sale->product->name ?? '-' }}</td>
                                             <td>{{ $sale->quantity }}</td>
                                             <td class="text-center">Rp
                                                 {{ number_format($sale->total_price, 0, ',', '.') }}</td>

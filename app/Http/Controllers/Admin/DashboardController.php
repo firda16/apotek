@@ -14,6 +14,7 @@ use ConsoleTVs\Charts\Classes\Chartjs\Chart;
 use App\Models\PurchaseItem;
 use App\Models\SaleItem;
 
+
 class DashboardController extends Controller
 {
     public function index()
@@ -24,7 +25,7 @@ class DashboardController extends Controller
         $total_pengeluaran = PurchaseItem::sum('total_price');
 
         // Total keseluruhan pendapatan (dari tabel sale_items)
-       $total_pendapatan = SaleItem::sum('total_price');
+        $total_pendapatan = SaleItem::sum('total_price');
 
         // Total kategori & supplier
         $total_categories = Category::count();
@@ -91,9 +92,10 @@ class DashboardController extends Controller
 
     public function kasirDashboard()
     {
+
         $title = 'kasir-dashboard';
 
-        $total_purchases = Purchase::where('expiry_date', '!=', Carbon::now())->count();
+        $total_purchases = PurchaseItem::where('expiry_date', '!=', Carbon::now())->count();
         $total_categories = Category::count();
         $total_suppliers = Supplier::count();
         $total_sales = Sale::count();
