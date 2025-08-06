@@ -20,17 +20,24 @@ class Product extends Model
         'description',
     ];
 
+    // public function getAvailableStockAttribute()
+    // {
+    //     $validItems = $this->purchaseItems()
+    //         ->whereDate('expiry_date', '>', Carbon::today())
+    //         ->get();
+
+    //     $totalPurchased = $validItems->sum('quantity');
+    //     $totalSold = $validItems->sum('sold_quantity');
+
+    //     return $totalPurchased - $totalSold;
+    // }
     public function getAvailableStockAttribute()
     {
-        $validItems = $this->purchaseItems()
-            ->whereDate('expiry_date', '>', Carbon::today())
-            ->get();
-
-        $totalPurchased = $validItems->sum('quantity');
-        $totalSold = $validItems->sum('sold_quantity');
-
-        return $totalPurchased - $totalSold;
+        return $this->purchaseItems
+            ->where('expiry_date', '>', now())
+            ->sum(fn($item) => $item->quantity - $item->sold_quantity);
     }
+
 
     public function purchase()
     {

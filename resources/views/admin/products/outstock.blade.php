@@ -43,7 +43,7 @@
 								<td>{{ $product->name ?? '-' }}</td> 
                                 <td>{{ $product->category->name ?? '' }}</td>
                                 {{-- <td>{{ settings('app_currency','Rp') }} {{ $product->price }}</td> --}}
-                                <td>{{ $product->stock }}</td>
+                                <td>{{ $product->available_stock }}</td>
                                 {{-- <td>{{ $product->discount }}</td> Assuming discount is a direct property of product or related --}}
                                 {{-- <td>{{ !empty($product->purchase->expiry_date) ? date_format(date_create($product->purchase->expiry_date),'d M, Y') : '' }}</td> --}}
                                 <td>

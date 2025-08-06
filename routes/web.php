@@ -66,6 +66,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('purchases', PurchaseController::class);
 
     Route::resource('products',ProductController::class)->except('show');
+    Route::get('/products/{product}/stock-log', [ProductController::class, 'stockLog'])->name('products.stock-log');
+
     Route::get('products', [ProductController::class, 'index'])->name('products.index');
     Route::get('products/available', [ProductController::class, 'available'])->name('available');
     Route::get('products/outstock',[ProductController::class,'outstock'])->name('outstock');

@@ -160,18 +160,55 @@ class ProductController extends Controller
     }
 
 
-
     public function outstock(Request $request)
     {
         $title = "Produk Habis";
-        $products = Product::where('stock', '<=', 0)->with('category')->paginate(10);
+
+        // Ambil semua produk dan relasinya
+        $allProducts = Product::with(['category', 'purchaseItems'])->get();
+
+        // Filter produk yang stoknya habis (FIFO aware)
+        $filtered = $allProducts->filter(function ($product) {
+            return $product->available_stock <= 0;
+        });
+
+        // Manual paginate Collection
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10;
+        $results = $filtered->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $products = new LengthAwarePaginator(
+            $results,
+            $filtered->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('admin.products.outstock', compact('title', 'products'));
     }
+
+    // public function outstock(Request $request)
+    // {
+    //     $title = "Produk Habis";
+    //     $products = Product::where('stock', '<=', 0)->with('category')->paginate(10);
+
+    //     return view('admin.products.outstock', compact('title', 'products'));
+    // }
 
     public function destroy(Product $product)
     {
         $product->delete();
         return redirect()->route('products.index')->with(notify('Produk berhasil dihapus'));
     }
+
+    public function stockLog(Product $product)
+    {
+        $batches = $product->purchaseItems()
+            ->orderBy('expiry_date')
+            ->get();
+
+        return view('admin.products.stock_log', compact('product', 'batches'));
+    }
+
 }
