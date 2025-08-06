@@ -23,13 +23,13 @@ class UserController extends Controller
     // halaman users
     public function index(Request $request)
     {
-        
+
         $query = User::query();
         $users = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return view('admin.users.index', compact(
              'users'
-        ));        
+        ));
     }
 
     /**
@@ -38,8 +38,8 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {        
-        $users = User::get();      
+    {
+        $users = User::get();
         return view('admin.users.create', compact('users'));
     }
 
@@ -69,12 +69,13 @@ class UserController extends Controller
             'email' => $request->email,
             'avatar' => $imageName,
             'password' => Hash::make($request->password),
-        ]);        
+            'role' => $request->role,
+        ]);
         $notifiation = notify('user created successfully');
         return redirect()->route('users.index')->with($notifiation);
     }
 
-   
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -118,7 +119,8 @@ class UserController extends Controller
             'email' => $request->email,
             'avatar' => $imageName,
             'password' => $password,
-        ]);                
+            'role' => $request->role,
+        ]);
         $notification = notify('user update berhasil ');
         return redirect()->route('users.index')->with($notification);
     }
@@ -126,7 +128,7 @@ class UserController extends Controller
     public function profile(){
         // $title = 'user profile';
         $users = Auth::user();
-        $roles = User::getRoleOptions(); 
+        $roles = User::getRoleOptions();
         return view('admin.users.profile',compact(
             'users','roles'
         ));

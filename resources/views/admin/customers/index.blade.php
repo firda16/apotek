@@ -4,17 +4,17 @@
 <div class="page-header">
     <div class="row align-items-center">
         <div class="col">
-            <h3 class="page-title">Data Customer</h3>
+            <h3 class="page-title">Data Pelanggan</h3>
             <ul class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item active">Customers</li>
+                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
+                <li class="breadcrumb-item active">Pelanggan</li>
             </ul>
         </div>
-        <div class="col-auto float-end ms-auto">
+        {{-- <div class="col-auto float-end ms-auto">
             <a href="#" class="btn btn-primary">
                 <i class="fa fa-plus"></i> Tambah Customer
             </a>
-        </div>
+        </div> --}}
     </div>
 </div>
 
@@ -43,7 +43,7 @@
                     @endforeach
                     @if($customers->isEmpty())
                         <tr>
-                            <td colspan="5" class="text-center">Tidak ada data customer.</td>
+                            <td colspan="5" class="text-center">Tidak ada data pelanggan.</td>
                         </tr>
                     @endif
                 </tbody>

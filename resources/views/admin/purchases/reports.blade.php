@@ -14,7 +14,7 @@
     </ul>
 </div>
 <div class="col-sm-5 col">
-    <a href="#generate_report" data-toggle="modal" class="btn btn-primary float-right mt-2">Buat Laporan</a>
+    <a href="#generate_report" data-toggle="modal" class="btn btn-primary float-right mt-2">Cetak Laporan</a>
 </div>
 @endpush
 
@@ -66,18 +66,12 @@
                             @endforeach
                         @endforeach
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="9" class="text-right">Total Keseluruhan</th>
-                            <th colspan="2">Rp {{ number_format($grandTotal, 0, ',', '.') }}</th>
-                        </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>
     </div>
 @else
-   
+
 @endif
 
 <!-- Modal Buat Laporan -->
@@ -85,7 +79,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Buat Laporan</h5>
+                <h5 class="modal-title">Cetak Laporan</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -111,7 +105,7 @@
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block submit_report">Kirim</button>
+                    <button type="submit" class="btn btn-primary btn-block submit_report">Tampilkan</button>
                 </form>
             </div>
         </div>
@@ -132,22 +126,22 @@
                     buttons: [
                         {
                             extend: 'pdf',
-                            text: 'Ekspor ke PDF',
+                            text: 'PDF',
                             exportOptions: { columns: ':visible' }
                         },
                         {
                             extend: 'excel',
-                            text: 'Ekspor ke Excel',
+                            text: 'Excel',
                             exportOptions: { columns: ':visible' }
                         },
                         {
                             extend: 'csv',
-                            text: 'Ekspor ke CSV',
+                            text: 'CSV',
                             exportOptions: { columns: ':visible' }
                         },
                         {
                             extend: 'print',
-                            text: 'Cetak',
+                            text: 'Print',
                             exportOptions: { columns: ':visible' }
                         }
                     ]

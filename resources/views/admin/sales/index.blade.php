@@ -7,14 +7,14 @@
 
 @push('page-header')
     <div class="col-sm-7 col-auto">
-        <h3 class="page-title">Sales</h3>
+        <h3 class="page-title">Penjualan</h3>
         <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item active">Sales</li>
+            <li class="breadcrumb-item active">Penjualan</li>
         </ul>
     </div>
     <div class="col-sm-5 col">
-        <a href="{{ route('sales.create') }}" class="btn btn-primary float-right mt-2">Add Sale</a>
+        <a href="{{ route('sales.create') }}" class="btn btn-primary float-right mt-2">Transaksi Baru</a>
     </div>
 @endpush
 
@@ -31,7 +31,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Tanggal Penjualan</th>
-                                    <th>nomor invoice</th>
+                                    <th>Nomor Invoice</th>
                                     <th>Nama Pelanggan</th>
                                     <th>Nomor Hp</th>
                                     <th>Metode Pembayaran</th>

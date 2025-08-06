@@ -14,7 +14,7 @@
         </ul>
     </div>
     <div class="col-sm-5 col">
-        <a href="#generate_report" data-toggle="modal" class="btn btn-primary float-right mt-2">Generate Report</a>
+        <a href="#generate_report" data-toggle="modal" class="btn btn-primary float-right mt-2">Cetak Laporan</a>
     </div>
 @endpush
 
@@ -26,6 +26,13 @@
                 <!-- Sales Report -->
                 <div class="card">
                     <div class="card-body">
+
+                        <div class="mb-3">
+                            <strong>Periode:</strong>
+                            {{ request('from_date') ? date('d M Y', strtotime(request('from_date'))) : '-' }} -
+                            {{ request('to_date') ? date('d M Y', strtotime(request('to_date'))) : '-' }}
+                        </div>
+
                         <div class="table-responsive">
                             <table id="sales-table" class="datatable table table-hover table-center mb-0">
                                 <thead>
@@ -76,7 +83,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Generate Report</h5>
+                    <h5 class="modal-title">Cetak Laporan</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -89,20 +96,20 @@
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label>From</label>
+                                            <label>Dari Tanggal</label>
                                             <input type="date" name="from_date" class="form-control from_date">
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label>To</label>
+                                            <label>Sampai Tanggal</label>
                                             <input type="date" name="to_date" class="form-control to_date">
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block submit_report">Submit</button>
+                        <button type="submit" class="btn btn-primary btn-block submit_report">Tampilkan</button>
                     </form>
                 </div>
             </div>
@@ -118,7 +125,7 @@
                 dom: 'Bfrtip',
                 buttons: [{
                     extend: 'collection',
-                    text: 'Export Data',
+                    text: 'Ekspor Data',
                     buttons: [{
                             extend: 'pdf',
                             exportOptions: {
