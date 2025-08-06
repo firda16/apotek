@@ -69,7 +69,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/products/{product}/stock-log', [ProductController::class, 'stockLog'])->name('products.stock-log');
 
     Route::get('products', [ProductController::class, 'index'])->name('products.index');
-    Route::get('products/available', [ProductController::class, 'available'])->name('available');
+    // Route::get('products/available', [ProductController::class, 'available'])->name('available');
+    Route::get('products/available', [ProductController::class, 'available'])->name('products.available');
     Route::get('products/outstock',[ProductController::class,'outstock'])->name('outstock');
     Route::get('products/expired',[ProductController::class,'expired'])->name('expired');
     Route::resource('sales',SaleController::class)->except('show');

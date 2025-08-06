@@ -138,26 +138,46 @@ class ProductController extends Controller
         return view('admin.products.expired', compact('title', 'products'));
     }
 
-    public function available(Request $request)
-    {
-        $title = "Produk Tersedia";
+    
 
-        $products = Product::whereHas('purchaseItems', function ($query) {
-            $query->whereDate('expiry_date', '>', now())
-                ->whereColumn('quantity', '>', 'sold_quantity');
-        })
-            ->with([
-                'category',
-                'purchaseItems' => function ($query) {
-                    $query->whereDate('expiry_date', '>', now())
-                        ->whereColumn('quantity', '>', 'sold_quantity');
-                }
-            ])
-            ->paginate(10);
+public function available(Request $request)
+{
+    if ($request->ajax()) {
+        $products = Product::with(['category', 'purchaseItems' => function ($query) {
+                $query->whereDate('expiry_date', '>', now())
+                    ->whereColumn('quantity', '>', 'sold_quantity');
+            }])
+            ->whereHas('purchaseItems', function ($query) {
+                $query->whereDate('expiry_date', '>', now())
+                    ->whereColumn('quantity', '>', 'sold_quantity');
+            });
 
-
-        return view('admin.products.available', compact('title', 'products'));
+        return DataTables::of($products)
+            ->addIndexColumn()
+            ->addColumn('category', fn($row) => $row->category->name ?? '-')
+            ->addColumn('available_stock', function ($row) {
+                return $row->purchaseItems->sum(function ($item) {
+                    return $item->quantity - $item->sold_quantity;
+                });
+            })
+            ->addColumn('action', function ($row) {
+                $view = '<a href="' . route('products.stock-log', $row->id) . '" class="btn btn-secondary btn-sm">FIFO</a>';
+                $edit = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>';
+                $delete = '<form action="' . route('products.destroy', $row->id) . '" method="POST" style="display:inline;">
+                                ' . csrf_field() . method_field('DELETE') . '
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin hapus?\')">Hapus</button>
+                            </form>';
+                return $view . ' ' . $edit . ' ' . $delete;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
+
+    $title = "Produk Tersedia";
+    return view('admin.products.available', compact('title'));
+}
+
+
 
 
     public function outstock(Request $request)
@@ -168,9 +188,26 @@ class ProductController extends Controller
         $allProducts = Product::with(['category', 'purchaseItems'])->get();
 
         // Filter produk yang stoknya habis (FIFO aware)
+        // $filtered = $allProducts->filter(function ($product) {
+        //     return $product->available_stock <= 0;
+        // });
+
         $filtered = $allProducts->filter(function ($product) {
-            return $product->available_stock <= 0;
+            // Ambil hanya batch yang belum expired
+            $unexpiredBatches = $product->purchaseItems->where('expiry_date', '>', now());
+
+            // Jika tidak ada batch belum expired, jangan tampilkan
+            if ($unexpiredBatches->isEmpty()) {
+                return false;
+            }
+
+            // Hitung total stok dari batch belum expired
+            $availableStock = $unexpiredBatches->sum(fn($item) => $item->quantity - $item->sold_quantity);
+
+            // Tampilkan hanya jika stok habis
+            return $availableStock <= 0;
         });
+
 
         // Manual paginate Collection
         $page = LengthAwarePaginator::resolveCurrentPage();
