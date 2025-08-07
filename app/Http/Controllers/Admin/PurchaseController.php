@@ -13,6 +13,7 @@ use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -47,7 +48,7 @@ class PurchaseController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('tanggal', function ($purchase) {
-                    return $purchase->created_at ? $purchase->created_at->format('d M Y') : '-';
+                    return \Carbon\Carbon::parse($purchase->created_at)->translatedFormat('l, d F Y') ?? '-';
                 })
                 ->addColumn('supplier', function ($purchase) {
                     return $purchase->supplier->name ?? '-';
@@ -137,6 +138,7 @@ HTML;
 
     public function index(Request $request)
     {
+        App::setLocale('id');
         $query = Purchase::query()->with([
             'supplier',
             'purchaseItems.product.category'

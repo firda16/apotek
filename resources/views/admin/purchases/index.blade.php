@@ -63,7 +63,7 @@
         <div class="col-md-12">
 
             {{-- Form Pencarian --}}
-            <div class="card mb-3">
+            {{-- <div class="card mb-3">
                 <div class="card-body">
                     <form action="{{ route('purchases.index') }}" method="GET">
                         <div class="input-group">
@@ -79,7 +79,7 @@
                         </div>
                     </form>
                 </div>
-            </div>
+            </div> --}}
 
             {{-- Tabel Pembelian --}}
             <div class="card">
@@ -126,6 +126,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: '{{ route('purchases.datatable') }}',
+                order: [[1, 'desc']], 
                 language: {
                     processing: `<div class="spinner"></div>`
                 },
