@@ -212,7 +212,14 @@ class SaleController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('sales.index')->with('success', 'Penjualan berhasil ditambahkan!');
+
+            return redirect()
+                ->route('sales.index')
+                ->with([
+                    'success' => 'Penjualan berhasil ditambahkan!',
+                    'invoice_url' => route('sales.invoice', $sale->id)
+                ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Gagal menyimpan penjualan: ' . $e->getMessage());

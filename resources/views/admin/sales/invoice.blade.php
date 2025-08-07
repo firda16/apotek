@@ -129,10 +129,10 @@
                 <tr>
                     <th>No</th>
                     <th>Produk</th>
-                    <th>Kategori</th>
+                    {{-- <th>Kategori</th> --}}
                     <th>Jumlah</th>
                     <th>Harga Satuan</th>
-                    <th>Total</th>
+                    <th>Subtotal</th>
                 </tr>
             </thead>
             <tbody>
@@ -140,7 +140,7 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $item->product->name }}</td>
-                        <td>{{ $item->product->category->name ?? '-' }}</td>
+                        {{-- <td>{{ $item->product->category->name ?? '-' }}</td> --}}
                         <td>{{ $item->quantity }}</td>
                         <td>Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($item->total_price, 0, ',', '.') }}</td>

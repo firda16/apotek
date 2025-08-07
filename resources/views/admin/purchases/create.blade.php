@@ -34,6 +34,18 @@
                             </div>
                         @endif
 
+                        
+                            <div class="mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">Nomor Invoice</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-file-invoice"></i></span>
+                                        <input type="text" name="invoice_number" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        
+
                         <div class="mb-3">
                             <label>Pemasok <span class="text-danger">*</span></label>
                             <select class="select2 form-select form-control @error('supplier_id') is-invalid @enderror"
@@ -76,8 +88,7 @@
                             <table class="table table-bordered" id="purchase-table">
                                 <thead>
                                     <tr>
-                                        <th>Pilih Produk (Opsional)</th>
-                                        <th>Kategori</th>
+                                        <th>Pilih Produk</th>                                        
                                         <th>Jumlah</th>
                                         <th>Harga Beli Satuan</th>
                                         <th>Tanggal Kedaluwarsa</th>
@@ -103,22 +114,7 @@
                                                     @error("purchase_items.{$index}.product_id")
                                                         <div class="text-danger small">{{ $message }}</div>
                                                     @enderror
-                                                </td>
-                                                <td>
-                                                    <select name="purchase_items[{{ $index }}][category_id]"
-                                                        class="form-control @error("purchase_items.{$index}.category_id") is-invalid @enderror"
-                                                        required>
-                                                        <option disabled selected>-- Pilih Kategori --</option>
-                                                        @foreach ($categories as $category)
-                                                            <option value="{{ $category->id }}"
-                                                                {{ old("purchase_items.{$index}.category_id") == $category->id ? 'selected' : '' }}>
-                                                                {{ $category->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    @error("purchase_items.{$index}.category_id")
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </td>
+                                                </td>                                                
                                                 <td>
                                                     <input type="number"
                                                         name="purchase_items[{{ $index }}][quantity]"
@@ -172,23 +168,13 @@
                                                         <option value="{{ $product->id }}">{{ $product->name }}</option>
                                                     @endforeach
                                                 </select>
-                                            </td>
-                                            <td>
-                                                <select name="purchase_items[0][category_id]" class="form-control"
-                                                    required>
-                                                    <option value=""></option>
-                                                    @foreach ($categories as $category)
-                                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </td>
+                                            </td>                                           
                                             <td>
                                                 <input type="number" name="purchase_items[0][quantity]"
                                                     class="form-control purchase-quantity" min="1" required>
                                             </td>
                                             <td>
-                                                <input type="number" step="0.01"
-                                                    name="purchase_items[0][unit_price]"
+                                                <input type="number" step="0.01" name="purchase_items[0][unit_price]"
                                                     class="form-control purchase-unit-price" required>
                                             </td>
                                             <td>
@@ -197,8 +183,8 @@
                                             </td>
                                             <td>
                                                 <input type="number" step="0.01"
-                                                    name="purchase_items[0][total_price]" class="form-control purchase-total_price"
-                                                    readonly>
+                                                    name="purchase_items[0][total_price]"
+                                                    class="form-control purchase-total_price" readonly>
                                             </td>
                                             <td>
                                                 <button type="button"
@@ -213,8 +199,8 @@
                         </div>
                         <div class="mb-3 mt-3">
                             <label for="total_price">Total Harga</label>
-                            <input type="number" step="0.01" name="total_price" id="total_price" class="form-control"
-                                readonly required>
+                            <input type="number" step="0.01" name="total_price" id="total_price"
+                                class="form-control" readonly required>
                         </div>
 
                         <div class="submit-section mt-4">
@@ -240,21 +226,14 @@
 
         let i = {{ old('purchase_items') ? count(old('purchase_items')) : 1 }}; // Lanjutkan indeks jika ada old input
 
-        const productCategoryMap = @json($products->mapWithKeys(fn($p) => [$p->id => $p->category_id]));
+        // const productCategoryMap = @json($products->mapWithKeys(fn($p) => [$p->id => $p->category_id]));
 
         const productsOptions = `
         <option value="">-- Pilih Produk --</option>
         @foreach ($products as $product)
             <option value="{{ $product->id }}">{{ $product->name }}</option>
         @endforeach
-    `;
-
-        const categoriesOptions = `
-        <option value="">-- Pilih Kategori --</option>
-        @foreach ($categories as $category)
-            <option value="{{ $category->id }}">{{ $category->name }}</option>
-        @endforeach
-    `;
+    `;      
 
         function calculatetotal_price(row) {
             const quantity = parseFloat(row.find('.purchase-quantity').val()) || 0;
@@ -280,14 +259,14 @@
             $(document).on('change', '.product-select', function() {
                 const selectedProductId = $(this).val();
                 const row = $(this).closest('tr');
-                const categorySelect = row.find('select[name$="[category_id]"]');
-                const categoryId = productCategoryMap[selectedProductId];
+                // const categorySelect = row.find('select[name$="[category_id]"]');
+                // const categoryId = productCategoryMap[selectedProductId];
 
-                if (categoryId) {
-                    categorySelect.val(categoryId).trigger('change');
-                } else {
-                    categorySelect.val('');
-                }
+                // if (categoryId) {
+                //     categorySelect.val(categoryId).trigger('change');
+                // } else {
+                //     categorySelect.val('');
+                // }
             });
 
             // Event listener for quantity and unit price changes
@@ -303,12 +282,7 @@
                     <select name="purchase_items[${i}][product_id]" class="form-control product-select select2">
                         ${productsOptions}
                     </select>
-                </td>
-                <td>
-                    <select name="purchase_items[${i}][category_id]" class="form-control" required>
-                        ${categoriesOptions}
-                    </select>
-                </td>
+                </td>                
                 <td>
                     <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" min="1" required>
                 </td>

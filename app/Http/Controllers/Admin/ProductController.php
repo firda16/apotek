@@ -114,22 +114,27 @@ class ProductController extends Controller
     }
 
     public function expired()
-    {
-        $title = 'Produk Kedaluwarsa';
-        App::setLocale('id');
+{
+    $title = 'Produk Kedaluwarsa';
+    App::setLocale('id');
 
-        $products = Product::whereHas('purchaseItems', function ($query) {
-            $query->whereDate('expiry_date', '<=', now());
-        })
-            ->with([
-                'purchaseItems' => function ($query) {
-                    $query->whereDate('expiry_date', '<=', now());
-                }
-            ])
-            ->paginate(10);
+    // Tentukan batas "akan kadaluarsa": misal 30 hari ke depan
+    $soonExpiryDays = 30;
+    $soonExpiryDate = now()->addDays($soonExpiryDays);
 
-        return view('admin.products.expired', compact('title', 'products'));
-    }
+    $products = Product::whereHas('purchaseItems', function ($query) use ($soonExpiryDate) {
+        $query->whereDate('expiry_date', '<=', $soonExpiryDate); // termasuk yang sudah expired dan akan expired
+    })
+    ->with([
+        'purchaseItems' => function ($query) use ($soonExpiryDate) {
+            $query->whereDate('expiry_date', '<=', $soonExpiryDate);
+        },
+        'category'
+    ])
+    ->paginate(10);
+
+    return view('admin.products.expired', compact('title', 'products', 'soonExpiryDays'));
+}
 
 
 

@@ -3,7 +3,47 @@
 <x-assets.datatables />
 
 @push('page-css')
+    <style>
+        /* Spinner animation */
+
+        .dataTables_processing {
+            display: none !important;
+        }
+
+
+        /* .dataTables_processing {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.8);
+                    z-index: 999;
+                    font-size: 16px;
+                    color: #333;
+                    padding: 40px;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 100%;
+                } */
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ccc;
+            border-top-color: #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 @endpush
+
 
 @push('page-header')
     <div class="col-sm-7 col-auto">
@@ -23,7 +63,7 @@
         <div class="col-md-12">
 
             {{-- Form Pencarian --}}
-            <div class="card mb-3">
+            {{-- <div class="card mb-3">
                 <div class="card-body">
                     <form action="{{ route('purchases.index') }}" method="GET">
                         <div class="input-group">
@@ -39,7 +79,7 @@
                         </div>
                     </form>
                 </div>
-            </div>
+            </div> --}}
 
             {{-- Tabel Pembelian --}}
             <div class="card">
@@ -50,6 +90,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Tanggal Pembelian</th>
+                                    <th>No Invoice</th>
                                     <th>Pemasok</th>
                                     <th>Pembayaran</th>
                                     <th>Item</th>
@@ -65,55 +106,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($pembelians as $pembelian)
-                                    <tr>
-                                        <td>{{ $pembelians->firstItem() + $loop->index }}</td>
-                                        <td>{{ $pembelian->created_at ? $pembelian->created_at->format('d M Y') : '-' }}
-                                        </td>
-                                        <td>{{ $pembelian->supplier->name ?? '-' }}</td>
-                                        <td>{{ $pembelian->payment_method ?? '-' }}</td>
-                                        <td>
-                                            <ul class="mb-0">
-                                                @foreach ($pembelian->purchaseItems as $item)
-                                                    <li>
-                                                        <strong>{{ $item->product->name ?? '-' }}</strong><br>
-                                                        Exp: {{ $item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-' }} <br>
-                                                        Kategori: {{ $item->product->category->name ?? '-' }}<br>
-                                                        Jumlah: {{ $item->quantity }}<br>
-                                                        Harga: Rp {{ number_format($item->unit_price, 0, ',', '.') }}<br>
-                                                        Sub Total: Rp {{ number_format($item->total_price, 0, ',', '.') }}<br>                                                        
-                                                    </li>
-                                                    <hr class="my-1">
-                                                @endforeach
-                                            </ul>
-                                        </td>
-                                        <td>{{ number_format($pembelian->total_price, 0, ',', '.') }}</td>
-                                        <td>
-                                            <a href="{{ route('purchases.edit', $pembelian->id) }}"
-                                                class="btn btn-sm btn-primary">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('purchases.destroy', $pembelian->id) }}" method="POST"
-                                                style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Yakin ingin menghapus pembelian ini?');">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
+
                             </tbody>
 
                         </table>
                         {{-- Pagination --}}
                     </div>
-                    <div class="mt-3">
-                        {{-- {{ $categories->links() }} --}}
-                        {{ $pembelians->links('pagination::bootstrap-5') }}
-                    </div>
+
                 </div>
             </div>
 
@@ -121,54 +120,60 @@
     </div>
 @endsection
 
-{{-- @push('page-js')
+@push('page-js')
     <script>
         $(document).ready(function() {
             $('#purchase-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('purchases.index') }}",
+                ajax: '{{ route('purchases.datatable') }}',
+                order: [
+                    [1, 'desc']
+                ],
+                language: {
+                    processing: `<div class="spinner"></div>`
+                },
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
                         orderable: false,
                         searchable: false
+                    }, // Fix penting                                      
+                    {
+                        data: 'tanggal',
+                        name: 'created_at'
                     },
                     {
-                        data: 'product',
-                        name: 'product'
-                    },
-                    {
-                        data: 'category',
-                        name: 'category'
+                        data: 'invoice_number',
+                        name: 'invoice_number'
                     },
                     {
                         data: 'supplier',
-                        name: 'supplier'
+                        name: 'supplier.name'
                     },
                     {
-                        data: 'cost_price',
-                        name: 'cost_price'
+                        data: 'payment_method',
+                        name: 'payment_method'
                     },
                     {
-                        data: 'quantity',
-                        name: 'quantity'
+                        data: 'items',
+                        name: 'items',
+                        orderable: false,
+                        searchable: false
                     },
                     {
-                        data: 'expiry_date',
-                        name: 'expiry_date'
+                        data: 'total',
+                        name: 'total_price'
                     },
                     {
                         data: 'action',
                         name: 'action',
                         orderable: false,
                         searchable: false
-                    },
-                ],
-                order: [
-                    [1, 'asc']
+                    }
                 ]
             });
+
         });
     </script>
-@endpush --}}
+@endpush
