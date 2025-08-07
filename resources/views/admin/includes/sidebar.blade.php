@@ -43,7 +43,7 @@
                                 href="{{ route('suppliers.create') }}">Tambah Pemasok</a></li>
                     </ul>
                 </li>
-                
+
                 <li class="submenu">
                     <a href="#"><i class="fe fe-star-o"></i> <span>Pembelian</span> <span
                             class="menu-arrow"></span></a>
@@ -78,6 +78,8 @@
                                 href="{{ route('sales.report') }}">Laporan Penjualan</a></li>
                         <li><a class="{{ route_is('purchases.report') ? 'active' : '' }}"
                                 href="{{ route('purchases.report') }}">Laporan Pembelian</a></li>
+                        <li><a class="{{ route_is('reports.stock') ? 'active' : '' }}"
+                                href="{{ route('reports.stock') }}">Laporan Stok</a></li>
                     </ul>
                 </li>
 

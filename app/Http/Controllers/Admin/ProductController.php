@@ -10,38 +10,35 @@ use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
-use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Facades\DataTables;
 use QCod\AppSettings\Setting\AppSettings;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StockReportExport;
+
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
         App::setLocale('id');
-        // filter produk kadaluawarsa dari data produk
-        $products = Product::whereHas('purchaseItems', function ($query) {
-            $query->whereDate('expiry_date', '>', now());
-        })
-            ->with([
-                'purchase.category',
-                'purchaseItems' => function ($query) {
-                    $query->whereDate('expiry_date', '>', now());
-                }
-            ])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
 
-        $query = Product::with('category', 'purchaseItems');
+        $query = Product::with([
+            'category',
+            'purchaseItems' => function ($query) {
+                $query->whereDate('expiry_date', '>', now());
+            }
+        ])->orderBy('created_at', 'desc');
 
         if ($request->has('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-
+        $products = $query->paginate(15);
 
         return view('admin.products.index', compact('products'));
     }
+
 
     public function create()
     {
@@ -59,7 +56,6 @@ class ProductController extends Controller
             'name' => 'required|string|max:200',
             'category_id' => 'required|exists:categories,id',
             'unit' => 'required|string|max:50',
-            'stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string|max:255',
@@ -74,7 +70,6 @@ class ProductController extends Controller
             'name' => $request->name,
             'category_id' => $request->category_id,
             'unit' => $request->unit,
-            'stock' => $request->stock,
             'price' => $price,
             'discount' => $request->discount,
             'description' => $request->description,
@@ -96,7 +91,6 @@ class ProductController extends Controller
             'name' => 'required|string|max:200',
             'category_id' => 'required|exists:categories,id',
             'unit' => 'required|string|max:50',
-            'stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string|max:255',
@@ -111,7 +105,6 @@ class ProductController extends Controller
             'name' => $request->name,
             'category_id' => $request->category_id,
             'unit' => $request->unit,
-            'stock' => $request->stock,
             'price' => $price,
             'discount' => $request->discount,
             'description' => $request->description,
@@ -143,44 +136,44 @@ class ProductController extends Controller
     return view('admin.products.expired', compact('title', 'products', 'soonExpiryDays'));
 }
 
-    
 
-public function available(Request $request)
-{
-    if ($request->ajax()) {
-        $products = Product::with(['category', 'purchaseItems' => function ($query) {
+
+    public function available(Request $request)
+    {
+        if ($request->ajax()) {
+            $products = Product::with(['category', 'purchaseItems' => function ($query) {
                 $query->whereDate('expiry_date', '>', now())
                     ->whereColumn('quantity', '>', 'sold_quantity');
             }])
-            ->whereHas('purchaseItems', function ($query) {
-                $query->whereDate('expiry_date', '>', now())
-                    ->whereColumn('quantity', '>', 'sold_quantity');
-            });
-
-        return DataTables::of($products)
-            ->addIndexColumn()
-            ->addColumn('category', fn($row) => $row->category->name ?? '-')
-            ->addColumn('available_stock', function ($row) {
-                return $row->purchaseItems->sum(function ($item) {
-                    return $item->quantity - $item->sold_quantity;
+                ->whereHas('purchaseItems', function ($query) {
+                    $query->whereDate('expiry_date', '>', now())
+                        ->whereColumn('quantity', '>', 'sold_quantity');
                 });
-            })
-            ->addColumn('action', function ($row) {
-                $view = '<a href="' . route('products.stock-log', $row->id) . '" class="btn btn-secondary btn-sm">FIFO</a>';
-                $edit = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>';
-                $delete = '<form action="' . route('products.destroy', $row->id) . '" method="POST" style="display:inline;">
+
+            return DataTables::of($products)
+                ->addIndexColumn()
+                ->addColumn('category', fn($row) => $row->category->name ?? '-')
+                ->addColumn('available_stock', function ($row) {
+                    return $row->purchaseItems->sum(function ($item) {
+                        return $item->quantity - $item->sold_quantity;
+                    });
+                })
+                ->addColumn('action', function ($row) {
+                    $view = '<a href="' . route('products.stock-log', $row->id) . '" class="btn btn-secondary btn-sm">FIFO</a>';
+                    $edit = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>';
+                    $delete = '<form action="' . route('products.destroy', $row->id) . '" method="POST" style="display:inline;">
                                 ' . csrf_field() . method_field('DELETE') . '
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin hapus?\')">Hapus</button>
                             </form>';
-                return $view . ' ' . $edit . ' ' . $delete;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
-    }
+                    return $view . ' ' . $edit . ' ' . $delete;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
 
-    $title = "Produk Tersedia";
-    return view('admin.products.available', compact('title'));
-}
+        $title = "Produk Tersedia";
+        return view('admin.products.available', compact('title'));
+    }
 
 
 
@@ -253,4 +246,21 @@ public function available(Request $request)
         return view('admin.products.stock_log', compact('product', 'batches'));
     }
 
+
+    public function stockReport(Request $request)
+    {
+        $purchaseItems = [];
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = Carbon::parse($request->start_date)->startOfDay();
+            $endDate = Carbon::parse($request->end_date)->endOfDay();
+
+            $purchaseItems = PurchaseItem::with(['product.category'])
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->orderBy('created_at', 'asc')
+                ->get();
+        }
+
+        return view('admin.products.reports', compact('purchaseItems'));
+    }
 }

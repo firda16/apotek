@@ -45,7 +45,7 @@
                                         <td class="text-center">
                                             @if (!empty($sale->invoice_number))
                                                 <a href="{{ route('riwayat.penjualan.show', ['invoice_number' => $sale->invoice_number]) }}"
-                                                    class="btn btn-sm btn-primary">🔍 Detail</a>
+                                                    class="btn btn-sm btn-primary"> Detail</a>
                                             @else
                                                 <span class="text-muted">-</span>
                                             @endif

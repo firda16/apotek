@@ -71,13 +71,13 @@
                                 </div>
 
                                 <!-- Stok -->
-                                <div class="col-lg-4">
+                                {{-- <div class="col-lg-4">
                                     <div class="form-group">
                                         <label>Stok <span class="text-danger">*</span></label>
                                         <input type="number" name="stock" class="form-control"
                                             value="{{ old('stock', $product->stock) }}" required>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 

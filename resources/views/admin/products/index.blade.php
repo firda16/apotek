@@ -33,10 +33,10 @@
                                     <th>Nama Produk</th>
                                     <th>Kategori</th>
                                     <th>Harga</th>
-                                    <th>Stok</th>
+                                    {{-- <th>Stok</th> --}}
                                     <th>Satuan</th>
                                     <th>Deskripsi</th>
-                                    <th>Tanggal Kedaluwarsa</th>
+                                    {{-- <th>Tanggal Kedaluwarsa</th> --}}
                                     <th class="action-btn">Aksi</th>
                                 </tr>
                             </thead>
@@ -56,17 +56,17 @@
                                         <td class="text-center">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
 
                                         {{-- Stok Produk --}}
-                                        <td>{{ $product->stock }}</td>
+                                        {{-- <td>{{ $product->stock }}</td> --}}
                                         <td>{{ $product->unit }}</td>
                                         <td>{{ $product->description ?? '-' }}</td>
-                                         @php
+                                         {{-- @php
                                         // Ambil item kedaluwarsa paling awal (terdekat)
                                             $expiredItem = $product->purchaseItems->sortBy('expiry_date')->first();
                                         @endphp
 
                                         <td>
                                             {{ $expiredItem ? \Carbon\Carbon::parse($expiredItem->expiry_date)->translatedFormat('d F Y') : '-' }}
-                                        </td>
+                                        </td> --}}
 
 
                                         {{-- Deskripsi Produk (Opsional, kalau mau ditampilkan) --}}
