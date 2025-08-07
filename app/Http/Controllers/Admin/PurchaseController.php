@@ -35,6 +35,7 @@ class PurchaseController extends Controller
                     $q->whereHas('supplier', function ($q2) use ($search) {
                         $q2->where('name', 'like', "%{$search}%");
                     })->orWhere('payment_method', 'like', "%{$search}%")
+                        ->orWhere('invoice_number', 'like', "%{$search}%")
                         ->orWhere('total_price', 'like', "%{$search}%")
                         ->orWhereHas('purchaseItems.product', function ($q3) use ($search) {
                             $q3->where('name', 'like', "%{$search}%")
@@ -50,6 +51,9 @@ class PurchaseController extends Controller
                 ->addColumn('tanggal', function ($purchase) {
                     return \Carbon\Carbon::parse($purchase->created_at)->translatedFormat('l, d F Y') ?? '-';
                 })
+                ->addColumn('invoice_number', function ($purchase) {
+                    return $purchase->invoice_number ?: '-';
+                })
                 ->addColumn('supplier', function ($purchase) {
                     return $purchase->supplier->name ?? '-';
                 })
@@ -64,7 +68,7 @@ class PurchaseController extends Controller
                         $html .= '<li>';
                         $html .= '<strong>' . ($product->name ?? '-') . '</strong><br>';
                         $html .= 'Exp: ' . ($item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-') . '<br>';
-                        $html .= 'Kategori: ' . ($category->name ?? '-') . '<br>';
+                        // $html .= 'Kategori: ' . ($category->name ?? '-') . '<br>';
                         $html .= 'Jumlah: ' . $item->quantity . '<br>';
                         $html .= 'Harga: Rp ' . number_format($item->unit_price, 0, ',', '.') . '<br>';
                         $html .= 'Sub Total: Rp ' . number_format($item->total_price, 0, ',', '.') . '<br>';
@@ -99,10 +103,7 @@ HTML;
                         $query->whereHas('supplier', function ($q) use ($search) {
                             $q->where('name', 'like', "%{$search}%");
                         })->orWhereHas('purchaseItems.product', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%")
-                                ->orWhereHas('category', function ($q2) use ($search) {
-                                    $q2->where('name', 'like', "%{$search}%");
-                                });
+                            $q->where('name', 'like', "%{$search}%");
                         })->orWhereHas('purchaseItems', function ($q) use ($search) {
                             $q->where('quantity', 'like', "%{$search}%")
                                 ->orWhere('unit_price', 'like', "%{$search}%")
@@ -175,10 +176,10 @@ HTML;
     public function create()
     {
         $title = 'create purchase';
-        $categories = Category::get();
+        // $categories = Category::get();
         $suppliers = Supplier::get();
         $products = Product::with('category')->get();
-        return view('admin.purchases.create', compact('title', 'categories', 'suppliers', 'products'));
+        return view('admin.purchases.create', compact('title',  'suppliers', 'products'));
     }
 
 
@@ -190,11 +191,11 @@ HTML;
         $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'purchase_items' => 'required|array|min:1',
-            'purchase_items.*.product_id' => 'nullable|exists:products,id',
-            'purchase_items.*.category_id' => 'required|exists:categories,id',
+            'purchase_items.*.product_id' => 'nullable|exists:products,id',            
             'purchase_items.*.quantity' => 'required|numeric|min:1',
             'purchase_items.*.unit_price' => 'required|numeric|min:0',
             'purchase_items.*.expiry_date' => 'nullable|date',
+            'invoice_number' => 'required|string|max:255',
             'payment_method' => 'required|string|in:Tunai,Transfer,QRIS,Ewallet',
         ]);
 
@@ -208,6 +209,7 @@ HTML;
             $purchase = Purchase::create([
                 'supplier_id' => $supplier->id,
                 'payment_method' => $request->payment_method,
+                'invoice_number' => $request->invoice_number,
                 // 'total_price' => 0,
             ]);
 
@@ -306,6 +308,7 @@ HTML;
             'purchase_items.*.quantity' => 'required|numeric|min:1',
             'purchase_items.*.unit_price' => 'required|numeric|min:0',
             'purchase_items.*.expiry_date' => 'nullable|date',
+            'invoice_number' => 'required|string|max:255',
         ]);
 
 
@@ -316,6 +319,7 @@ HTML;
             $purchase->update([
                 'supplier_id' => $request->supplier_id,
                 'payment_method' => $request->payment_method,
+                'invoice_number' => $request->invoice_number,
             ]);
 
             $total = 0;

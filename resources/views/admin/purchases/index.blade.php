@@ -12,20 +12,20 @@
 
 
         /* .dataTables_processing {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(255, 255, 255, 0.8);
-                z-index: 999;
-                font-size: 16px;
-                color: #333;
-                padding: 40px;
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 100%;
-            } */
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.8);
+                    z-index: 999;
+                    font-size: 16px;
+                    color: #333;
+                    padding: 40px;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 100%;
+                } */
 
         .spinner {
             width: 40px;
@@ -90,6 +90,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Tanggal Pembelian</th>
+                                    <th>No Invoice</th>
                                     <th>Pemasok</th>
                                     <th>Pembayaran</th>
                                     <th>Item</th>
@@ -126,7 +127,9 @@
                 processing: true,
                 serverSide: true,
                 ajax: '{{ route('purchases.datatable') }}',
-                order: [[1, 'desc']], 
+                order: [
+                    [1, 'desc']
+                ],
                 language: {
                     processing: `<div class="spinner"></div>`
                 },
@@ -135,10 +138,14 @@
                         name: 'DT_RowIndex',
                         orderable: false,
                         searchable: false
-                    }, // Fix penting
+                    }, // Fix penting                                      
                     {
                         data: 'tanggal',
                         name: 'created_at'
+                    },
+                    {
+                        data: 'invoice_number',
+                        name: 'invoice_number'
                     },
                     {
                         data: 'supplier',

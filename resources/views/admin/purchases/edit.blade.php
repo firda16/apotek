@@ -35,7 +35,14 @@
                                 </ul>
                             </div>
                         @endif
-
+                        <div class="mb-3">
+                            <label for="invoice_number">No Invoice <span class="text-danger">*</span></label>
+                            <input type="text" name="invoice_number" id="invoice_number" class="form-control @error('invoice_number') is-invalid @enderror"
+                                value="{{ old('invoice_number', $purchase->invoice_number) }}" required>
+                            @error('invoice_number')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                         <div class="mb-3">
                             <label>Pemasok <span class="text-danger">*</span></label>
                             <select class="select2 form-select form-control @error('supplier_id') is-invalid @enderror"
@@ -194,15 +201,7 @@
 
             $(document).on('change', '.product-select', function() {
                 const selectedProductId = $(this).val();
-                const row = $(this).closest('tr');
-                const categorySelect = row.find('select[name$="[category_id]"]');
-                const categoryId = productCategoryMap[selectedProductId];
-
-                if (categoryId) {
-                    categorySelect.val(categoryId).trigger('change');
-                } else {
-                    categorySelect.val('');
-                }
+                const row = $(this).closest('tr');               
             });
 
             $(document).on('input', '.purchase-quantity, .purchase-unit-price', function() {
@@ -216,12 +215,7 @@
                         <select name="purchase_items[${i}][product_id]" class="form-control product-select select2">
                             ${productsOptions}
                         </select>
-                    </td>
-                    <td>
-                        <select name="purchase_items[${i}][category_id]" class="form-control" required>
-                            ${categoriesOptions}
-                        </select>
-                    </td>
+                    </td>                    
                     <td>
                         <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" min="1" required>
                     </td>

@@ -10,6 +10,7 @@ class Purchase extends Model
     use HasFactory;
 
     protected $fillable = [
+        'invoice_number',
         'supplier_id',        
         'product_id',
         'payment_method',
