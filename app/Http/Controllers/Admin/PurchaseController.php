@@ -179,7 +179,30 @@ HTML;
         // $categories = Category::get();
         $suppliers = Supplier::get();
         $products = Product::with('category')->get();
-        return view('admin.purchases.create', compact('title',  'suppliers', 'products'));
+        return view('admin.purchases.create', compact('title', 'suppliers', 'products'));
+    }
+
+    public function getLastPrice(Request $request)
+    {
+        $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'product_id' => 'required|exists:products,id',
+        ]);
+
+        $lastPurchaseItem = PurchaseItem::whereHas('purchase', function ($q) use ($request) {
+            $q->where('supplier_id', $request->supplier_id);
+        })
+            ->where('product_id', $request->product_id)
+            ->orderByDesc('created_at')
+            ->first();
+
+        if ($lastPurchaseItem) {
+            return response()->json([
+                'unit_price' => $lastPurchaseItem->unit_price
+            ]);
+        }
+
+        return response()->json(['unit_price' => null]);
     }
 
 
@@ -191,7 +214,7 @@ HTML;
         $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'purchase_items' => 'required|array|min:1',
-            'purchase_items.*.product_id' => 'nullable|exists:products,id',            
+            'purchase_items.*.product_id' => 'nullable|exists:products,id',
             'purchase_items.*.quantity' => 'required|numeric|min:1',
             'purchase_items.*.unit_price' => 'required|numeric|min:0',
             'purchase_items.*.expiry_date' => 'nullable|date',

@@ -62,7 +62,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
     Route::get('purchases/reports',[PurchaseController::class,'reports'])->name('purchases.report');
-    
+    Route::get('/get-last-price', [PurchaseController::class, 'getLastPrice']);
+
     Route::post('purchases/reports',[PurchaseController::class,'generateReport']);
     Route::get('purchases/datatable', [PurchaseController::class, 'datatable'])->name('purchases.datatable');
     Route::resource('purchases', PurchaseController::class);

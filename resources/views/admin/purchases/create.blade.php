@@ -34,17 +34,17 @@
                             </div>
                         @endif
 
-                        
-                            <div class="mb-3">
-                                <div class="form-group">
-                                    <label class="form-label">Nomor Invoice</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-file-invoice"></i></span>
-                                        <input type="text" name="invoice_number" class="form-control">
-                                    </div>
+
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Nomor Invoice</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-file-invoice"></i></span>
+                                    <input type="text" name="invoice_number" class="form-control">
                                 </div>
                             </div>
-                        
+                        </div>
+
 
                         <div class="mb-3">
                             <label>Pemasok <span class="text-danger">*</span></label>
@@ -88,7 +88,7 @@
                             <table class="table table-bordered" id="purchase-table">
                                 <thead>
                                     <tr>
-                                        <th>Pilih Produk</th>                                        
+                                        <th>Pilih Produk</th>
                                         <th>Jumlah</th>
                                         <th>Harga Beli Satuan</th>
                                         <th>Tanggal Kedaluwarsa</th>
@@ -114,7 +114,7 @@
                                                     @error("purchase_items.{$index}.product_id")
                                                         <div class="text-danger small">{{ $message }}</div>
                                                     @enderror
-                                                </td>                                                
+                                                </td>
                                                 <td>
                                                     <input type="number"
                                                         name="purchase_items[{{ $index }}][quantity]"
@@ -168,7 +168,7 @@
                                                         <option value="{{ $product->id }}">{{ $product->name }}</option>
                                                     @endforeach
                                                 </select>
-                                            </td>                                           
+                                            </td>
                                             <td>
                                                 <input type="number" name="purchase_items[0][quantity]"
                                                     class="form-control purchase-quantity" min="1" required>
@@ -182,8 +182,7 @@
                                                     class="form-control">
                                             </td>
                                             <td>
-                                                <input type="number" step="0.01"
-                                                    name="purchase_items[0][total_price]"
+                                                <input type="number" step="0.01" name="purchase_items[0][total_price]"
                                                     class="form-control purchase-total_price" readonly>
                                             </td>
                                             <td>
@@ -233,7 +232,7 @@
         @foreach ($products as $product)
             <option value="{{ $product->id }}">{{ $product->name }}</option>
         @endforeach
-    `;      
+    `;
 
         function calculatetotal_price(row) {
             const quantity = parseFloat(row.find('.purchase-quantity').val()) || 0;
@@ -312,6 +311,30 @@
                     updateTotalPrice(); // Update total after removing a row
                 }
             });
+
+            $(document).on('change', '.product-select', function() {
+                const row = $(this).closest('tr');
+                const productId = $(this).val();
+                const supplierId = $('select[name="supplier_id"]').val();
+
+                if (!supplierId || !productId) return;
+
+                $.ajax({
+                    url: '{{ url('/get-last-price') }}',
+                    method: 'GET',
+                    data: {
+                        supplier_id: supplierId,
+                        product_id: productId
+                    },
+                    success: function(res) {
+                        if (res.unit_price !== null) {
+                            row.find('.purchase-unit-price').val(res.unit_price);
+                            calculatetotal_price(row); // hitung ulang subtotal
+                        }
+                    }
+                });
+            });
+
         });
     </script>
 @endpush
