@@ -117,6 +117,15 @@
     </div>
 @endsection
 
+@push('page-js')
+    @if (session('invoice_url'))
+        <script>
+            window.open("{{ session('invoice_url') }}", "_blank");
+        </script>
+    @endif
+
+@endpush
+
 {{-- @push('page-js')
 <script>
     $(document).ready(function() {
