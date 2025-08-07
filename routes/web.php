@@ -73,6 +73,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('products/available', [ProductController::class, 'available'])->name('products.available');
     Route::get('products/outstock',[ProductController::class,'outstock'])->name('outstock');
     Route::get('products/expired',[ProductController::class,'expired'])->name('expired');
+    Route::get('/products/stock-report', [ProductController::class, 'stockReport'])->name('reports.stock');
+
+
     Route::resource('sales',SaleController::class)->except('show');
     Route::get('sales/{sale}/invoice', [SaleController::class, 'printInvoice'])->name('sales.invoice');
     Route::get('sales/data', [SaleController::class, 'getData'])->name('sales.data');

@@ -5,22 +5,22 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void
-    {
-        Schema::create('transaksi', function (Blueprint $table) {
-            $table->id();
-            $table->string('no_invoice', 50)->nullable(); // sebelumnya kode_transaksi
-            $table->decimal('total_harga', 10, 2);
-            $table->string('nama_pelanggan', 255)->nullable();
-            $table->string('nomor_telepon', 50)->nullable();
-            $table->string('metode_pembayaran', 100)->nullable();
-            $table->integer('diskon')->nullable();
-            $table->timestamps();
-        });
-    }
+    public function up()
+{
+    Schema::create('transaksi', function (Blueprint $table) {
+        $table->bigIncrements('id');
+        $table->string('invoice', 50)->unique();
+        $table->string('customer_name')->nullable();
+        $table->string('customer_phone', 50)->nullable();
+        $table->enum('payment_method', ['Cash', 'Transfer', 'QRIS']);
+        $table->decimal('discount', 10, 2)->default(0.00);
+        $table->decimal('total', 15, 2);
+        $table->timestamps();
+    });
+}
 
-    public function down(): void
-    {
-        Schema::dropIfExists('transaksi');
-    }
+public function down()
+{
+    Schema::dropIfExists('transaksi');
+}
 };
