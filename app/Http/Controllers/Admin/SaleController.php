@@ -48,6 +48,10 @@ class SaleController extends Controller
                 ->addColumn('nomor_hp', function ($row) {
                     return $row->customer->telepon ?? '-';
                 })
+                ->addColumn('discount', function ($row) {
+                    // Nilai 50 dari database langsung diformat.
+                    return number_format($row->discount, 0, ',', '.') . '%';
+                })
                 ->addColumn('item', function ($row) {
                     $html = '';
                     foreach ($row->saleItems as $i => $item) {
@@ -78,8 +82,50 @@ class SaleController extends Controller
                         <button class="btn btn-danger" onclick="return confirm(\'Hapus data?\')"><i class="fas fa-trash"></i></button>
                     </form>
                 ';
+                })               
+                ->addColumn('status', function ($row) {
+                    $status = $row->status; // Asumsikan kolom di tabel bernama 'status'
+                    $class = '';
+
+                    // Tentukan kelas CSS berdasarkan nilai status
+                    if ($status === 'pending') {
+                        $class = 'status-pending';
+                    } elseif ($status === 'selesai') {
+                        $class = 'status-selesai';
+                    } elseif ($status === 'dibatalkan') {
+                        $class = 'status-dibatalkan';
+                    } else {
+                        // Kelas default jika status tidak sesuai
+                        $class = 'status-default';
+                    }
+
+                    // Kembalikan HTML dengan kelas CSS yang sudah ditentukan
+                    return '<span class="status ' . $class . '">' . ucfirst($status) . '</span>';
                 })
-                ->rawColumns(['item', 'aksi']) // biar HTML di-render
+
+                 ->rawColumns(['item', 'aksi', 'status']) // biar HTML di-render
+
+                ->filter(function ($query) use ($request) {
+                    if ($search = $request->get('search')['value'] ?? null) {
+                        $query->whereHas('customer', function ($q) use ($search) {
+                            $q->where('nama', 'like', "%{$search}%")
+                                ->orWhere('telepon', 'like', "%{$search}%");
+                        })
+                            ->orWhere('invoice_number', 'like', "%{$search}%")
+                            ->orWhere('payment_method', 'like', "%{$search}%")
+                            ->orWhere('total_price', 'like', "%{$search}%")
+                            ->orWhere('discount', 'like', "%{$search}%")
+                            ->orWhere('status', 'like', "%{$search}%")
+                            ->orWhereHas('saleItems.product', function ($q) use ($search) { // Tambahan: Pencarian nama produk
+                                $q->where('name', 'like', "%{$search}%");
+                            })
+                            ->orWhereHas('saleItems.product.category', function ($q) use ($search) { // Tambahan: Pencarian nama kategori
+                                $q->where('name', 'like', "%{$search}%");
+                            });
+                    }
+                })
+
+                // ... kode setelahnya ...
                 ->make(true);
         }
 
