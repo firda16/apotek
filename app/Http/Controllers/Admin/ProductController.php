@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
+use App\Models\SaleItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
@@ -114,27 +115,27 @@ class ProductController extends Controller
     }
 
     public function expired()
-{
-    $title = 'Produk Kedaluwarsa';
-    App::setLocale('id');
+    {
+        $title = 'Produk Kedaluwarsa';
+        App::setLocale('id');
 
-    // Tentukan batas "akan kadaluarsa": misal 30 hari ke depan
-    $soonExpiryDays = 30;
-    $soonExpiryDate = now()->addDays($soonExpiryDays);
+        // Tentukan batas "akan kadaluarsa": misal 30 hari ke depan
+        $soonExpiryDays = 30;
+        $soonExpiryDate = now()->addDays($soonExpiryDays);
 
-    $products = Product::whereHas('purchaseItems', function ($query) use ($soonExpiryDate) {
-        $query->whereDate('expiry_date', '<=', $soonExpiryDate); // termasuk yang sudah expired dan akan expired
-    })
-    ->with([
-        'purchaseItems' => function ($query) use ($soonExpiryDate) {
-            $query->whereDate('expiry_date', '<=', $soonExpiryDate);
-        },
-        'category'
-    ])
-    ->paginate(10);
+        $products = Product::whereHas('purchaseItems', function ($query) use ($soonExpiryDate) {
+            $query->whereDate('expiry_date', '<=', $soonExpiryDate); // termasuk yang sudah expired dan akan expired
+        })
+            ->with([
+                'purchaseItems' => function ($query) use ($soonExpiryDate) {
+                    $query->whereDate('expiry_date', '<=', $soonExpiryDate);
+                },
+                'category'
+            ])
+            ->paginate(10);
 
-    return view('admin.products.expired', compact('title', 'products', 'soonExpiryDays'));
-}
+        return view('admin.products.expired', compact('title', 'products', 'soonExpiryDays'));
+    }
 
 
 
@@ -249,18 +250,85 @@ class ProductController extends Controller
 
     public function stockReport(Request $request)
     {
-        $purchaseItems = [];
+        $currentStock = collect();
+        $stockIn = collect();
+        $stockInSummary = collect();
+        $stockOut = collect();
+        $stockOutSummary = collect();
 
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $startDate = Carbon::parse($request->start_date)->startOfDay();
-            $endDate = Carbon::parse($request->end_date)->endOfDay();
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $startDate = Carbon::parse($request->from_date)->startOfDay();
+            $endDate = Carbon::parse($request->to_date)->endOfDay();
 
-            $purchaseItems = PurchaseItem::with(['product.category'])
-                ->whereBetween('created_at', [$startDate, $endDate])
+            /**
+             * 1. Stok Saat Ini
+             *    Hitung manual = stok masuk - stok keluar
+             */
+            $currentStock = Product::with('category')
+                ->get()
+                ->map(function ($product) {
+                    $stockIn = PurchaseItem::where('product_id', $product->id)->sum('quantity');
+                    $stockOut = SaleItem::where('product_id', $product->id)->sum('quantity');
+
+                    return [
+                        'product_name' => $product->name,
+                        'category_name' => $product->category->name ?? '-',
+                        'unit' => $product->unit ?? '-',
+                        'available_stock' => $stockIn - $stockOut
+                    ];
+                });
+
+            /**
+             * 2. Stok Masuk
+             */
+            $stockIn = PurchaseItem::with(['product.category', 'purchase'])
+                ->whereHas('purchase', function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                })
                 ->orderBy('created_at', 'asc')
                 ->get();
+
+            $stockInSummary = $stockIn
+                ->groupBy('product_id')
+                ->map(function ($items) {
+                    return [
+                        'product_name' => $items->first()->product->name ?? '-',
+                        'category_name' => $items->first()->product->category->name ?? '-',
+                        'unit' => $items->first()->product->unit ?? '-',
+                        'total_quantity' => $items->sum('quantity')
+                    ];
+                })
+                ->values();
+
+            /**
+             * 3. Stok Keluar
+             */
+            $stockOut = SaleItem::with(['product.category', 'sale'])
+                ->whereHas('sale', function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                })
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            $stockOutSummary = $stockOut
+                ->groupBy('product_id')
+                ->map(function ($items) {
+                    return [
+                        'product_name' => $items->first()->product->name ?? '-',
+                        'category_name' => $items->first()->product->category->name ?? '-',
+                        'unit' => $items->first()->product->unit ?? '-',
+                        'total_quantity' => $items->sum('quantity')
+                    ];
+                })
+                ->values();
         }
 
-        return view('admin.products.reports', compact('purchaseItems'));
+        return view('admin.products.reports', compact(
+            'currentStock',
+            'stockIn',
+            'stockInSummary',
+            'stockOut',
+            'stockOutSummary'
+        ));
     }
 }
