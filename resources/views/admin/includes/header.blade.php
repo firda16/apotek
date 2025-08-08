@@ -30,11 +30,11 @@
 	<ul class="nav user-menu">
 
 		<!-- Tambah Penjualan -->
-		<li class="nav-item dropdown">
+		{{-- <li class="nav-item dropdown">
 			<a href="#" data-target="#add_sales" title="Tambah Penjualan" data-toggle="modal" class="dropdown-toggle nav-link">
 				<i class="fas fa-clipboard"></i>
 			</a>
-		</li>
+		</li> --}}
 
 		<!-- Notifikasi -->
 		<li class="nav-item dropdown noti-dropdown">
