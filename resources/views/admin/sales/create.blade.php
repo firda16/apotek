@@ -390,7 +390,7 @@
                         </div>
 
                         <div class="row mb-4">
-                            <div class="col-md-6">
+                            <div class="col-md-2">
                                 <label for="status">Status</label>
                                 <select name="status" id="status" class="form-control">
                                     <option value="pending" selected>Pending</option>

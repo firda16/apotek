@@ -252,10 +252,13 @@
                                                 <option disabled value="">Pilih Produk</option>
                                                 @foreach ($products as $product)
                                                     <option value="{{ $product->id }}"
+                                                        {{ $product->available_stock <= 0 ? 'disabled' : '' }}
                                                         data-category="{{ $product->category->name ?? '-' }}"
                                                         data-price="{{ $product->price }}"
                                                         {{ $item->product_id == $product->id ? 'selected' : '' }}>
                                                         {{ $product->name }}
+                                                        -
+                                                        {{ $product->available_stock > 0 ? $product->available_stock : 'Stok Kosong' }}
                                                         @if ($product->stock == 0)
                                                             - [ stok kosong ]
                                                         @endif
@@ -341,9 +344,11 @@
                                         <label class="form-label">Diskon (%)</label>
                                         <div class="input-group">
                                             <input type="number" name="discount" id="discount" class="form-control"
-                                                placeholder="0" value="{{ old('discount', $sale->discount) }}"
-                                                min="0" max="100">
-                                            <span class="input-group-text">%</span>
+                                                placeholder="0" value="{{ old('discount', (int) $sale->discount) }}"
+                                                min="0" max="100" step="any">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">%</span>
+                                            </div>
                                         </div>
                                         <small class="text-muted">Masukkan persentase diskon (0-100)</small>
                                     </div>
@@ -405,21 +410,25 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="status">Status</label>
-                            <select name="status" id="status" class="form-control">
-                                <option value="pending" {{ $sale->status == 'pending' ? 'selected' : '' }}>Pending
-                                </option>
-                                <option value="selesai" {{ $sale->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                {{-- <option value="piutang" {{ $sale->status == 'piutang' ? 'selected' : '' }}>Piutang --}}
-                                </option>
-                                {{-- <option value="dikembalikan" {{ $sale->status == 'dikembalikan' ? 'selected' : '' }}>
+                        <div class="row mb-4">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Status <span class="required-asterisk">*</span></label>
+                                    <select name="status" id="status" class="form-control">
+                                        <option value="pending" {{ $sale->status == 'pending' ? 'selected' : '' }}>Pending
+                                        </option>
+                                        <option value="selesai" {{ $sale->status == 'selesai' ? 'selected' : '' }}>Selesai
+                                        </option>
+                                        {{-- <option value="piutang" {{ $sale->status == 'piutang' ? 'selected' : '' }}>Piutang --}}
+                                        </option>
+                                        {{-- <option value="dikembalikan" {{ $sale->status == 'dikembalikan' ? 'selected' : '' }}>
                                     Dikembalikan</option> --}}
-                                <option value="dibatalkan" {{ $sale->status == 'dibatalkan' ? 'selected' : '' }}>
-                                    Dibatalkan</option>
-                            </select>
+                                        <option value="dibatalkan" {{ $sale->status == 'dibatalkan' ? 'selected' : '' }}>
+                                            Dibatalkan</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-
 
                         <!-- Submit Button -->
                         <div class="row mt-4">
