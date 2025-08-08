@@ -18,6 +18,7 @@ class Sale extends Model
         'payment_method',
         'discount',
         'total_price',
+        'status',   
     ];
 
     public function product()

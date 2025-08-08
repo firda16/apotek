@@ -220,6 +220,7 @@ HTML;
             'purchase_items.*.expiry_date' => 'nullable|date',
             'invoice_number' => 'required|string|max:255',
             'payment_method' => 'required|string|in:Tunai,Transfer,QRIS,Ewallet',
+            'status' => 'required',
         ]);
 
         DB::beginTransaction();
@@ -233,6 +234,7 @@ HTML;
                 'supplier_id' => $supplier->id,
                 'payment_method' => $request->payment_method,
                 'invoice_number' => $request->invoice_number,
+                'status' => $request->status,
                 // 'total_price' => 0,
             ]);
 
@@ -332,6 +334,7 @@ HTML;
             'purchase_items.*.unit_price' => 'required|numeric|min:0',
             'purchase_items.*.expiry_date' => 'nullable|date',
             'invoice_number' => 'required|string|max:255',
+            'status' => 'required',
         ]);
 
 
@@ -343,6 +346,7 @@ HTML;
                 'supplier_id' => $request->supplier_id,
                 'payment_method' => $request->payment_method,
                 'invoice_number' => $request->invoice_number,
+                'status' => $request->status,
             ]);
 
             $total = 0;

@@ -371,6 +371,7 @@
                                         style="margin-right: 10px;"></i>Pembayaran</h6>
                             </div>
                         </div>
+
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
@@ -402,6 +403,21 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select name="status" id="status" class="form-control">
+                                <option value="pending" {{ $sale->status == 'pending' ? 'selected' : '' }}>Pending
+                                </option>
+                                <option value="selesai" {{ $sale->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                {{-- <option value="piutang" {{ $sale->status == 'piutang' ? 'selected' : '' }}>Piutang --}}
+                                </option>
+                                {{-- <option value="dikembalikan" {{ $sale->status == 'dikembalikan' ? 'selected' : '' }}>
+                                    Dikembalikan</option> --}}
+                                <option value="dibatalkan" {{ $sale->status == 'dibatalkan' ? 'selected' : '' }}>
+                                    Dibatalkan</option>
+                            </select>
                         </div>
 
 

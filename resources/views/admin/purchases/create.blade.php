@@ -202,6 +202,14 @@
                                 class="form-control" readonly required>
                         </div>
 
+                        <div class="mb-3 mt-3">
+                            <label for="status">Status</label>
+                            <select name="status" id="status" class="form-control">
+                                <option value="pending" selected>Pending</option>
+                                <option value="selesai">Selesai</option>
+                            </select>
+                        </div>
+
                         <div class="submit-section mt-4">
                             <button class="btn btn-primary submit-btn" type="submit">Simpan</button>
                         </div>

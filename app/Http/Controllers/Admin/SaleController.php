@@ -16,6 +16,7 @@ use App\Events\PurchaseOutStock;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 
 class SaleController extends Controller
 {
@@ -27,19 +28,65 @@ class SaleController extends Controller
     }
 
 
+
+
     public function index(Request $request)
     {
-        $sales = Sale::with(['customer', 'saleItems'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        // Jika request AJAX (dari DataTables)
+        if ($request->ajax()) {
+            $sales = Sale::with(['customer', 'saleItems.product.category'])
+                ->orderBy('created_at', 'desc');
 
+            return DataTables::of($sales)
+                ->addIndexColumn()
+                ->addColumn('tanggal_penjualan', function ($row) {
+                    return date('d M, Y', strtotime($row->created_at));
+                })
+                ->addColumn('nama_pelanggan', function ($row) {
+                    return $row->customer->nama ?? '-';
+                })
+                ->addColumn('nomor_hp', function ($row) {
+                    return $row->customer->telepon ?? '-';
+                })
+                ->addColumn('item', function ($row) {
+                    $html = '';
+                    foreach ($row->saleItems as $i => $item) {
+                        $html .= "<div style='border-bottom:1px solid #ccc; padding-bottom:4px; margin-bottom:4px;'>
+                        <strong>Item " . ($i + 1) . "</strong><br>
+                        Nama produk: " . ($item->product->name ?? '-') . "<br>
+                        Jumlah: {$item->quantity}<br>
+                        Kategori: " . ($item->product->category->name ?? '-') . "<br>
+                        Harga per Produk: Rp " . number_format($item->unit_price, 0, ',', '.') . "<br>
+                        Total: Rp " . number_format($item->total_price, 0, ',', '.') . "
+                    </div>";
+                    }
+                    return $html;
+                })
+                ->editColumn('total_price', function ($row) {
+                    // Format di server agar tetap bisa search angka aslinya
+                    return 'Rp ' . number_format($row->total_price, 0, ',', '.');
+                })
+                ->addColumn('aksi', function ($row) {
+                    $edit = route('sales.edit', $row->id);
+                    $invoice = route('sales.invoice', $row->id);
+                    $delete = route('sales.destroy', $row->id);
+                    return '
+                    <a href="' . $edit . '" class="btn btn-primary"><i class="fas fa-edit"></i></a>
+                    <a href="' . $invoice . '" target="_blank" class="btn btn-info"><i class="fas fa-print"></i></a>
+                    <form action="' . $delete . '" method="POST" style="display:inline;">
+                        ' . csrf_field() . method_field('DELETE') . '
+                        <button class="btn btn-danger" onclick="return confirm(\'Hapus data?\')"><i class="fas fa-trash"></i></button>
+                    </form>
+                ';
+                })
+                ->rawColumns(['item', 'aksi']) // biar HTML di-render
+                ->make(true);
+        }
 
-        $items = SaleItem::all();
-        // $products = Product::all();
-        // $category = Category::all();
-
-        return view('admin.sales.index', compact('sales', 'items'));
+        // Jika bukan AJAX, return view biasa
+        return view('admin.sales.index');
     }
+
 
     public function create()
     {
@@ -71,6 +118,7 @@ class SaleController extends Controller
             'sale_items.*.unit_price' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0|max:100',
             'payment_method' => 'required|string|max:50',
+            'status' => 'required',
         ]);
 
         DB::beginTransaction();
@@ -140,10 +188,11 @@ class SaleController extends Controller
             // ✅ Simpan data sale utama
             $sale = Sale::create([
                 'customer_id' => $customer->id,
-                'payment_method' => $request->payment_method,
+                'invoice_number' => $request->invoice_number,
                 'discount' => $discount_percentage,
                 'total_price' => $overall_total_price,
-                'invoice_number' => $request->invoice_number,
+                'payment_method' => $request->payment_method,
+                'status' => $request->status,
             ]);
 
             // 🔁 Simpan item penjualan & kurangi stok
@@ -347,6 +396,7 @@ class SaleController extends Controller
             'sale_items.*.unit_price' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0|max:100',
             'payment_method' => 'required|string|max:50',
+            'status' => 'required',
         ]);
 
         DB::beginTransaction();
@@ -402,6 +452,7 @@ class SaleController extends Controller
                 'payment_method' => $request->payment_method,
                 'discount' => $discount_percentage,
                 'total_price' => $discounted_total,
+                'status' => $request->status,
             ]);
             Log::info("Sale diperbarui: ", $sale->fresh()->toArray());
 

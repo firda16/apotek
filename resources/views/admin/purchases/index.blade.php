@@ -95,6 +95,7 @@
                                     <th>Pembayaran</th>
                                     <th>Item</th>
                                     <th>Total Harga</th>
+                                    <th>Status</th>
                                     {{-- <th>Jumlah Produk</th>
                                     <th>Gambar</th>
                                     <th>Nama Obat</th>
@@ -164,6 +165,10 @@
                     {
                         data: 'total',
                         name: 'total_price'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
                     },
                     {
                         data: 'action',

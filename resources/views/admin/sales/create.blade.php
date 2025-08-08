@@ -389,6 +389,17 @@
                             </div>
                         </div>
 
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="status">Status</label>
+                                <select name="status" id="status" class="form-control">
+                                    <option value="pending" selected>Pending</option>
+                                    <option value="selesai">Selesai</option>                                    
+                                </select>
+                            </div>
+                        </div>
+
+
 
                         <!-- Submit Button -->
                         <div class="row mt-4">
