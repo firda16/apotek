@@ -21,11 +21,23 @@ class DashboardController extends Controller
     {
         $title = 'dashboard';
 
-        // Total pengeluaran (dari tabel purchase_items)
-        $total_pengeluaran = PurchaseItem::sum('total_price');
+        // Total pengeluaran hari ini
+        $total_pengeluaran_hari_ini = PurchaseItem::whereDate('created_at', Carbon::today())
+            ->sum('total_price');
 
-        // Total keseluruhan pendapatan (dari tabel sale_items)
-        $total_pendapatan = SaleItem::sum('total_price');
+        // Total pendapatan hari ini
+        $total_pendapatan_hari_ini = SaleItem::whereDate('created_at', Carbon::today())
+            ->sum('total_price');
+
+        // Total pengeluaran bulan ini
+        $total_pengeluaran_bulan_ini = PurchaseItem::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('total_price');
+
+        // Total pendapatan bulan ini
+        $total_pendapatan_bulan_ini = SaleItem::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('total_price');
 
         // Total kategori & supplier
         $total_categories = Category::count();
@@ -81,10 +93,11 @@ class DashboardController extends Controller
             'total_pembelian_produk',
             'total_sales',
             'total_suppliers',
-            'total_pendapatan',
-            'total_pengeluaran',
             'stok_produk',
-            'total_pengeluaran'
+            'total_pendapatan_hari_ini',
+            'total_pengeluaran_hari_ini',
+            'total_pendapatan_bulan_ini',
+            'total_pengeluaran_bulan_ini'
 
         ));
     }
