@@ -3,6 +3,28 @@
 <x-assets.datatables />
 
 @push('page-css')
+<style>
+    .status {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    display: inline-block;
+}
+
+.status-pending {
+    background-color: #ffc107; /* Kuning untuk Pending */
+}
+
+.status-selesai {
+    background-color: #28a745; /* Hijau untuk Selesai */
+}
+
+.status-dibatalkan {
+    background-color: #dc3545; /* Merah untuk Dibatalkan */
+}
+</style>
 @endpush
 
 @push('page-header')
@@ -79,6 +101,9 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('sales.index') }}",
+                order: [
+                    [1, 'desc']
+                ],
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
@@ -129,9 +154,6 @@
                         orderable: false,
                         searchable: false
                     }
-                ],
-                order: [
-                    [1, 'desc']
                 ],
             });
         });
