@@ -48,6 +48,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('', [DashboardController::class, 'Index']);
     Route::get('notification', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
+    Route::get('notification/semua', [NotificationController::class, 'show'])->name('show-all');
     Route::get('notification-read', [NotificationController::class, 'read'])->name('read');
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
     Route::post('profile/{user}', [UserController::class, 'updateProfile'])->name('profile.update');

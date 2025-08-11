@@ -2,9 +2,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class SaleItem extends Model
 {
+    use Notifiable;
     protected $fillable = [
         'sale_id',
         'product_id',

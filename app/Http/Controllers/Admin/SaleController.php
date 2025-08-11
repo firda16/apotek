@@ -16,6 +16,8 @@ use App\Events\PurchaseOutStock;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Notifications\SaleCompleted;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class SaleController extends Controller
@@ -147,7 +149,7 @@ class SaleController extends Controller
 
         // Generate invoice number secara acak, contoh: INV-20250730-XXXX
         $invoice_number = 'INV-' . now()->format('Ymd') . '-' . strtoupper(Str::random(4));
-        $saleItems = collect(); 
+        $saleItems = collect();
 
         return view('admin.sales.create', compact('title', 'products', 'categories', 'invoice_number', 'saleItems'));
     }
@@ -204,12 +206,12 @@ class SaleController extends Controller
                 }
 
 
-                // ❗ Cek ketersediaan stok
-                if ($product->stock < $item['quantity']) {
-                    return back()->withErrors([
-                        'stok' => "Stok untuk produk {$product->name} tidak mencukupi."
-                    ]);
-                }
+                // // ❗ Cek ketersediaan stok
+                // if ($product->stock < $item['quantity']) {
+                //     return back()->withErrors([
+                //         'stok' => "Stok untuk produk {$product->name} tidak mencukupi."
+                //     ]);
+                // }
             }
 
             // ✅ Hitung total harga
@@ -285,6 +287,9 @@ class SaleController extends Controller
                     }
 
                     $available = $purchaseItem->quantity - $purchaseItem->sold_quantity;
+                    if ($available <= 0) {
+                        event(new \App\Events\PurchaseOutStock($item));
+                    }
 
                     if ($available >= $remainingQty) {
                         // Cukup dari 1 batch
@@ -314,6 +319,11 @@ class SaleController extends Controller
             }
 
             DB::commit();
+
+            // Ambil data customer dari penjualan
+            $customer = $sale->customer;
+            // Kirim notifikasi, misalnya via email ke customer
+            \Illuminate\Support\Facades\Notification::send(Auth::user(), new SaleCompleted($sale->id, $sale->invoice_number));
 
             return redirect()
                 ->route('sales.index')

@@ -5,20 +5,49 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+// use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class NotificationController extends Controller
 {
-    public function markAsRead(){
+    public function markAsRead()
+    {
         Auth::user()->unreadNotifications->markAsRead();
         $notification = notify('Notifications marked as read');
         return back()->with($notification);
     }
 
-    public function read(){
+    public function read()
+    {
         Auth::user()->unreadNotifications->markAsRead();
         $notification = notify('Notification marked as read');
         return back()->with($notification);
     }
+
+
+
+    public function show()
+    {
+        $notifications = Auth::user()->notifications; // ini collection
+        $perPage = 10;
+        $currentPage = request()->input('page', 1);
+
+        // Potong collection sesuai halaman
+        $currentItems = $notifications->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        // Buat paginator manual
+        $paginated = new LengthAwarePaginator(
+            $currentItems,
+            $notifications->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return view('admin.notifications.index', ['notifications' => $paginated]);
+    }
+
+
 
     /**
      * Remove the specified resource from storage.

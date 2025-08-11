@@ -28,6 +28,8 @@
             margin: 2rem 0 1.5rem 0;
         }
 
+        
+
         .section-title {
             color: #374151;
             font-weight: 600;
@@ -240,8 +242,8 @@
                             </div>
 
                             <div id="sale-items-wrapper">
-                                <div class="card mb-3 p-3 sale-items-card sale-items shadow-sm border-0">
-                                    <div class="row g-3 align-items-end">
+                                <div class="card p-3 sale-items-card sale-items shadow-sm border-0">
+                                    <div class="row align-items-end">
                                         <div class="col-md-3">
                                             <label class="form-label mb-1">Produk <span
                                                     class="required-asterisk">*</span></label>
@@ -289,7 +291,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-2 d-flex justify-content-center">
+                                        <div class="col-md-2 justify-content-center">
                                             <button type="button" class="btn btn-outline-danger remove-product"
                                                 title="Hapus produk">
                                                 <i class="fas fa-trash"></i>
