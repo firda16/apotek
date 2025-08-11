@@ -20,25 +20,27 @@
 
         {{-- Total Pengeluaran --}}
         <div class="col-xl-3 col-sm-6 col-12">
-            <a href="{{ route('riwayat.pembelian') }}" class="text-decoration-none text-dark" style="position: relative; z-index: 2;">
-            <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-warning border-warning">
-                            <i class="fe fe-money"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3 class="text-center">Rp {{ number_format($total_pengeluaran, 0, ',', '.') }}</h3>
+            <a href="{{ route('riwayat.pembelian') }}" class="text-decoration-none text-dark"
+                style="position: relative; z-index: 2;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-warning border-warning">
+                                <i class="fe fe-money"></i>
+                            </span>
+                            <div class="dash-count">
+                                <h3 class="text-center">Rp
+                                    {{ number_format($total_pengeluaran_bulan_ini ?? 0, 0, ',', '.') }}</h3>
+                            </div>
                         </div>
-                    </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Total pengeluaran</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-warning w-50"></div>
+                        <div class="dash-widget-info">
+                            <h6 class="text-muted">Total Pengeluaran Hari Ini</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-warning w-50"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             </a>
         </div>
 
@@ -51,22 +53,75 @@
                             <i class="fe fe-money"></i>
                         </span>
                         <div class="dash-count">
-                            <h3 class="text-center">Rp {{ number_format($total_pendapatan, 0, ',', '.') }}</h3>
+                            <h3 class="text-center">Rp {{ number_format($total_pendapatan_hari_ini ?? 0, 0, ',', '.') }}
+                            </h3>
                         </div>
                     </div>
                     <div class="dash-widget-info">
                         <a href="{{ route('riwayat.penjualan') }}" class="text-decoration-none text-dark">
-                        <h6 class="text-muted">Total pendapatan</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-success w-50"></div>
-                        </div>
+                            <h6 class="text-muted">Total Pendapatan Hari Ini</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-success w-50"></div>
+                            </div>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
+        {{-- Total Pengeluaran Bulan INi --}}
         <div class="col-xl-3 col-sm-6 col-12">
+            <a href="{{ route('riwayat.pembelian') }}" class="text-decoration-none text-dark"
+                style="position: relative; z-index: 2;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-warning border-warning">
+                                <i class="fe fe-money"></i>
+                            </span>
+                            <div class="dash-count">
+                                <h3 class="text-center">
+                                    Rp {{ number_format($total_pengeluaran_bulan_ini ?? 0, 0, ',', '.') }}
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="dash-widget-info">
+                            <h6 class="text-muted">Total Pengeluaran Bulan Ini</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-warning w-50"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {{-- Total Pendapatan bulan ini --}}
+        <div class="col-xl-3 col-sm-6 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="dash-widget-header">
+                        <span class="dash-widget-icon text-success border-success">
+                            <i class="fe fe-money"></i>
+                        </span>
+                        <div class="dash-count">
+                            <h3 class="text-center">
+                                Rp {{ number_format($total_pendapatan_bulan_ini ?? 0, 0, ',', '.') }}
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="dash-widget-info">
+                        <a href="{{ route('riwayat.penjualan') }}" class="text-decoration-none text-dark">
+                            <h6 class="text-muted">Total Pendapatan Bulan Ini</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-success w-50"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
                 <a class="{{ route_is('purchases.*') ? 'active' : '' }}" href="{{ route('purchases.index') }}">
                     <div class="card-body">
@@ -88,7 +143,7 @@
                     </div>
                 </a>
             </div>
-        </div>
+        </div> --}}
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
                 <a class="{{ route_is('sales.*') ? 'active' : '' }}" href="{{ route('sales.index') }}">
@@ -115,29 +170,30 @@
         <!-- Produk Tersedia -->
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <a href="{{ route('products.index') }}" class="text-decoration-none {{ route_is('products.*') ? 'active' : '' }}">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-primary border-primary">
-                            <i class="fe fe-cart"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3>{{ $stok_produk }}</h3>
+                <a href="{{ route('products.index') }}"
+                    class="text-decoration-none {{ route_is('products.*') ? 'active' : '' }}">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-primary border-primary">
+                                <i class="fe fe-cart"></i>
+                            </span>
+                            <div class="dash-count">
+                                <h3>{{ $stok_produk }}</h3>
+                            </div>
+                        </div>
+                        <div class="dash-widget-info">
+                            <h6 class="text-muted">Produk Stok yang tersedia</h6>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-primary w-50"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="dash-widget-info">
-                        <h6 class="text-muted">Produk Stok yang tersedia</h6>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-primary w-50"></div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
         {{-- stok habis --}}
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-               <a href="{{ route('outstock') }}" class="text-decoration-none {{ route_is('outstock') ? 'active' : '' }}">
+                <a href="{{ route('outstock') }}" class="text-decoration-none {{ route_is('outstock') ? 'active' : '' }}">
                     <div class="card-body">
                         <div class="dash-widget-header">
                             <span class="dash-widget-icon text-danger border-danger">
@@ -238,7 +294,8 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $purchase->product->name ?? '-' }}</td>
                                             <td>{{ $purchase->quantity }}</td>
-                                            <td class="text-center">Rp {{ number_format($purchase->total_price, 0, ',', '.') }}</td>
+                                            <td class="text-center">Rp
+                                                {{ number_format($purchase->total_price, 0, ',', '.') }}</td>
                                             <td>{{ $purchase->created_at->format('d M Y H:i') }}</td>
                                         </tr>
                                     @endforeach
