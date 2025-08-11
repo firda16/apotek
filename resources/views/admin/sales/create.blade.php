@@ -183,7 +183,6 @@
                     <form method="POST" action="{{ route('sales.store') }}">
                         @csrf
 
-                        <!-- Informasi Pelanggan -->
                         <div class="row">
                             <div class="col-12">
                                 <h6 class="section-title"><i class="fas fa-user me-2"
@@ -213,8 +212,8 @@
                                             class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <input type="text" name="nama_customer" class="form-control"
-                                            placeholder="Masukkan nama pelanggan" required>
+                                        <input type="text" name="nama_customer" id="nama_customer" class="form-control"
+                                            placeholder="Masukkan nama pelanggan" autocomplete="off" required>
                                     </div>
                                 </div>
                             </div>
@@ -223,107 +222,99 @@
                                     <label class="form-label">Nomor Telepon <span class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                        <input type="text" name="nomor_telepon" class="form-control"
-                                            placeholder="Contoh: 0876 5245 8976" required>
+                                        <input type="text" id="telepon_customer" name="nomor_telepon"
+                                            class="form-control" placeholder="Contoh: 0876 5245 8976" required>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Produk Penjualan -->
-                        <div class="row">
-                            <div class="col-12">
-                                <h6 class="section-title"><i class="fas fa-box me-2" style="margin-right: 10px;"></i>Produk
-                                    Penjualan</h6>
+                        {{-- Item produk --}}
+                        <div class="" id="item-produk">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6 class="section-title"><i class="fas fa-box me-2"
+                                            style="margin-right: 10px;"></i>Produk
+                                        Penjualan</h6>
+                                </div>
                             </div>
-                        </div>
 
+                            <div id="sale-items-wrapper">
+                                <div class="card mb-3 p-3 sale-items-card sale-items shadow-sm border-0">
+                                    <div class="row g-3 align-items-end">
+                                        <div class="col-md-3">
+                                            <label class="form-label mb-1">Produk <span
+                                                    class="required-asterisk">*</span></label>
+                                            <select name="sale_items[0][nama_produk]" class="form-select select-product"
+                                                required>
+                                                <option disabled selected>Pilih Produk</option>
+                                                @foreach ($products as $product)
+                                                    <option value="{{ $product->id }}"
+                                                        data-stock="{{ $product->available_stock }}"
+                                                        data-price="{{ $product->price }}"
+                                                        {{ $product->available_stock <= 0 ? 'disabled' : '' }}>
+                                                        {{ $product->name }} -
+                                                        {{ $product->available_stock > 0 ? $product->available_stock : 'Stok Kosong' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
-                        <div id="sale-items-wrapper">
-                            <div class="sale-items-card sale-items">
-                                <div class="row align-items-end">
-                                    <div class="col-md-4">
-                                        <label class="form-label">Produk <span class="required-asterisk">*</span></label>
-                                        <select name="sale_items[0][nama_produk]" class="form-select select2" required>
-                                            <option disabled selected>Pilih Produk</option>
-                                            @foreach ($products as $product)
-                                                {{-- <option value="{{ $product->id }}"
-                                                    data-category="{{ $product->category->name ?? '-' }}"
-                                                    data-price="{{ $product->price }}">
-                                                    @php
-                                                        $available_stock = $product->available_stock;
-                                                    @endphp
-                                                    {{ $product->name }}
-                                                    -
-                                                    {{ $product->available_stock > 0 ? $product->available_stock : 'stok kosong' }}                                                    
-                                                </option> --}}
-                                                <option value="{{ $product->id }}"
-                                                    {{ $product->available_stock <= 0 ? 'disabled' : '' }}
-                                                    data-category="{{ $product->category->name ?? '-' }}"
-                                                    data-price="{{ $product->price }}">
-                                                    {{ $product->name }}
-                                                    -
-                                                    {{ $product->available_stock > 0 ? $product->available_stock : 'Stok Kosong' }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label">Jumlah <span class="required-asterisk">*</span></label>
-                                        <input type="number" name="sale_items[0][quantity]" class="form-control quantity"
-                                            required value="1" min="1" placeholder="1">
-                                    </div>
-                                    {{-- <div class="col-md-2">
-                                        <label class="form-label">Harga satuan <span class="required-asterisk">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">Rp</span>
-                                            <input type="number" value="{{ $product->price }}" 
-                                                   data-category="{{ $product->price}}" 
-                                                   name="sale_items[0][unit_price]" class="form-control price" 
-                                                   required min="1" placeholder="0">
+                                        <div class="col-md-2">
+                                            <small class="text-danger stock-warning d-none">Jumlah lebih dari stok
+                                                tersedia</small> <br>
+                                            <label class="form-label mb-1">Jumlah <span
+                                                    class="required-asterisk">*</span></label>
+                                            <input type="number" name="sale_items[0][quantity]"
+                                                class="form-control quantity" required value="1" min="1"
+                                                placeholder="masukkan jumlah">
                                         </div>
-                                    </div> --}}
-                                    <div class="col-md-2">
-                                        <label class="form-label">Harga satuan <span
-                                                class="required-asterisk">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">Rp</span>
-                                            <input type="number" data-category="{{ $product->price }}"
-                                                name="sale_items[0][unit_price]" class="form-control price" required
-                                                min="0" placeholder="0">
+
+                                        <div class="col-md-2">
+                                            <label class="form-label mb-1">Harga Satuan <span
+                                                    class="required-asterisk">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">Rp</span>
+                                                <input type="number" name="sale_items[0][unit_price]"
+                                                    class="form-control price" required min="0" placeholder="0">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">Subtotal</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">Rp</span>
-                                            <input type="number" class="form-control subtotal" placeholder="0"
-                                                name="sale_items[0][total_price]" readonly>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label mb-1">Subtotal</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">Rp</span>
+                                                <input type="number" class="form-control subtotal" placeholder="0"
+                                                    name="sale_items[0][total_price]" readonly>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-1 d-flex justify-content-center">
-                                        <button type="button" class="btn btn-remove-product remove-product"
-                                            title="Hapus produk">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+
+                                        <div class="col-md-2 d-flex justify-content-center">
+                                            <button type="button" class="btn btn-outline-danger remove-product"
+                                                title="Hapus produk">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row mb-4 mt-4">
-                            <div class="col-md-6">
-                                <button type="button" class="btn btn-primary" id="add-product">
-                                    <i class="fas fa-plus me-2" style="margin-right: 10px;"></i>Tambah Produk
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">Jumlah Harga (Total Semua Produk)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">Rp</span>
-                                        <input type="number" class="form-control total_price" disabled placeholder="0"
-                                            style="font-weight: 600; background: #f8fafc;">
+
+
+                            <div class="row mb-4 mt-4">
+                                <div class="col-md-6">
+                                    <button type="button" class="btn btn-primary" id="add-product">
+                                        <i class="fas fa-plus me-2" style="margin-right: 10px;"></i>Tambah Produk
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Jumlah Harga (Total Semua Produk)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="number" class="form-control total_price" disabled
+                                                placeholder="0" style="font-weight: 600; background: #f8fafc;">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -331,7 +322,6 @@
 
                         <hr class="section-divider">
 
-                        <!-- Summary Section -->
                         <div class="summary-section">
                             <div class="row">
                                 <div class="col-12">
@@ -391,17 +381,16 @@
 
                         <div class="row mb-4">
                             <div class="col-md-2">
-                                <label for="status">Status</label>
+                                <label class="form-label">Status <span class="required-asterisk">*</span></label>
                                 <select name="status" id="status" class="form-control">
                                     <option value="pending" selected>Pending</option>
-                                    <option value="selesai">Selesai</option>                                    
+                                    <option value="selesai">Selesai</option>
                                 </select>
                             </div>
                         </div>
 
 
 
-                        <!-- Submit Button -->
                         <div class="row mt-4">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary w-100">
@@ -417,66 +406,141 @@
 @endsection
 
 @push('page-js')
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
     <script>
         let index = 1;
+        $(function() {
+            $("#nama_customer").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ url('customer-autocomplete') }}",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response($.map(data, function(item) {
+                                return {
+                                    label: item.nama,
+                                    value: item.nama,
+                                    telepon: item.telepon
+                                };
+                            }));
+                        }
+                    });
+                },
+                select: function(event, ui) {
+                    $("#telepon_customer").val(ui.item.telepon);
+                }
+            });
+
+            // Panggil fungsi ini saat halaman dimuat
+            updateProductOptions();
+        });
 
         // Tambah produk
         $('#add-product').click(function() {
             let html = `
-        <div class="sale-items-card sale-items">
-            <div class="row align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label">Produk <span class="required-asterisk">*</span></label>
-                    <select name="sale_items[${index}][nama_produk]" class="form-select select2" required>
+        <div class="card mb-3 p-3 sale-items-card sale-items shadow-sm border-0">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label mb-1">Produk <span class="required-asterisk">*</span></label>
+                    <select name="sale_items[${index}][nama_produk]" class="form-select select-product" required>
                         <option disabled selected>Pilih Produk</option>
                         @foreach ($products as $product)
                             <option value="{{ $product->id }}"
-                                data-category="{{ $product->category->name ?? '-' }}"
-                                data-price="{{ $product->price }}">{{ $product->name }}</option>
+                                data-stock="{{ $product->available_stock }}"
+                                data-price="{{ $product->price }}"
+                                {{ $product->available_stock <= 0 ? 'disabled' : '' }}>
+                                {{ $product->name }} - {{ $product->available_stock > 0 ? $product->available_stock : 'Stok Kosong' }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
+
                 <div class="col-md-2">
-                    <label class="form-label">Jumlah <span class="required-asterisk">*</span></label>
-                    <input type="number" name="sale_items[${index}][quantity]" class="form-control quantity" required value="1" min="1" placeholder="0">
-                </div>            
+                     <small class="text-danger stock-warning d-none">Jumlah lebih dari stok
+                                                tersedia</small> <br>
+                    <label class="form-label mb-1">Jumlah <span class="required-asterisk">*</span></label>
+                    <input type="number" name="sale_items[${index}][quantity]" class="form-control quantity" required value="1" min="1" placeholder="masukkan jumlah">
+                </div>
+
                 <div class="col-md-2">
-                    <label class="form-label">Harga satuan <span class="required-asterisk">*</span></label>
+                    <label class="form-label mb-1">Harga Satuan <span class="required-asterisk">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text">Rp</span>
-                        <input type="number" data-category="{{ $product->price }}" name="sale_items[${index}][unit_price]" class="form-control price" required min="0" placeholder="0">                                            
-                    </div>
-                </div>                         
-                <div class="col-md-3">
-                    <label class="form-label">Subtotal</label>
-                    <div class="input-group">
-                        <span class="input-group-text">Rp</span>
-                        <input type="number" name="sale_items[${index}][total_price]" class="form-control subtotal" disabled placeholder="0">
+                        <input type="number" name="sale_items[${index}][unit_price]" class="form-control price" required min="0" placeholder="0">
                     </div>
                 </div>
-                <div class="col-md-1 d-flex justify-content-center">
-                    <button type="button" class="btn btn-remove-product remove-product" title="Hapus produk">
+
+                <div class="col-md-3">
+                    <label class="form-label mb-1">Subtotal</label>
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input type="number" name="sale_items[${index}][total_price]" class="form-control subtotal" placeholder="0" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-2 d-flex justify-content-center">
+                    <button type="button" class="btn btn-outline-danger remove-product" title="Hapus produk">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
         </div>`;
+
             $('#sale-items-wrapper').append(html);
+            updateProductOptions();
             index++;
         });
 
-        $(document).on('change', 'select[name^="sale_items"]', function() {
-            const selected = $(this).find(':selected');
-            const price = selected.data('price') || 0;
-
-            const row = $(this).closest('.sale-items');
-            row.find('.price').val(price).trigger('input'); // supaya subtotal otomatis update
-        });
 
         // Hapus produk
         $(document).on('click', '.remove-product', function() {
             $(this).closest('.sale-items').remove();
+            updateTotalPrice();
+            // Panggil fungsi untuk memperbarui opsi produk setelah baris dihapus
+            updateProductOptions();
         });
+
+        // Fungsi untuk memperbarui opsi produk
+        function updateProductOptions() {
+            let selectedProducts = [];
+            // Kumpulkan semua ID produk yang sudah dipilih
+            $('.select-product').each(function() {
+                const selectedVal = $(this).val();
+                if (selectedVal) {
+                    selectedProducts.push(selectedVal);
+                }
+            });
+
+            // Iterasi semua dropdown produk
+            $('.select-product').each(function() {
+                const currentSelect = $(this);
+                const currentSelectedVal = currentSelect.val();
+
+                currentSelect.find('option').each(function() {
+                    const option = $(this);
+                    const optionVal = option.val();
+
+                    // Jika opsi produk ada di daftar produk yang sudah dipilih
+                    // dan bukan opsi yang saat ini sedang dipilih di dropdown ini,
+                    // maka nonaktifkan opsi tersebut.
+                    if (optionVal && selectedProducts.includes(optionVal) && optionVal !==
+                        currentSelectedVal) {
+                        option.prop('disabled', true);
+                    }
+                    // Jika opsi produk tidak ada di daftar produk yang sudah dipilih,
+                    // dan stoknya > 0, maka aktifkan opsi tersebut.
+                    else if (optionVal && !selectedProducts.includes(optionVal) && parseInt(option.data(
+                            'stock')) > 0) {
+                        option.prop('disabled', false);
+                    }
+                });
+            });
+        }
+
 
         // Hitung subtotal otomatis
         $(document).on('input', '.quantity, .price', function() {
@@ -485,7 +549,22 @@
             const price = parseFloat(row.find('.price').val()) || 0;
             const subtotal = qty * price;
             row.find('.subtotal').val(subtotal);
+            updateTotalPrice();
         });
+
+        $(document).on('input change', '.quantity, .select-product', function() {
+            let row = $(this).closest('.sale-items-card');
+            let selectedOption = row.find('.select-product option:selected');
+            let availableStock = parseInt(selectedOption.data('stock')) || 0;
+            let quantity = parseInt(row.find('.quantity').val()) || 0;
+
+            if (quantity > availableStock && availableStock > 0) {
+                row.find('.stock-warning').removeClass('d-none');
+            } else {
+                row.find('.stock-warning').addClass('d-none');
+            }
+        });
+
 
         // Hitung total semua subtotal
         function updateTotalPrice() {
@@ -494,41 +573,19 @@
                 const val = parseFloat($(this).val()) || 0;
                 total += val;
             });
-
-            // Update tampilan
             $('.form-control.total_price').val(total);
-            $('.total-display.total_price').val('Rp ' + total.toLocaleString('id-ID'));
+            updateFinalTotal();
         }
 
-        // Jalankan fungsi saat kuantitas atau harga berubah
-        $(document).on('input', '.quantity, .price', function() {
-            const row = $(this).closest('.sale-items');
-            const qty = parseFloat(row.find('.quantity').val()) || 0;
-            const price = parseFloat(row.find('.price').val()) || 0;
-            const subtotal = qty * price;
-            row.find('.subtotal').val(subtotal);
-
-            updateTotalPrice();
-        });
-
-        // Jalankan ulang saat menghapus item
-        $(document).on('click', '.remove-product', function() {
-            $(this).closest('.sale-items').remove();
-            updateTotalPrice();
-        });
-
         // Jalankan juga saat produk dipilih (karena harga bisa berubah)
-        $(document).on('change', 'select[name^="sale_items"]', function() {
+        $(document).on('change', '.select-product', function() {
             const selected = $(this).find(':selected');
             const price = selected.data('price') || 0;
             const row = $(this).closest('.sale-items');
             row.find('.price').val(price).trigger('input'); // Trigger input agar subtotal dan total update
-        });
 
-
-        $(document).on('change', 'select[name^="products"]', function() {
-            const category = $(this).find(':selected').data('category') || '-';
-            $(this).closest('.sale-items').find('.category').val(category);
+            // Panggil fungsi untuk memperbarui opsi setelah pilihan berubah
+            updateProductOptions();
         });
 
 
@@ -554,16 +611,14 @@
             updateFinalTotal();
         });
 
-        // Integrasikan ke updateTotalPrice
-        function updateTotalPrice() {
-            let total = 0;
-            $('.subtotal').each(function() {
-                const val = parseFloat($(this).val()) || 0;
-                total += val;
-            });
-
-            $('.form-control.total_price').val(total);
-            updateFinalTotal(); // Update total setelah diskon juga
-        }
+        // Jalankan fungsi saat kuantitas atau harga berubah
+        $(document).on('input', '.quantity, .price', function() {
+            const row = $(this).closest('.sale-items');
+            const qty = parseFloat(row.find('.quantity').val()) || 0;
+            const price = parseFloat(row.find('.price').val()) || 0;
+            const subtotal = qty * price;
+            row.find('.subtotal').val(subtotal);
+            updateTotalPrice();
+        });
     </script>
 @endpush

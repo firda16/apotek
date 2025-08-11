@@ -97,7 +97,26 @@ class PurchaseController extends Controller
 </form>
 HTML;
                 })
-                ->rawColumns(['items', 'action'])
+                ->addColumn('status', function ($row) {
+                    $status = $row->status; // Asumsikan kolom di tabel bernama 'status'
+                    $class = '';
+
+                    // Tentukan kelas CSS berdasarkan nilai status
+                    if ($status === 'pending') {
+                        $class = 'status-pending';
+                    } elseif ($status === 'selesai') {
+                        $class = 'status-selesai';
+                    } elseif ($status === 'dibatalkan') {
+                        $class = 'status-dibatalkan';
+                    } else {
+                        // Kelas default jika status tidak sesuai
+                        $class = 'status-default';
+                    }
+
+                    // Kembalikan HTML dengan kelas CSS yang sudah ditentukan
+                    return '<span class="status ' . $class . '">' . ucfirst($status) . '</span>';
+                })
+                ->rawColumns(['items', 'action', 'status'])
                 ->filter(function ($query) use ($request) {
                     if ($search = $request->get('search')['value'] ?? null) {
                         $query->whereHas('supplier', function ($q) use ($search) {
@@ -320,97 +339,101 @@ HTML;
 
 
     public function update(Request $request, Purchase $purchase)
-{
-    $request->validate([
-        'supplier_id' => 'required|exists:suppliers,id',
-        'payment_method' => 'required|string',
-        'purchase_items' => 'required|array|min:1',
-        'purchase_items.*.product_id' => 'required|exists:products,id',
-        'purchase_items.*.quantity' => 'required|numeric|min:1',
-        'purchase_items.*.unit_price' => 'required|numeric|min:0',
-        'purchase_items.*.expiry_date' => 'nullable|date',
-        'invoice_number' => 'required|string|max:255',
-        'status' => 'required',
-    ]);
-
-    DB::beginTransaction();
-    try {
-        // Update header
-        $purchase->update([
-            'supplier_id' => $request->supplier_id,
-            'payment_method' => $request->payment_method,
-            'invoice_number' => $request->invoice_number,
-            'status' => $request->status,
+    {
+        $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'payment_method' => 'required|string',
+            'purchase_items' => 'required|array|min:1',
+            'purchase_items.*.product_id' => 'required|exists:products,id',
+            'purchase_items.*.quantity' => 'required|numeric|min:1',
+            'purchase_items.*.unit_price' => 'required|numeric|min:0',
+            'purchase_items.*.expiry_date' => 'nullable|date',
+            'invoice_number' => 'required|string|max:255',
+            'status' => 'required',
         ]);
 
-        $total = 0;
+        DB::beginTransaction();
+        try {
+            // Update header
+            $purchase->update([
+                'supplier_id' => $request->supplier_id,
+                'payment_method' => $request->payment_method,
+                'invoice_number' => $request->invoice_number,
+                'status' => $request->status,
+            ]);
 
-        // Ambil purchaseItems lama keyed by product_id
-        $existing = $purchase->purchaseItems()->get()->keyBy('product_id');
+            $total = 0;
 
-        foreach ($request->purchase_items as $productData) {
-            $productId = $productData['product_id'];
-            $qty = (int) $productData['quantity'];
-            $unitPrice = $productData['unit_price'];
-            $expiry = $productData['expiry_date'] ?? null;
+            // Ambil purchaseItems lama keyed by product_id
+            $existing = $purchase->purchaseItems()->get()->keyBy('product_id');
 
-            $subtotal = $qty * $unitPrice;
-            $total += $subtotal;
+            foreach ($request->purchase_items as $productData) {
+                $productId = $productData['product_id'];
+                $qty = (int) $productData['quantity'];
+                $unitPrice = $productData['unit_price'];
+                $expiry = $productData['expiry_date'] ?? null;
 
-            if ($existing->has($productId)) {
-                // Update batch yang ada — JANGAN reset sold_quantity
-                $item = $existing->get($productId);
+                $subtotal = $qty * $unitPrice;
+                $total += $subtotal;
 
-                // Validasi: quantity baru tidak boleh kurang dari sold_quantity
-                if ($qty < $item->sold_quantity) {
-                    DB::rollBack();
-                    return back()->withInput()->with('error',
-                        "Jumlah pembelian untuk produk {$item->product->name} ({$qty}) tidak bisa kurang dari jumlah yang sudah terjual ({$item->sold_quantity}).");
+                if ($existing->has($productId)) {
+                    // Update batch yang ada — JANGAN reset sold_quantity
+                    $item = $existing->get($productId);
+
+                    // Validasi: quantity baru tidak boleh kurang dari sold_quantity
+                    if ($qty < $item->sold_quantity) {
+                        DB::rollBack();
+                        return back()->withInput()->with(
+                            'error',
+                            "Jumlah pembelian untuk produk {$item->product->name} ({$qty}) tidak bisa kurang dari jumlah yang sudah terjual ({$item->sold_quantity})."
+                        );
+                    }
+
+                    $item->update([
+                        'quantity' => $qty,
+                        'unit_price' => $unitPrice,
+                        'expiry_date' => $expiry,
+                        // sold_quantity dibiarkan sama
+                    ]);
+
+                    // tandai item sudah diproses
+                    $existing->forget($productId);
+                } else {
+                    // batch baru — sold_quantity default 0
+                    PurchaseItem::create([
+                        'purchase_id' => $purchase->id,
+                        'product_id' => $productId,
+                        'quantity' => $qty,
+                        'unit_price' => $unitPrice,
+                        'expiry_date' => $expiry,
+                        'sold_quantity' => 0,
+                    ]);
                 }
-
-                $item->update([
-                    'quantity' => $qty,
-                    'unit_price' => $unitPrice,
-                    'expiry_date' => $expiry,
-                    // sold_quantity dibiarkan sama
-                ]);
-
-                // tandai item sudah diproses
-                $existing->forget($productId);
-            } else {
-                // batch baru — sold_quantity default 0
-                PurchaseItem::create([
-                    'purchase_id' => $purchase->id,
-                    'product_id' => $productId,
-                    'quantity' => $qty,
-                    'unit_price' => $unitPrice,
-                    'expiry_date' => $expiry,
-                    'sold_quantity' => 0,
-                ]);
             }
-        }
 
-        // Sisanya di $existing adalah batch yang dihapus di form.
-        foreach ($existing as $left) {
-            if ($left->sold_quantity > 0) {
-                DB::rollBack();
-                return back()->withInput()->with('error',
-                    "Tidak dapat menghapus batch pembelian '{$left->product->name}' karena sudah ada penjualan ({$left->sold_quantity}).");
+            // Sisanya di $existing adalah batch yang dihapus di form.
+            foreach ($existing as $left) {
+                if ($left->sold_quantity > 0) {
+                    DB::rollBack();
+                    return back()->withInput()->with(
+                        'error',
+                        "Tidak dapat menghapus batch pembelian '{$left->product->name}' karena sudah ada penjualan ({$left->sold_quantity})."
+                    );
+                }
+                // aman dihapus karena belum ada penjualan dari batch ini
+                $left->delete();
             }
-            // aman dihapus karena belum ada penjualan dari batch ini
-            $left->delete();
+
+            // Update total
+            $purchase->update(['total_price' => $total]);
+
+            DB::commit();
+            return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        // Update total
-        $purchase->update(['total_price' => $total]);
-
-        DB::commit();
-        return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil diperbarui.');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
-}
 
 
 

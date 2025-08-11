@@ -101,6 +101,7 @@
                         <h2>Invoice Penjualan</h2>
                         <p><strong>No. Invoice:</strong> {{ $sale->invoice_number }}</p>
                         <p><strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($sale->created_at)->format('d M Y') }}</p>
+                        <p><strong>Status:</strong> {{ $sale->status }}</p>
                     </td>
                     <td class="company-info">
                         {{-- <h3>Nama Toko</h3> --}}
@@ -109,7 +110,7 @@
 
                         <p>Jl. Contoh Alamat No. 123</p>
                         <p>Telp: 0812-3456-7890</p>
-                        <p>Email: info@tokomu.com</p>
+                        <p>Email: Apotek@gmail.com</p>
                     </td>
                 </tr>
             </table>

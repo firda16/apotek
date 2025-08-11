@@ -147,8 +147,9 @@ class SaleController extends Controller
 
         // Generate invoice number secara acak, contoh: INV-20250730-XXXX
         $invoice_number = 'INV-' . now()->format('Ymd') . '-' . strtoupper(Str::random(4));
+        $saleItems = collect(); 
 
-        return view('admin.sales.create', compact('title', 'products', 'categories', 'invoice_number'));
+        return view('admin.sales.create', compact('title', 'products', 'categories', 'invoice_number', 'saleItems'));
     }
 
     public function store(Request $request)
@@ -226,10 +227,16 @@ class SaleController extends Controller
             }
 
             // ✅ Simpan data customer
-            $customer = Customer::create([
-                'nama' => $request->nama_customer,
-                'telepon' => $request->nomor_telepon,
-            ]);
+            // $customer = Customer::create([
+            //     'nama' => $request->nama_customer,
+            //     'telepon' => $request->nomor_telepon,
+            // ]);
+
+            $customer = Customer::firstOrCreate(
+                ['telepon' => $request->nomor_telepon], // kolom unik
+                ['nama' => $request->nama_customer]     // kolom tambahan kalau belum ada
+            );
+
 
             // ✅ Simpan data sale utama
             $sale = Sale::create([
@@ -372,7 +379,7 @@ class SaleController extends Controller
                     $quantityChange = $newQuantity - $oldQuantity;
 
                     // Periksa jika ada perubahan kuantitas
-                    if ($quantityChange !== 0) { 
+                    if ($quantityChange !== 0) {
                         // Temukan purchase item yang sesuai untuk produk ini
                         $purchaseItem = PurchaseItem::where('product_id', $productId)
                             ->first();

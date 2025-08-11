@@ -72,4 +72,11 @@ class CustomerController extends Controller
 
         return redirect()->route('admin.customers.index')->with('success', 'Customer berhasil dihapus.');
     }
+
+    public function getCustomerData()
+    {
+        $customers = Customer::select('nama', 'telepon')->get();
+        return response()->json($customers);
+    }
+
 }

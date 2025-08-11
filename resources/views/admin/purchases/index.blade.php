@@ -4,6 +4,30 @@
 
 @push('page-css')
     <style>
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: #ffc107;
+            /* Kuning untuk Pending */
+        }
+
+        .status-selesai {
+            background-color: #28a745;
+            /* Hijau untuk Selesai */
+        }
+
+        .status-dibatalkan {
+            background-color: #dc3545;
+            /* Merah untuk Dibatalkan */
+        }
+
         /* Spinner animation */
 
         .dataTables_processing {
@@ -12,20 +36,20 @@
 
 
         /* .dataTables_processing {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: rgba(255, 255, 255, 0.8);
-                    z-index: 999;
-                    font-size: 16px;
-                    color: #333;
-                    padding: 40px;
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 100%;
-                } */
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: rgba(255, 255, 255, 0.8);
+                            z-index: 999;
+                            font-size: 16px;
+                            color: #333;
+                            padding: 40px;
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            height: 100%;
+                        } */
 
         .spinner {
             width: 40px;
