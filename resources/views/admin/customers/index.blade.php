@@ -1,5 +1,9 @@
 @extends('admin.layouts.app')
 
+@push('page-css')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+@endpush
+
 @section('content')
 <div class="page-header">
     <div class="row align-items-center">
@@ -10,18 +14,13 @@
                 <li class="breadcrumb-item active">Pelanggan</li>
             </ul>
         </div>
-        {{-- <div class="col-auto float-end ms-auto">
-            <a href="#" class="btn btn-primary">
-                <i class="fa fa-plus"></i> Tambah Customer
-            </a>
-        </div> --}}
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-12">
         <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover datatable">
+            <table id="customer-table" class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -29,26 +28,33 @@
                         <th>Email</th>
                         <th>No. Telepon</th>
                         <th>Alamat</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach($customers as $index => $customer)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $customer->nama }}</td>
-                            <td>{{ $customer->email ?? '-' }}</td>
-                            <td>{{ $customer->telepon ?? '-' }}</td>
-                            <td>{{ $customer->alamat ?? '-' }}</td>
-                        </tr>
-                    @endforeach
-                    @if($customers->isEmpty())
-                        <tr>
-                            <td colspan="5" class="text-center">Tidak ada data pelanggan.</td>
-                        </tr>
-                    @endif
-                </tbody>
             </table>
         </div>
     </div>
 </div>
 @endsection
+
+@push('page-js')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(function() {
+    $('#customer-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route("customers.datatable") }}',
+        columns: [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'nama', name: 'nama' },
+            { data: 'email', name: 'email' },
+            { data: 'telepon', name: 'telepon' },
+            { data: 'alamat', name: 'alamat' },
+            { data: 'action', name: 'action', orderable: false, searchable: false }
+        ]
+    });
+});
+</script>
+@endpush

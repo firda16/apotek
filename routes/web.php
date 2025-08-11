@@ -62,7 +62,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
     Route::get('/check-invoice', [App\Http\Controllers\Admin\PurchaseController::class, 'checkInvoice'])
-    ->name('check.invoice');
+        ->name('check.invoice');
     Route::get('purchases/reports', [PurchaseController::class, 'reports'])->name('purchases.report');
     Route::get('/get-last-price', [PurchaseController::class, 'getLastPrice']);
 
@@ -80,6 +80,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('products/expired', [ProductController::class, 'expired'])->name('expired');
     Route::get('/products/stock-report', [ProductController::class, 'stockReport'])->name('reports.stock');
 
+
+    Route::get('customers/datatable', [CustomerController::class, 'datatable'])->name('customers.datatable');
+    Route::resource('customers', CustomerController::class);
 
     Route::get('customer-by-name', function (Illuminate\Http\Request $request) {
         return Customer::select('id', 'nama', 'telepon')

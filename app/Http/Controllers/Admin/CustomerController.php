@@ -53,15 +53,17 @@ class CustomerController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
+            'nama' => 'required|string|max:100',
+            'telepon' => 'required|string|max:20',
+            'email' => 'nullable|string|max:255',
+            'alamat' => 'nullable|string|max:255',
+
         ]);
 
         $customer = Customer::findOrFail($id);
         $customer->update($request->all());
 
-        return redirect()->route('admin.customers.index')->with('success', 'Customer berhasil diperbarui.');
+        return redirect()->route('customers.index')->with('success', 'Customer berhasil diperbarui.');
     }
 
     // Hapus customer
@@ -70,7 +72,7 @@ class CustomerController extends Controller
         $customer = Customer::findOrFail($id);
         $customer->delete();
 
-        return redirect()->route('admin.customers.index')->with('success', 'Customer berhasil dihapus.');
+        return redirect()->route('customers.index')->with('success', 'Customer berhasil dihapus.');
     }
 
     public function getCustomerData()
@@ -79,4 +81,25 @@ class CustomerController extends Controller
         return response()->json($customers);
     }
 
+    public function datatable(Request $request)
+    {
+        $query = Customer::query();
+        return datatables()->of($query)
+            ->addIndexColumn()
+            ->addColumn('action', function($row){
+                $editUrl = route('customers.edit', $row->id);
+                $deleteUrl = route('customers.destroy', $row->id);
+                $csrf = csrf_field();
+                $method = method_field('DELETE');
+                return "
+                    <a href='{$editUrl}' class='btn btn-sm btn-warning'>Edit</a>
+                    <form action='{$deleteUrl}' method='POST' style='display:inline;' onsubmit='return confirm(\"Yakin hapus data?\")'>
+                        {$csrf}{$method}
+                        <button type='submit' class='btn btn-sm btn-danger'>Hapus</button>
+                    </form>
+                ";
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+    }
 }
