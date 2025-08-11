@@ -61,7 +61,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('categories/update', [CategoryController::class, 'update'])->name('categories.update');
 
 
-
+    Route::get('/check-invoice', [App\Http\Controllers\Admin\PurchaseController::class, 'checkInvoice'])
+    ->name('check.invoice');
     Route::get('purchases/reports', [PurchaseController::class, 'reports'])->name('purchases.report');
     Route::get('/get-last-price', [PurchaseController::class, 'getLastPrice']);
 

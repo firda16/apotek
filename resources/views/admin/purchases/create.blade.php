@@ -40,11 +40,13 @@
                                 <label class="form-label">Nomor Invoice</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-file-invoice"></i></span>
-                                    <input type="text" name="invoice_number" class="form-control">
+                                    <input type="text" name="invoice_number" id="invoice_number" class="form-control">
                                 </div>
+                                <small id="invoice-warning" class="text-danger" style="display:none;">
+                                    Nomor invoice sudah ada
+                                </small>
                             </div>
                         </div>
-
 
                         <div class="mb-3">
                             <label>Pemasok <span class="text-danger">*</span></label>
@@ -227,6 +229,33 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
+        $(document).ready(function() {
+            $('#invoice_number').on('input', function() {
+                let invoiceNumber = $(this).val();
+
+                if (invoiceNumber.trim() === '') {
+                    $('#invoice-warning').hide();
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route('check.invoice') }}',
+                    type: 'GET',
+                    data: {
+                        invoice_number: invoiceNumber
+                    },
+                    success: function(res) {
+                        if (res.exists) {
+                            $('#invoice-warning').show();
+                        } else {
+                            $('#invoice-warning').hide();
+                        }
+                    }
+                });
+            });
+        });
+
+
         function initializeSelect2() {
             $('.select2').select2();
         }

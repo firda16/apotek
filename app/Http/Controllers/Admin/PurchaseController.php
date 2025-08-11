@@ -464,6 +464,16 @@ HTML;
     }
 
 
+
+    public function checkInvoice(Request $request)
+    {
+        $invoiceNumber = $request->invoice_number;
+
+        $exists = Purchase::where('invoice_number', $invoiceNumber)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+    
     public function destroy(Request $request, Purchase $purchase)
     {
         foreach ($purchase->purchaseItems as $item) {
