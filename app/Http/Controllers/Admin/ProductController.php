@@ -62,6 +62,25 @@ class ProductController extends Controller
             'description' => 'nullable|string|max:255',
         ]);
 
+        // Cek apakah nama dan satuan sudah ada
+
+        $nameExists = Product::where('name', $request->name)->exists();
+
+        $exists = Product::where('name', $request->name)
+            ->where('unit', $request->unit)
+            ->exists();
+
+        if ($exists) {
+            return back()->withInput()->withErrors([
+                'name' => 'Nama produk dan satuan sudah terdaftar.',
+                'unit' => 'Nama produk dan satuan sudah terdaftar.'
+            ]);
+        } elseif ($nameExists) {
+            return back()->withInput()->withErrors([
+                'name' => 'Nama produk sudah terdaftar.'
+            ]);
+        }
+
         $price = $request->price;
         if ($request->discount && $request->discount > 0) {
             $price = $price - ($request->discount * $price);
@@ -97,6 +116,28 @@ class ProductController extends Controller
             'description' => 'nullable|string|max:255',
         ]);
 
+        // Cek apakah nama dan satuan sudah ada (kecuali produk yang sedang diupdate)
+        $comboExists = Product::where('name', $request->name)
+            ->where('unit', $request->unit)
+            ->where('id', '!=', $product->id)
+            ->exists();
+
+        // Cek nama produk saja, kecuali produk yang sedang diupdate
+        $nameExists = Product::where('name', $request->name)
+            ->where('id', '!=', $product->id)
+            ->exists();
+
+        if ($comboExists) {
+            return back()->withInput()->withErrors([
+                'name' => 'Nama produk dan satuan sudah terdaftar.',
+                'unit' => 'Nama produk dan satuan sudah terdaftar.'
+            ]);
+        } elseif ($nameExists) {
+            return back()->withInput()->withErrors([
+                'name' => 'Nama produk sudah terdaftar.'
+            ]);
+        }
+
         $price = $request->price;
         if ($request->discount && $request->discount > 0) {
             $price = $price - ($request->discount * $price);
@@ -119,20 +160,44 @@ class ProductController extends Controller
         $title = 'Produk Kedaluwarsa';
         App::setLocale('id');
 
-        // Tentukan batas "akan kadaluarsa": misal 30 hari ke depan
         $soonExpiryDays = 30;
         $soonExpiryDate = now()->addDays($soonExpiryDays);
 
-        $products = Product::whereHas('purchaseItems', function ($query) use ($soonExpiryDate) {
-            $query->whereDate('expiry_date', '<=', $soonExpiryDate); // termasuk yang sudah expired dan akan expired
-        })
-            ->with([
-                'purchaseItems' => function ($query) use ($soonExpiryDate) {
-                    $query->whereDate('expiry_date', '<=', $soonExpiryDate);
-                },
-                'category'
-            ])
-            ->paginate(10);
+        $allProducts = Product::with(['category', 'purchaseItems'])->get();
+
+        $filtered = $allProducts->filter(function ($product) use ($soonExpiryDate) {
+            // Ambil batch yang expired/akan expired dan stoknya masih ada
+            $batches = $product->purchaseItems->filter(function ($item) use ($soonExpiryDate) {
+                $expiry = \Carbon\Carbon::parse($item->expiry_date);
+                $available = ($item->quantity - $item->sold_quantity) > 0;
+
+                // Sudah expired dan stok masih ada
+                if ($expiry->lte(now()) && $available) {
+                    return true;
+                }
+                // Akan expired (< 30 hari) dan stok masih ada
+                if ($expiry->gt(now()) && $expiry->lte($soonExpiryDate) && $available) {
+                    return true;
+                }
+                return false;
+            });
+
+            // Tampilkan produk hanya jika ada batch yang memenuhi kondisi di atas
+            return $batches->count() > 0;
+        })->values();
+
+        // Manual paginate Collection
+        $page = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10;
+        $results = $filtered->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $products = new \Illuminate\Pagination\LengthAwarePaginator(
+            $results,
+            $filtered->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('admin.products.expired', compact('title', 'products', 'soonExpiryDays'));
     }
@@ -142,10 +207,13 @@ class ProductController extends Controller
     public function available(Request $request)
     {
         if ($request->ajax()) {
-            $products = Product::with(['category', 'purchaseItems' => function ($query) {
-                $query->whereDate('expiry_date', '>', now())
-                    ->whereColumn('quantity', '>', 'sold_quantity');
-            }])
+            $products = Product::with([
+                'category',
+                'purchaseItems' => function ($query) {
+                    $query->whereDate('expiry_date', '>', now())
+                        ->whereColumn('quantity', '>', 'sold_quantity');
+                }
+            ])
                 ->whereHas('purchaseItems', function ($query) {
                     $query->whereDate('expiry_date', '>', now())
                         ->whereColumn('quantity', '>', 'sold_quantity');
@@ -159,7 +227,7 @@ class ProductController extends Controller
                         return $item->quantity - $item->sold_quantity;
                     });
                 })
-                ->addColumn('action', function ($row) {                   
+                ->addColumn('action', function ($row) {
                     $edit = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>';
                     $delete = '<form action="' . route('products.destroy', $row->id) . '" method="POST" style="display:inline;">
                                 ' . csrf_field() . method_field('DELETE') . '
@@ -233,6 +301,16 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        // Cek apakah semua batch produk sudah expired (expiry_date <= hari ini)
+        $allExpired = $product->purchaseItems->count() > 0 &&
+            $product->purchaseItems->every(function ($item) {
+                return \Carbon\Carbon::parse($item->expiry_date)->lte(now());
+            });
+
+        if (!$allExpired) {
+            return back()->with('error', 'Produk hanya bisa dihapus jika semua batch sudah kadaluarsa.');
+        }
+
         $product->delete();
         return redirect()->route('products.index')->with(notify('Produk berhasil dihapus'));
     }
@@ -265,15 +343,23 @@ class ProductController extends Controller
              */
             $currentStock = Product::with('category')
                 ->get()
-                ->map(function ($product) {
-                    $stockIn = PurchaseItem::where('product_id', $product->id)->sum('quantity');
-                    $stockOut = SaleItem::where('product_id', $product->id)->sum('quantity');
+                ->map(function ($product) use ($startDate, $endDate) {
+                    // Ambil batch yang belum expired DAN masuk di periode
+                    $validItems = $product->purchaseItems()
+                        ->whereDate('expiry_date', '>', now())
+                        ->whereHas('purchase', function ($query) use ($startDate, $endDate) {
+                        $query->whereBetween('created_at', [$startDate, $endDate]);
+                    })
+                        ->get();
+
+                    $totalPurchased = $validItems->sum('quantity');
+                    $totalSold = $validItems->sum('sold_quantity');
 
                     return [
                         'product_name' => $product->name,
                         'category_name' => $product->category->name ?? '-',
                         'unit' => $product->unit ?? '-',
-                        'available_stock' => $stockIn - $stockOut
+                        'available_stock' => $totalPurchased - $totalSold
                     ];
                 });
 
@@ -316,7 +402,8 @@ class ProductController extends Controller
                         'product_name' => $items->first()->product->name ?? '-',
                         'category_name' => $items->first()->product->category->name ?? '-',
                         'unit' => $items->first()->product->unit ?? '-',
-                        'total_quantity' => $items->sum('quantity')
+                        // Ganti 'quantity' dengan 'sold_quantity' jika memang field-nya itu
+                        'total_quantity' => $items->sum('quantity') // atau $items->sum('quantity')
                     ];
                 })
                 ->values();
@@ -329,5 +416,75 @@ class ProductController extends Controller
             'stockOut',
             'stockOutSummary'
         ));
+    }
+
+    public function datatable(Request $request)
+    {
+        $query = Product::with([
+            'category',
+            'purchaseItems' => function ($q) {
+                $q->latest()->limit(1); // Ambil purchase item terbaru
+            }
+        ]);
+
+        // Pencarian
+        if ($request->has('search') && $request->search['value']) {
+            $search = $request->search['value'];
+            $keywords = preg_split('/\s+/', trim($search));
+
+            $query->where(function ($q) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $q->where('name', 'like', "%{$word}%")
+                        ->orWhere('unit', 'like', "%{$word}%")
+                        ->orWhereRaw("CAST(price AS CHAR) LIKE ?", ["%{$word}%"])
+                        ->orWhere('description', 'like', "%{$word}%")
+                        ->orWhereHas('category', function ($qc) use ($word) {
+                            $qc->whereRaw("TRIM(name) LIKE ?", ["%{$word}%"]);
+                        })
+                        ->orWhereHas('purchaseItems', function ($qp) use ($word) {
+                            $qp->whereRaw("TRIM(unit_price) LIKE ?", ["%{$word}%"]);
+                        });
+                }
+            });
+        }
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('category', fn($row) => $row->category->name ?? '-')
+            ->addColumn('unit_price', function ($row) {
+                $latestPurchaseItem = $row->purchaseItems->first();
+                return $latestPurchaseItem
+                    ? 'Rp ' . number_format($latestPurchaseItem->unit_price, 0, ',', '.')
+                    : '-';
+            })
+            ->addColumn('price', fn($row) => 'Rp ' . number_format($row->price, 0, ',', '.'))
+            ->addColumn('description', fn($row) => $row->description)
+            ->addColumn('action', function ($row) {
+                $edit = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>';
+                $delete = '<form action="' . route('products.destroy', $row->id) . '" method="POST" style="display:inline;">
+                        ' . csrf_field() . method_field('DELETE') . '
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin ingin menghapus produk ini?\')">Hapus</button>
+                    </form>';
+                return $edit . ' ' . $delete;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+    }
+
+
+    public function deleteExpired()
+    {
+        // Ambil semua batch yang sudah expired dan stoknya masih ada
+        $expiredItems = PurchaseItem::where('expiry_date', '<=', now())
+            ->whereRaw('quantity - sold_quantity > 0')
+            ->get();
+
+        foreach ($expiredItems as $item) {
+            // Jika ingin menghapus batch: hapus PurchaseItem
+            $item->delete();
+            // Jika ingin menghapus produk jika semua batch-nya sudah dihapus, tambahkan logika di sini
+        }
+
+        return back()->with('success', 'Semua produk kadaluarsa berhasil dihapus.');
     }
 }

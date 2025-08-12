@@ -26,77 +26,26 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="product-table" class="table table-hover table-center mb-0">
+                        <table id="product-table" class="table table-striped table-bordered table-hover table-center mb-0">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Produk</th>
                                     <th>Kategori</th>
-                                    <th>Harga</th>
-                                    {{-- <th>Stok</th> --}}
-                                    <th>Satuan</th>
+                                    <th>Unit</th>
+                                    <th>Harga beli</th>
+                                    <th>Harga jual</th>
                                     <th>Deskripsi</th>
-                                    {{-- <th>Tanggal Kedaluwarsa</th> --}}
-                                    <th class="action-btn">Aksi</th>
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {{-- Ingat: $product di sini adalah objek Purchase --}}
-                                @foreach ($products as $product)
-                                    <tr>
-                                        <td>{{ $products->firstItem() + $loop->index }}</td>
-
-                                        {{-- Nama Produk --}}
-                                        <td>{{ $product->name }}</td>
-
-                                        {{-- Nama Kategori --}}
-                                        <td>{{ $product->category->name ?? '-' }}</td>
-
-                                        {{-- Harga Produk --}}
-                                        <td class="text-center">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
-
-                                        {{-- Stok Produk --}}
-                                        {{-- <td>{{ $product->stock }}</td> --}}
-                                        <td>{{ $product->unit }}</td>
-                                        <td>{{ $product->description ?? '-' }}</td>
-                                         {{-- @php
-                                        // Ambil item kedaluwarsa paling awal (terdekat)
-                                            $expiredItem = $product->purchaseItems->sortBy('expiry_date')->first();
-                                        @endphp
-
-                                        <td>
-                                            {{ $expiredItem ? \Carbon\Carbon::parse($expiredItem->expiry_date)->translatedFormat('d F Y') : '-' }}
-                                        </td> --}}
-
-
-                                        {{-- Deskripsi Produk (Opsional, kalau mau ditampilkan) --}}
-                                        {{-- <td>{{ $product->description ?? '-' }}</td> --}}
-
-                                        {{-- Kolom Diskon dan Tanggal Kadaluwarsa dihapus karena tidak tersedia di tabel produk --}}
-                                        {{-- <td>-</td> --}}
-                                        {{-- <td>-</td> --}}
-
-                                        <td>                                          
-                                            <a href="{{ route('products.edit', $product->id) }}"
-                                                class="btn btn-sm btn-primary">Edit</a>
-                                            <form action="{{ route('products.destroy', $product->id) }}" method="POST"
-                                                style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">Hapus</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                     {{-- Pagination --}}
-                    <div class="mt-3">
+                    {{-- <div class="mt-3">
                         {{ $products->links('pagination::bootstrap-5') }}
-                    </div>
+                    </div> --}}
                 </div>
             </div>
             <!-- /Daftar Produk -->
@@ -105,23 +54,57 @@
     </div>
 @endsection
 
-{{-- @push('page-js')
-<script>
-    $(document).ready(function() {
-        var table = $('#product-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{route('products.index')}}",
-            columns: [
-                {data: 'product', name: 'product'},
-                {data: 'category', name: 'category'},
-                {data: 'price', name: 'price'},
-                {data: 'quantity', name: 'quantity'},
-                {data: 'discount', name: 'discount'},
-				{data: 'expiry_date', name: 'expiry_date'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
-            ]
+@push('page-js')
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(function() {
+            $('#product-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '{{ route('products.datatable') }}',
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'category',
+                        name: 'category'
+                    },
+                    {
+                        data: 'unit',
+                        name: 'unit'
+                    },
+                    {
+                        data: 'unit_price',
+                        name: 'unit_price'
+                    },
+                    {
+                        data: 'price',
+                        name: 'price'
+                    },
+                    {
+                        data: 'description',
+                        name: 'description',
+                        searchable: false
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                order: [
+                    [1, 'asc']
+                ]
+            });
         });
-    });
-</script>
-@endpush --}}
+    </script>
+@endpush

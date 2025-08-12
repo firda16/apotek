@@ -65,21 +65,28 @@
                             <tbody>
                                 @foreach ($products as $product)
                                     @php
-                                        // Ambil semua purchaseItems yang akan/sudah expired
-                                        $relevantItems = $product->purchaseItems->sortBy('expiry_date');
+                                        // Ambil batch yang expired/akan expired dan stoknya masih ada
+                                        $relevantItems = $product->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
+                                            $expiry = \Carbon\Carbon::parse($item->expiry_date);
+                                            $available = ($item->quantity - $item->sold_quantity) > 0;
+                                            return (
+                                                ($expiry->lte(now()) && $available) ||
+                                                ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
+                                            );
+                                        })->sortBy('expiry_date');
+
                                         $closestItem = $relevantItems->first();
 
                                         if (!$closestItem) {
                                             continue;
-                                        } // Skip jika tidak ada
+                                        }
 
                                         $expiryDate = \Carbon\Carbon::parse($closestItem->expiry_date);
                                         $today = now();
-                                        $daysDiff = $expiryDate->diffInDays($today, false); // negatif = sudah lewat
+                                        $daysDiff = $expiryDate->diffInDays($today, false);
 
                                         if ($expiryDate->lt($today)) {
-                                            $status =
-                                                '<span class="badge text-white bg-danger">Sudah Kadaluarsa</span>';
+                                            $status = '<span class="badge text-white bg-danger">Sudah Kadaluarsa</span>';
                                         } elseif ($expiryDate->lte($today->copy()->addDays($soonExpiryDays))) {
                                             $status = '<span class="badge bg-warning text-dark">Akan Kadaluarsa</span>';
                                         } else {
@@ -92,7 +99,7 @@
                                         <td>{{ $product->category?->name ?? '-' }}</td>
                                         <td>{{ (settings('app_currency') ?? 'Rp') . ' ' . number_format($product->price, 0, ',', '.') }}
                                         </td>
-                                        <td>{{ $product->available_stock }}</td>
+                                        <td>{{ $closestItem->quantity - $closestItem->sold_quantity }}</td>
                                         <td>{{ $expiryDate->translatedFormat('d F Y') }}</td>
                                         <td>{!! $status !!}</td> <!-- Status dengan badge -->
                                         <td>
@@ -113,6 +120,15 @@
                 </div>
             </div>
             <!-- /Produk Kedaluwarsa -->
+
+            <div class="mb-3">
+                <form method="POST" action="{{ route('products.deleteExpired') }}" onsubmit="return confirm('Hapus semua produk kadaluarsa?')">
+                    @csrf
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fa fa-trash"></i> Hapus Semua Produk Kadaluarsa
+                    </button>
+                </form>
+            </div>
 
         </div>
     </div>

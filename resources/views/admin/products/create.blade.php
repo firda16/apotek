@@ -29,6 +29,9 @@
                                         <label>Nama Produk <span class="text-danger">*</span></label>
                                         <input type="text" name="name" class="form-control"
                                             value="{{ old('name') }}" required>
+                                        @error('name')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
                                     </div>
                                 </div>
 
@@ -74,6 +77,9 @@
                                         <label>Satuan <span class="text-danger">*</span></label>
                                         <input type="text" name="unit" class="form-control"
                                             value="{{ old('unit') }}" required>
+                                        @error('unit')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>

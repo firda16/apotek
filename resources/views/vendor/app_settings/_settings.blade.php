@@ -27,6 +27,13 @@
                     @endforeach
                 @endif
 
+                {{-- Tambahkan di bagian inputs --}}
+                @includeIf('app_settings::fields.file', [
+                    'name' => 'logo',
+                    'label' => 'Logo',
+                    'value' => AppSettings::get('logo')
+                ])
+
                 <div class="row m-b-md">
                     <div class="col-md-12">
                         <button class="btn-primary btn">

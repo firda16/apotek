@@ -72,6 +72,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('purchases/datatable', [PurchaseController::class, 'datatable'])->name('purchases.datatable');
     Route::resource('purchases', PurchaseController::class);
 
+
+    Route::get('products/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
     Route::resource('products', ProductController::class)->except('show');
     Route::get('/products/{product}/stock-log', [ProductController::class, 'stockLog'])->name('products.stock-log');
 
@@ -163,5 +165,6 @@ Route::get('customer-check-phone', function (\Illuminate\Http\Request $request) 
     }
     return response()->json(['exists' => false]);
 });
+Route::post('products/delete-expired', [ProductController::class, 'deleteExpired'])->name('products.deleteExpired');
 
 
