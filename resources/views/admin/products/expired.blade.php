@@ -92,7 +92,7 @@
                                         <td>{{ $product->category?->name ?? '-' }}</td>
                                         <td>{{ (settings('app_currency') ?? 'Rp') . ' ' . number_format($product->price, 0, ',', '.') }}
                                         </td>
-                                        <td>{{ $relevantItems->sum('quantity') }}</td>
+                                        <td>{{ $product->available_stock }}</td>
                                         <td>{{ $expiryDate->translatedFormat('d F Y') }}</td>
                                         <td>{!! $status !!}</td> <!-- Status dengan badge -->
                                         <td>

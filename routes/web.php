@@ -151,5 +151,17 @@ Route::get('customer-autocomplete', function (Illuminate\Http\Request $request) 
         ->get();
     return response()->json($customers);
 });
+Route::get('customer-check-phone', function (\Illuminate\Http\Request $request) {
+    $phone = $request->phone;
+    $name = $request->name;
+    $customer = \App\Models\Customer::where('telepon', $phone)->first();
+    if ($customer && strtolower(trim($customer->nama)) !== strtolower(trim($name))) {
+        return response()->json([
+            'exists' => true,
+            'real_name' => $customer->nama
+        ]);
+    }
+    return response()->json(['exists' => false]);
+});
 
 

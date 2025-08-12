@@ -28,7 +28,7 @@
             margin: 2rem 0 1.5rem 0;
         }
 
-        
+
 
         .section-title {
             color: #374151;
@@ -414,6 +414,34 @@
     <script>
         let index = 1;
         $(function() {
+            $('#telepon_customer').on('input', function() {
+                let phone = $(this).val();
+                let name = $('#nama_customer').val();
+                if (phone.length > 0 && name.length > 0) {
+                    $.ajax({
+                        url: "{{ url('customer-check-phone') }}",
+                        data: {
+                            phone: phone,
+                            name: name
+                        },
+                        success: function(res) {
+                            $('#phone-warning').remove();
+                            if (res.exists) {
+                                $('#telepon_customer').after(
+                                    '<div id="phone-warning" class="text-danger mt-1">Nomor telepon ini sudah terdaftar atas nama <strong>' +
+                                    res.real_name +
+                                    '</strong>. Silakan cek kembali nama pelanggan!</div>'
+                                );
+                            }
+                        }
+                    });
+                } else {
+                    $('#phone-warning').remove();
+                }
+            });
+            $('#nama_customer').on('input', function() {
+                $('#telepon_customer').trigger('input');
+            });
             $("#nama_customer").autocomplete({
                 source: function(request, response) {
                     $.ajax({
