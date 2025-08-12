@@ -2,58 +2,65 @@
 
 
 <style>
-  /* Container form filter */
-  form {
-    background: #f9fafb;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  }
-
-
-  /* Label */
-  form label {
-    font-weight: 600;
-    color: #374151;
-  }
-
-  /* Input & Select */
-  form .form-control,
-  form .form-select {
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  form .form-control:focus,
-  form .form-select:focus {
-    border-color:  #1A4D6D;
-    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
-  }
-
-  /* Tombol filter */
-  form .btn-primary {
-    border-radius: 8px;
-    background-color:  #1A4D6D;
-    border-color: #1A4D6D;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-  }
-
-  form .btn-primary:hover {
-    background-color: #1A4D6D;
-    border-color:  #1A4D6D;
-  }
-
-  /* Responsive spacing for inputs */
-  @media (max-width: 575.98px) {
-    form .col-md-4,
-    form .col-md-3,
-    form .col-md-1 {
-      margin-bottom: 1rem;
+    /* Container form filter */
+    form {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     }
-  }
+
+
+    /* Label */
+    form label {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    /* Input & Select */
+    form .form-control,
+    form .form-select {
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    form .form-control:focus,
+    form .form-select:focus {
+        border-color: #1A4D6D;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    }
+
+    /* Tombol filter */
+    form .btn-primary {
+        border-radius: 8px;
+        background-color: #1A4D6D;
+        border-color: #1A4D6D;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+
+    form .btn-primary:hover {
+        background-color: #1A4D6D;
+        border-color: #1A4D6D;
+    }
+
+    /* Responsive spacing for inputs */
+    @media (max-width: 575.98px) {
+
+        form .col-md-4,
+        form .col-md-3,
+        form .col-md-1 {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Pastikan tombol aksi punya jarak */
+    .action-buttons button {
+        margin-right: 12px !important;
+        /* jarak pasti */
+    }
 </style>
 
 
@@ -74,28 +81,26 @@
             <div class="card">
                 <div class="card-body">
 
-                    {{-- Judul Filter --}}
-                    <h4 class="card-title">Filter Riwayat Pembelian</h4>
-
-                    {{-- Form Filter --}}
+                    {{-- Form Filter yang Sudah Dirapikan --}}
                     <form action="{{ route('riwayat.pembelian') }}" method="GET">
-                        <div class="row g-3 align-items-end">
+                        {{-- Class align-items-end akan mensejajarkan bagian bawah semua elemen form --}}
+                        <div class="row g-3 align-items-end form-filter-row">
 
                             {{-- Tanggal Mulai --}}
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="start_date" class="form-label">Tanggal Mulai</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date"
                                     value="{{ request('start_date') }}">
                             </div>
 
                             {{-- Tanggal Selesai --}}
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="end_date" class="form-label">Tanggal Selesai</label>
                                 <input type="date" class="form-control" id="end_date" name="end_date"
                                     value="{{ request('end_date') }}">
                             </div>
 
-                            {{-- Metode Pembayaran (Diperbaiki) --}}
+                            {{-- Metode Pembayaran --}}
                             <div class="col-md-3">
                                 <label for="payment_method" class="form-label">Metode Pembayaran</label>
                                 <select name="payment_method" id="payment_method" class="form-select">
@@ -109,9 +114,17 @@
                                 </select>
                             </div>
 
-                            {{-- Tombol Filter --}}
-                            <div class="col-md-1">
-                                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            {{-- Tombol Aksi --}}
+                            <div class="col-lg-3 col-md-6 d-flex align-items-center justify-content-end">
+                                <div class="d-flex action-buttons">
+                                    <button type="submit" class="btn btn-primary" title="Filter Data">
+                                        <i class="fas fa-filter me-1"></i> Filter
+                                    </button>
+                                    <a href="{{ route('riwayat.penjualan') }}" class="btn btn-secondary"
+                                        title="Reset Filter">
+                                        <i class="fas fa-redo me-1"></i> Reset
+                                    </a>
+                                </div>
                             </div>
 
                         </div>

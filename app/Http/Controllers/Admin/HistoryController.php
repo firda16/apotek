@@ -6,62 +6,52 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Purchase;
 use App\Models\Sale;
-use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class HistoryController extends Controller
 {
-    // FUNGSI TIDAK DIPAKAI LAGI
-    // public function index()
-    // {
-    //     ...
-    // }
-
-    // RIWAYAT PENJUALAN
-    //     public function penjualan(Request $request)
-    // {
-    //     $title = 'Riwayat Penjualan';
-
-    //     $sales = Sale::with(['product.purchase.category'])
-    //         ->latest()
-    //         ->paginate(10)
-    //         ->through(function ($item) {
-    //             return [
-    //                 'tanggal' => $item->created_at ?? '-',
-    //                 'jenis' => 'Penjualan',
-    //                 'nama' => '-', // Tidak ada nama supplier di penjualan
-    //                 'total' => $item->total_price ?? '-',
-    //                 'produk' => $item->product->purchase->product ?? '-',
-    //                 'kategori' => $item->product->category->name ?? '-',
-    //                 'jumlah' => $item->quantity ?? '-',
-    //                 'harga' => $item->price ?? 0,
-    //                 'metode_pembayaran' => $item->payment_method ?? '-',
-    //                 'no_antrian' => $item->queue_number ?? '-',
-    //                 'satuan' => $item->unit ?? '-',
-    //                 'diskon' => $item->discount ?? 0,
-    //             ];
-    //         })->withQueryString();
-
-    //     return view('admin.history.penjualan', compact('title', 'sales'));
-    // }
-
+    // ===================================================================================
+    // RIWAYAT PENJUALAN (BAGIAN YANG DIPERBARUI)
+    // ===================================================================================
     public function penjualan(Request $request)
     {
         $title = 'Riwayat Penjualan';
 
-        // Ambil data penjualan dengan relasi
-        $query = Sale::with(['customer', 'saleItems.product.category']);
-        $sales = $query->orderBy('created_at', 'desc')->paginate(10);
+        // Cek apakah ada filter yang diterapkan
+        $filterApplied = !empty($request->query());
 
-        // Hitung total pendapatan dari semua sale_items
+        // Siapkan variabel default
+        $sales = new LengthAwarePaginator([], 0, 10); // Paginator kosong
         $total_pendapatan = 0;
-        foreach (Sale::with('saleItems')->get() as $sale) {
-            foreach ($sale->saleItems as $item) {
-                $total_pendapatan += $item->total_price ?? ($item->quantity * $item->unit_price);
+
+        // Hanya jalankan query jika ada filter yang diterapkan dan diisi
+        if ($filterApplied && ($request->filled('start_date') || $request->filled('end_date') || $request->filled('payment_method'))) {
+            $query = Sale::with(['customer']); // Eager load relasi customer
+
+            // Terapkan filter tanggal
+            if ($request->filled('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
             }
+            if ($request->filled('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+
+            // Terapkan filter metode pembayaran
+            if ($request->filled('payment_method')) {
+                $query->where('payment_method', $request->payment_method);
+            }
+
+            // Hitung total pendapatan dari hasil query yang sudah difilter
+            // Menggunakan sum() dari query builder jauh lebih efisien
+            $total_pendapatan = (clone $query)->sum('total_price');
+
+            // Lakukan pagination pada hasil akhir
+            $sales = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
         }
 
-        return view('admin.history.penjualan', compact('title', 'sales', 'total_pendapatan'));
+        // Kirim data ke view
+        return view('admin.history.penjualan', compact('title', 'sales', 'total_pendapatan', 'filterApplied'));
     }
 
     public function show($invoice_number)
@@ -69,10 +59,8 @@ class HistoryController extends Controller
         $sale = Sale::with(['saleItems.product.category', 'customer'])
             ->where('invoice_number', $invoice_number)
             ->firstOrFail();
-
         return view('admin.history.show', compact('sale'));
     }
-
 
 
 
