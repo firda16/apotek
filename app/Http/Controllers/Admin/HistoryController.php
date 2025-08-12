@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Purchase;
 use App\Models\Sale;
 use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class HistoryController extends Controller
 {
@@ -110,34 +111,48 @@ class HistoryController extends Controller
 
     //     return view('admin.history.pembelian', compact('title', 'purchases'));
     // }
+    // RIWAYAT PEMBELIAN (BAGIAN YANG DIPERBARUI TOTAL)
+    // ===================================================================================
     public function pembelian(Request $request)
     {
         $title = 'Riwayat Pembelian';
 
-        $query = Purchase::with(['items.product.category', 'supplier']);
+        // Cek apakah ada filter yang diterapkan
+        $filterApplied = $request->filled('start_date') || $request->filled('end_date') || $request->filled('payment_method');
 
-        // Optional: handle search if needed
-        if ($request->filled('search')) {
-            $searchTerm = $request->input('search');
-            $query->where(function ($q) use ($searchTerm) {
-                $q->orWhereHas('supplier', function ($q_sup) use ($searchTerm) {
-                    $q_sup->where('name', 'like', '%' . $searchTerm . '%');
-                });
-            });
-        }
-
-        $purchases = $query->orderBy('created_at', 'desc')->paginate(10);
-
-        // Ambil semua data untuk total keseluruhan
-        $allPurchases = Purchase::with('items')->get();
-
+        $purchases = new LengthAwarePaginator([], 0, 10);
         $totalPembelian = 0;
-        foreach ($allPurchases as $purchase) {
-            foreach ($purchase->items as $item) {
-                $totalPembelian += $item->subtotal ?? ($item->quantity * $item->unit_price);
+
+        if ($filterApplied) {
+            $query = Purchase::with(['items.product.category', 'supplier']);
+
+            if ($request->filled('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
             }
+
+            if ($request->filled('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+
+            if ($request->filled('payment_method')) {
+                $query->where('payment_method', $request->payment_method);
+            }
+
+            // Clone query untuk total
+            $totalQuery = clone $query;
+            $filteredPurchases = $totalQuery->get();
+
+            $totalPembelian = $filteredPurchases->flatMap->items->sum(function ($item) {
+                return $item->subtotal ?? ($item->quantity * $item->unit_price);
+            });
+
+            // Pagination
+           $purchases = $query->orderBy('created_at', 'desc')
+                   ->paginate(10)
+                   ->withQueryString();
+
         }
 
-        return view('admin.history.pembelian', compact('title', 'purchases', 'totalPembelian'));
+        return view('admin.history.pembelian', compact('title', 'purchases', 'totalPembelian', 'filterApplied'));
     }
 }

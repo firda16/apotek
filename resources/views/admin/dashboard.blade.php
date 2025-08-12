@@ -30,7 +30,7 @@
                             </span>
                             <div class="dash-count">
                                 <h3 class="text-center">Rp
-                                    {{ number_format($total_pengeluaran_bulan_ini ?? 0, 0, ',', '.') }}</h3>
+                                    {{ number_format($total_pengeluaran_hari_ini ?? 0, 0, ',', '.') }}</h3>
                             </div>
                         </div>
                         <div class="dash-widget-info">
