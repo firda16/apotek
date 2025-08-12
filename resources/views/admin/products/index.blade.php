@@ -76,11 +76,7 @@
                                         {{-- <td>-</td> --}}
                                         {{-- <td>-</td> --}}
 
-                                        <td>
-                                            <a href="{{ route('products.stock-log', $product->id) }}"
-                                                class="btn btn-secondary btn-sm">
-                                                Lihat FIFO
-                                            </a>
+                                        <td>                                          
                                             <a href="{{ route('products.edit', $product->id) }}"
                                                 class="btn btn-sm btn-primary">Edit</a>
                                             <form action="{{ route('products.destroy', $product->id) }}" method="POST"

@@ -56,6 +56,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::resource('users', UserController::class);
     Route::resource('suppliers', SupplierController::class);
+
+    Route::get('categories/datatable', [CategoryController::class, 'datatable'])->name('categories.datatable');
     Route::resource('categories', CategoryController::class)->only(['index', 'edit', 'store', 'destroy']);
     // Route::put('categories',[CategoryController::class,'update'])->name('categories.update');
     Route::post('categories/update', [CategoryController::class, 'update'])->name('categories.update');

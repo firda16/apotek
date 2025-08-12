@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,24 +8,26 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name') }} - {{ ucfirst($title ?? '') }}</title>
 
-    <link rel="shortcut icon" type="image/x-icon" href="{{!empty(AppSettings::get('favicon')) ? asset('storage/'.AppSettings::get('favicon')) : asset('assets/img/favicon.png')}}">
-    <link rel="stylesheet" href="{{asset('assets/css/bootstrap.min.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/plugins/fontawesome/css/fontawesome.min.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/css/feathericon.min.css')}}">
+    <link rel="shortcut icon" type="image/x-icon"
+        href="{{ !empty(AppSettings::get('favicon')) ? asset('storage/' . AppSettings::get('favicon')) : asset('assets/img/favicon.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/fontawesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/feathericon.min.css') }}">
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
 
-    <link rel="stylesheet" href="{{asset('assets/css/icons.min.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/plugins/snackbar/snackbar.min.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/plugins/sweetalert2/sweetalert2.min.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/plugins/select2/css/select2.min.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/css/icons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/snackbar/snackbar.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/sweetalert2/sweetalert2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/select2/css/select2.min.css') }}">
 
-    <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 
     @stack('page-css')
 
 </head>
+
 <body>
 
     <div class="main-wrapper">
@@ -51,67 +54,69 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{{asset('assets/js/popper.min.js')}}"></script>
-    <script src="{{asset('assets/js/bootstrap.min.js')}}"></script>
+    <script src="{{ asset('assets/js/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap4.min.js"></script>
 
-    <script src="{{asset('assets/plugins/slimscroll/jquery.slimscroll.min.js')}}"></script>
-    <script src="{{asset('assets/plugins/sweetalert2/sweetalert2.min.js')}}"></script>
-    <script src="{{asset('assets/plugins/snackbar/snackbar.min.js')}}"></script>
-    <script src="{{asset('assets/plugins/select2/js/select2.min.js')}}"></script>
+    <script src="{{ asset('assets/plugins/slimscroll/jquery.slimscroll.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/snackbar/snackbar.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 
-    <script src="{{asset('assets/js/script.js')}}"></script>
+    <script src="{{ asset('assets/js/script.js') }}"></script>
 
     <script>
-        $(document).ready(function(){
+        $(document).ready(function() {
             // Logika untuk tombol hapus dengan konfirmasi SweetAlert
-            $('body').on('click','#deletebtn',function(){
+            $('body').on('click', '#deletebtn', function() {
                 var id = $(this).data('id');
                 var route = $(this).data('route');
-                swal.queue([
-                    {
-                        title: "Are you sure?",
-                        text: "You won't be able to revert this!",
-                        type: "warning",
-                        showCancelButton: !0,
-                        confirmButtonText: '<i class="fe fe-trash mr-1"></i> Delete!',
-                        cancelButtonText: '<i class="fa fa-times mr-1"></i> Cancel!',
-                        confirmButtonClass: "btn btn-success mt-2",
-                        cancelButtonClass: "btn btn-danger ml-2 mt-2",
-                        buttonsStyling: !1,
-                        preConfirm: function(){
-                            return new Promise(function(){
-                                $.ajax({
-                                    url: route,
-                                    type: "DELETE",
-                                    data: {"id": id},
-                                    success: function(){
-                                        swal.insertQueueStep(
-                                            Swal.fire({
-                                                title: "Deleted!",
-                                                text: "Resource has been deleted.",
-                                                type: "success",
-                                                showConfirmButton: !1,
-                                                timer: 1500,
-                                            })
-                                        )
-                                        $('.datatable').DataTable().ajax.reload();
-                                    }
-                                })
+                swal.queue([{
+                    title: "Apa kamu yakin?",
+                    text: "Tindakan ini tidak dapat dibatalkan!",
+                    type: "peringatan",
+                    showCancelButton: !0,
+                    confirmButtonText: '<i class="fe fe-trash mr-1"></i> Hapus!',
+                    cancelButtonText: '<i class="fa fa-times mr-1"></i> Batal!',
+                    confirmButtonClass: "btn btn-success mt-2",
+                    cancelButtonClass: "btn btn-danger ml-2 mt-2",
+                    buttonsStyling: !1,
+                    preConfirm: function() {
+                        return new Promise(function() {
+                            $.ajax({
+                                url: route,
+                                type: "DELETE",
+                                data: {
+                                    "id": id
+                                },
+                                success: function() {
+                                    swal.insertQueueStep(
+                                        Swal.fire({
+                                            title: "Dihapus!",
+                                            text: "Resource telah dihapus.",
+                                            type: "success",
+                                            showConfirmButton: !
+                                                1,
+                                            timer: 1500,
+                                        })
+                                    )
+                                    $('.datatable').DataTable().ajax
+                                        .reload();
+                                }
                             })
-                        }
+                        })
                     }
-                ]).catch(swal.noop);
+                }]).catch(swal.noop);
             });
         });
 
         // Logika untuk menampilkan notifikasi (Snackbar) dari session Laravel
-        @if(Session::has('message'))
+        @if (Session::has('message'))
             var type = "{{ Session::get('alert-type', 'info') }}";
-            switch(type){
+            switch (type) {
                 case 'info':
                     Snackbar.show({
                         text: "{{ Session::get('message') }}",
@@ -149,4 +154,5 @@
 
     @stack('page-js')
 </body>
+
 </html>

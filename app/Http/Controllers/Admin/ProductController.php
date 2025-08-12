@@ -159,14 +159,13 @@ class ProductController extends Controller
                         return $item->quantity - $item->sold_quantity;
                     });
                 })
-                ->addColumn('action', function ($row) {
-                    $view = '<a href="' . route('products.stock-log', $row->id) . '" class="btn btn-secondary btn-sm">FIFO</a>';
+                ->addColumn('action', function ($row) {                   
                     $edit = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>';
                     $delete = '<form action="' . route('products.destroy', $row->id) . '" method="POST" style="display:inline;">
                                 ' . csrf_field() . method_field('DELETE') . '
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin hapus?\')">Hapus</button>
                             </form>';
-                    return $view . ' ' . $edit . ' ' . $delete;
+                    return $edit . ' ' . $delete;
                 })
                 ->rawColumns(['action'])
                 ->make(true);

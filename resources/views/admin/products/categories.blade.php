@@ -24,7 +24,7 @@
             <div class="card">
                 <div class="card-body">
                     {{-- Form Pencarian --}}
-                    <form method="GET" action="{{ route('categories.index') }}" class="mb-3">
+                    {{-- <form method="GET" action="{{ route('categories.index') }}" class="mb-3">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control" placeholder="Cari kategori..."
                                 value="{{ request('search') }}">
@@ -35,9 +35,10 @@
                                 @endif
                             </div>
                         </div>
-                    </form>
+                    </form> --}}
 
                     {{-- Tabel --}}
+                    {{-- filepath: d:\magang\apotek\resources\views\admin\products\categories.blade.php --}}
                     <div class="table-responsive">
                         <table id="category-table" class="table table-striped table-bordered table-hover table-center mb-0">
                             <thead>
@@ -48,34 +49,11 @@
                                     <th class="text-center action-btn">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($categories as $category)
-                                    <tr>
-                                        <td>{{ $categories->firstItem() + $loop->index }}</td>
-                                        <td>{{ $category->name }}</td>
-                                        <td>{{ $category->created_at->format('d M, Y') }}</td>
-                                        <td class="text-center">
-                                            <a href="javascript:void(0)" data-id="{{ $category->id }}"
-                                                data-name="{{ $category->name }}" class="editbtn">
-                                                <button class="btn btn-primary"><i class="fas fa-edit"></i></button>
-                                            </a>
-
-                                            <a data-id="{{ $category->id }}"
-                                                data-route="{{ route('categories.destroy', $category->id) }}"
-                                                href="javascript:void(0)" id="deletebtn">
-                                                <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
-
-                        {{-- Pagination --}}
                     </div>
-                    <div class="mt-3">                            
+                    {{-- <div class="mt-3">
                         {{ $categories->links('pagination::bootstrap-5') }}
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
@@ -97,6 +75,9 @@
                         <div class="form-group">
                             <label>Nama Kategori</label>
                             <input type="text" name="name" class="form-control" required>
+                            @error('name')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">Simpan</button>
                     </form>
@@ -129,6 +110,28 @@
             </div>
         </div>
     </div>
+
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Tutup">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    @if (session('edit_success'))
+        <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+            {{ session('edit_success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Tutup">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    @if ($errors->edit && $errors->edit->has('name'))
+        <div class="alert alert-danger mt-2">
+            {{ $errors->edit->first('name') }}
+        </div>
+    @endif
 @endsection
 
 @push('page-js')
@@ -144,5 +147,42 @@
                 $('#edit_category').modal('show');
             });
         });
+
+        $('#category-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{{ route('categories.datatable') }}',
+            columns: [{
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'name',
+                    name: 'name'
+                },
+                {
+                    data: 'created_at',
+                    name: 'created_at'
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                }
+            ],
+            order: [
+                [2, 'desc']
+            ]
+        });
+
+        @if ($errors->has('name'))
+            $('#add_categories').modal('show');
+        @endif
+        @if (session('edit_success') || (isset($errors->edit) && $errors->edit->has('name')))
+            $('#edit_category').modal('show');
+        @endif
     </script>
 @endpush
