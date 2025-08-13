@@ -6,151 +6,183 @@
 @endpush
 
 @push('page-header')
-<div class="col-sm-7 col-auto">
-    <h3 class="page-title">Laporan Pembelian</h3>
-    <ul class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
-        <li class="breadcrumb-item active">Laporan Pembelian</li>
-    </ul>
-</div>
-<div class="col-sm-5 col">
-    <a href="#generate_report" data-toggle="modal" class="btn btn-primary float-right mt-2">Cetak Laporan</a>
-</div>
+    <div class="col-sm-7 col-auto">
+        <h3 class="page-title">Laporan Pembelian</h3>
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
+            <li class="breadcrumb-item active">Laporan Pembelian</li>
+        </ul>
+    </div>
+    <div class="col-sm-5 col">
+        <a href="#generate_report" data-toggle="modal" class="btn btn-primary float-right mt-2">Cetak Laporan</a>
+    </div>
 @endpush
 
 @section('content')
-@if(isset($pembelians) && count($pembelians))
-    <div class="card">
-        <div class="card-body">
-            <div class="mb-3">
-                <strong>Periode:</strong>
-                {{ request('from_date') ? date('d M Y', strtotime(request('from_date'))) : '-' }} -
-                {{ request('to_date') ? date('d M Y', strtotime(request('to_date'))) : '-' }}
-            </div>
+    @if (isset($pembelians) && count($pembelians))
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Periode:</strong>
+                    {{ request('from_date') ? date('d M Y', strtotime(request('from_date'))) : '-' }} -
+                    {{ request('to_date') ? date('d M Y', strtotime(request('to_date'))) : '-' }}
+                    <br>
+                    <strong>Metode Pembayaran:</strong>
+                    {{ request('payment_method') ?: 'Semua Metode' }}
+                </div>
 
-            <div class="table-responsive">
-                <table id="purchase-table" class="table table-bordered">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>No</th>
-                            <th>Tanggal</th>
-                            <th>Nama Pemasok</th>
-                            <th>Metode Pembayaran</th>
-                            <th>Produk</th>
-                            <th>Kategori</th>
-                            <th>Jumlah</th>
-                            <th>Satuan</th>
-                            <th>Harga Satuan</th>
-                            <th>Total</th>
-                            <th>Tgl Expired</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $grandTotal = 0; $row = 1; @endphp
-                        @foreach($pembelians as $pembelian)
-                            @foreach($pembelian->purchaseItems as $item)
-                                <tr>
-                                    <td>{{ $row++ }}</td>
-                                    <td>{{ $pembelian->created_at->format('d M Y') }}</td>
-                                    <td>{{ $pembelian->supplier->name ?? '-' }}</td>
-                                    <td>{{ $pembelian->payment_method ?? '-' }}</td>
-                                    <td>{{ $item->product->name ?? '-' }}</td>
-                                    <td>{{ $item->product->category->name ?? '-' }}</td>
-                                    <td>{{ $item->quantity }}</td>
-                                    <td>{{ $item->product->unit ?? '-' }}</td>
-                                    <td>Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($item->total_price, 0, ',', '.') }}</td>
-                                    <td>{{ $item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-' }}</td>
-                                </tr>
-                                @php $grandTotal += $item->total_price; @endphp
+
+                <div class="table-responsive">
+                    <table id="purchase-table" class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Tanggal</th>
+                                <th>Nama Pemasok</th>
+                                <th>Metode Pembayaran</th>
+                                <th>Produk</th>
+                                <th>Kategori</th>
+                                <th>Jumlah</th>
+                                <th>Satuan</th>
+                                <th>Harga Satuan</th>
+                                <th>Total</th>
+                                <th>Tgl Expired</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $grandTotal = 0;
+                                $row = 1;
+                            @endphp
+                            @foreach ($pembelians as $pembelian)
+                                @foreach ($pembelian->purchaseItems as $item)
+                                    <tr>
+                                        <td>{{ $row++ }}</td>
+                                        <td>{{ $pembelian->created_at->format('d M Y') }}</td>
+                                        <td>{{ $pembelian->supplier->name ?? '-' }}</td>
+                                        <td>{{ $pembelian->payment_method ?? '-' }}</td>
+                                        <td>{{ $item->product->name ?? '-' }}</td>
+                                        <td>{{ $item->product->category->name ?? '-' }}</td>
+                                        <td>{{ $item->quantity }}</td>
+                                        <td>{{ $item->product->unit ?? '-' }}</td>
+                                        <td>Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($item->total_price, 0, ',', '.') }}</td>
+                                        <td>{{ $item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-' }}
+                                        </td>
+                                    </tr>
+                                    @php $grandTotal += $item->total_price; @endphp
+                                @endforeach
                             @endforeach
-                        @endforeach
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-@else
+    @else
+    @endif
 
-@endif
-
-<!-- Modal Buat Laporan -->
-<div class="modal fade" id="generate_report" aria-hidden="true" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Cetak Laporan</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="post" action="{{ route('purchases.report') }}">
-                    @csrf
-                    <div class="row form-row">
-                        <div class="col-12">
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label>Dari Tanggal</label>
-                                        <input type="date" name="from_date" class="form-control from_date">
+    <!-- Modal Buat Laporan -->
+    <div class="modal fade" id="generate_report" aria-hidden="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cetak Laporan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{{ route('purchases.report') }}">
+                        @csrf
+                        <div class="row form-row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Dari Tanggal</label>
+                                            <input type="date" name="from_date" class="form-control"
+                                                value="{{ request('from_date') }}">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label>Sampai Tanggal</label>
-                                        <input type="date" name="to_date" class="form-control to_date">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Sampai Tanggal</label>
+                                            <input type="date" name="to_date" class="form-control"
+                                                value="{{ request('to_date') }}">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- Filter Metode Pembayaran --}}
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Metode Pembayaran</label>
+                                    <select name="payment_method" class="form-control">
+                                        <option value="">Semua Metode</option>
+                                        <option value="cash" {{ request('payment_method') == 'cash' ? 'selected' : '' }}>
+                                            Cash</option>
+                                        <option value="transfer"
+                                            {{ request('payment_method') == 'transfer' ? 'selected' : '' }}>Transfer
+                                        </option>
+                                        <option value="qris" {{ request('payment_method') == 'qris' ? 'selected' : '' }}>
+                                            QRIS</option>
+                                        {{-- Tambah metode lain jika ada --}}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block submit_report">Tampilkan</button>
-                </form>
+                        <button type="submit" class="btn btn-primary btn-block">Tampilkan</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<!-- /Modal Buat Laporan -->
+    <!-- /Modal Buat Laporan -->
 @endsection
 
 @push('page-js')
-<script>
-    $(document).ready(function(){
-        $('#purchase-table').DataTable({
-            dom: 'Bfrtip',
-            buttons: [
-                {
+    <script>
+        $(document).ready(function() {
+            $('#purchase-table').DataTable({
+                dom: 'Bfrtip',
+                buttons: [{
                     extend: 'collection',
                     text: 'Ekspor Data',
-                    buttons: [
-                        {
+                    buttons: [{
                             extend: 'pdf',
                             text: 'PDF',
-                            exportOptions: { columns: ':visible' }
+                            exportOptions: {
+                                columns: ':visible'
+                            }
                         },
                         {
                             extend: 'excel',
                             text: 'Excel',
-                            exportOptions: { columns: ':visible' }
+                            exportOptions: {
+                                columns: ':visible'
+                            }
                         },
                         {
                             extend: 'csv',
                             text: 'CSV',
-                            exportOptions: { columns: ':visible' }
+                            exportOptions: {
+                                columns: ':visible'
+                            }
                         },
                         {
                             extend: 'print',
                             text: 'Print',
-                            exportOptions: { columns: ':visible' }
+                            exportOptions: {
+                                columns: ':visible'
+                            }
                         }
                     ]
+                }],
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
                 }
-            ],
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
-            }
+            });
         });
-    });
-</script>
+    </script>
 @endpush

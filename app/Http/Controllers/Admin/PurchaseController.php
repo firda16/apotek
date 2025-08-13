@@ -238,7 +238,7 @@ HTML;
             'purchase_items.*.unit_price' => 'required|numeric|min:0',
             'purchase_items.*.expiry_date' => 'nullable|date',
             'invoice_number' => 'required|string|max:255',
-            'payment_method' => 'required|string|in:Tunai,Transfer,QRIS,Ewallet',
+            'payment_method' => 'required|string|in:Cash,Transfer,QRIS',
             'status' => 'required',
         ]);
 
@@ -455,13 +455,16 @@ HTML;
         $title = 'purchases reports';
 
         $pembelians = Purchase::with(['supplier', 'purchaseItems.product.category'])
-            ->whereDate('created_at', '>=', $request->from_date)
-            ->whereDate('created_at', '<=', $request->to_date)
+            ->whereBetween(DB::raw('DATE(created_at)'), [$request->from_date, $request->to_date])
+            ->when($request->payment_method, function ($query) use ($request) {
+                $query->where('payment_method', $request->payment_method);
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
         return view('admin.purchases.reports', compact('pembelians', 'title'));
     }
+
 
 
 
@@ -473,7 +476,7 @@ HTML;
 
         return response()->json(['exists' => $exists]);
     }
-    
+
     public function destroy(Request $request, Purchase $purchase)
     {
         foreach ($purchase->purchaseItems as $item) {

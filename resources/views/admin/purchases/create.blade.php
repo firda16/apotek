@@ -68,15 +68,15 @@
                             <label>Metode Pembayaran <span class="text-danger">*</span></label>
                             <select name="payment_method" id="payment_method"
                                 class="form-control @error('payment_method') is-invalid @enderror" required>
-                                <option value="">-- Pilih Metode Pembayaran --</option>
-                                <option value="Tunai" {{ old('payment_method') == 'Tunai' ? 'selected' : '' }}>Tunai
+                                <option disabled selected>-- Pilih Metode Pembayaran --</option>
+                                <option value="Cash" {{ old('payment_method') == 'Cash' ? 'selected' : '' }}>Cash
                                 </option>
                                 <option value="Transfer" {{ old('payment_method') == 'Transfer' ? 'selected' : '' }}>
                                     Transfer</option>
                                 <option value="QRIS" {{ old('payment_method') == 'QRIS' ? 'selected' : '' }}>QRIS
                                 </option>
-                                <option value="Ewallet" {{ old('payment_method') == 'Ewallet' ? 'selected' : '' }}>Ewallet
-                                </option>
+                                {{-- <option value="Ewallet" {{ old('payment_method') == 'Ewallet' ? 'selected' : '' }}>Ewallet
+                                </option> --}}
                             </select>
                             @error('payment_method')
                                 <div class="invalid-feedback">{{ $message }}</div>
