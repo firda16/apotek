@@ -3,6 +3,11 @@
 <x-assets.datatables />
 
 @push('page-css')
+    <style>
+        table.dataTable td {
+            vertical-align: middle !important;
+        }
+    </style>
 @endpush
 
 @push('page-header')
@@ -45,7 +50,6 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Kategori</th>
-                                    <th>Tanggal Dibuat</th>
                                     <th class="text-center action-btn">Aksi</th>
                                 </tr>
                             </thead>
@@ -162,10 +166,7 @@
                     data: 'name',
                     name: 'name'
                 },
-                {
-                    data: 'created_at',
-                    name: 'created_at'
-                },
+
                 {
                     data: 'action',
                     name: 'action',

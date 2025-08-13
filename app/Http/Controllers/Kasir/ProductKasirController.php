@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Kasir;
+
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -18,7 +19,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\StockReportExport;
 
 
-class ProductController extends Controller
+class ProductKasirController extends Controller
 {
     public function index(Request $request)
     {
@@ -37,18 +38,7 @@ class ProductController extends Controller
 
         $products = $query->paginate(15);
 
-        return view('admin.products.index', compact('products'));
-    }
-
-
-    public function create()
-    {
-        $title = 'Tambah Produk';
-        $categories = Category::all();
-        $purchases = Purchase::get();
-        $products = Product::with('category')->get();
-
-        return view('admin.products.create', compact('title', 'categories', 'purchases', 'products'));
+        return view('kasir.products.index', compact('products'));
     }
 
     public function store(Request $request)
@@ -199,7 +189,7 @@ class ProductController extends Controller
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
-        return view('admin.products.expired', compact('title', 'products', 'soonExpiryDays'));
+        return view('kasir.products.expired', compact('title', 'products', 'soonExpiryDays'));
     }
 
 
@@ -227,20 +217,11 @@ class ProductController extends Controller
                         return $item->quantity - $item->sold_quantity;
                     });
                 })
-                ->addColumn('action', function ($row) {
-                    $edit = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>';
-                    $delete = '<form action="' . route('products.destroy', $row->id) . '" method="POST" style="display:inline;">
-                                ' . csrf_field() . method_field('DELETE') . '
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin hapus?\')">Hapus</button>
-                            </form>';
-                    return $edit . ' ' . $delete;
-                })
-                ->rawColumns(['action'])
                 ->make(true);
         }
 
         $title = "Produk Tersedia";
-        return view('admin.products.available', compact('title'));
+        return view('kasir.products.available', compact('title'));
     }
 
 
@@ -288,7 +269,7 @@ class ProductController extends Controller
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
-        return view('admin.products.outstock', compact('title', 'products'));
+        return view('kasir.products.outstock', compact('title', 'products'));
     }
 
     // public function outstock(Request $request)
@@ -423,7 +404,7 @@ class ProductController extends Controller
         $query = Product::with([
             'category',
             'purchaseItems' => function ($q) {
-                $q->latest()->limit(1); // Ambil purchase item terbaru
+                $q->latest()->limit(1);
             }
         ]);
 
@@ -469,25 +450,16 @@ class ProductController extends Controller
                     ? 'Rp ' . number_format($latestPurchaseItem->unit_price, 0, ',', '.')
                     : '<span class="text-danger">produk belum dibeli</span>';
             })
-
             ->addColumn('price', function ($row) {
                 return $row->price
                     ? 'Rp ' . number_format($row->price, 0, ',', '.')
                     : '<span class="text-danger">belum ada harga jual</span>';
             })
-
             ->addColumn('description', fn($row) => $row->description)
-            ->addColumn('action', function ($row) {
-                $edit = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>';
-                $delete = '<form action="' . route('products.destroy', $row->id) . '" method="POST" style="display:inline;">
-                        ' . csrf_field() . method_field('DELETE') . '
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin ingin menghapus produk ini?\')">Hapus</button>
-                    </form>';
-                return $edit . ' ' . $delete;
-            })
-            ->rawColumns(['unit_price', 'price', 'action'])
+            ->rawColumns(['unit_price', 'price'])
             ->make(true);
     }
+
 
 
     public function deleteExpired()
@@ -505,4 +477,5 @@ class ProductController extends Controller
 
         return back()->with('success', 'Semua produk kadaluarsa berhasil dihapus.');
     }
+
 }

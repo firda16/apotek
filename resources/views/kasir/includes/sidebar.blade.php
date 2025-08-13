@@ -13,32 +13,50 @@
                     </a>
                 </li>
 
-                <li class="submenu {{ route_is('kasir.transaksi') || route_is('outstock') || route_is('expired') ? 'active' : '' }}">
-                    <a href="#">
-                        <i class="fe fe-shopping-bag"></i>
-                        <span>Transaksi</span>
-                        <span class="menu-arrow"></span>
-                    </a>
+                <li class="{{ route_is('kasircategories.index') ? 'active' : '' }}">
+                    <a href="{{ route('kasir.categories.index') }}"><i class="fe fe-layout"></i> <span>Kategori</span></a>
+                </li>
 
-                    <ul>
-                        <li class="{{ route_is('kasir.transaksi') ? 'active' : '' }}">
-                            <a href="{{ route('kasir.transaksi') }}">Input Transaksi</a>
-                        </li>
-                        <li class="{{ route_is('outstock') ? 'active' : '' }}">
-                            <a href="{{ route('outstock') }}">Stok Habis</a>
-                        </li>
-                        <li class="{{ route_is('expired') ? 'active' : '' }}">
-                            <a href="{{ route('expired') }}">Produk Kedaluwarsa</a>
-                        </li>
+                <li class="submenu">
+                    <a href="#"><i class="fe fe-document"></i> <span>produk</span> <span
+                            class="menu-arrow"></span></a>
+                    <ul style="display: none;">
+                        <li><a class="{{ route_is('kasir.products.index') ? 'active' : '' }}"
+                                href="{{ route('kasir.products.index') }}">Data Produk</a></li>
+                        <li><a class="{{ route_is('kasir.products.available') ? 'active' : '' }}"
+                                href="{{ route('kasir.products.available') }}">Stok
+                                Tersedia</a></li>
+                        <li><a class="{{ route_is('kasir.products.outstock') ? 'active' : '' }}"
+                                href="{{ route('kasir.products.outstock') }}">Stok
+                                Habis</a></li>
+                        <li><a class="{{ route_is('kasir.products.expired') ? 'active' : '' }}"
+                                href="{{ route('kasir.products.expired') }}">Produk
+                                Kedaluwarsa</a></li>
                     </ul>
                 </li>
 
-                <li class="{{ route_is('kasir.laporan') ? 'active' : '' }}">
-                    <a href="{{ route('kasir.laporan') }}">
-                        <i class="fe fe-file-text"></i>
-                        <span>Riwayat</span>
+                <li class="submenu">
+                    <a href="#"><i class="fe fe-add-cart"></i> <span>Transaksi</span> <span
+                            class="menu-arrow"></span></a>
+                    <ul style="display: none;">
+                        <li><a class="{{ route_is('kasir.transaksi') ? 'active' : '' }}"
+                                href="{{ route('kasir.transaksi') }}">Data
+                                Transaksi</a></li>
+                        <li>
+                            <a class="{{ route_is('kasir.transaksi.create') ? 'active' : '' }}"
+                                href="{{ route('kasir.transaksi.create') }}">Transaksi Baru</a>
+                        </li>
+                        {{-- <li><a class="{{ route_is('kasir.customers.index') ? 'active' : '' }}"
+                                href="{{ route('kasir.customers.index') }}">Data Pelanggan</a></li> --}}
+                    </ul>
+                </li>
+                <li class="{{ route_is('kasir.customers') ? 'active' : '' }}">
+                    <a href="{{ route('kasir.customers') }}">
+                        <i class="fe fe-user"></i>
+                        <span>Data Pelanggan</span>
                     </a>
                 </li>
+
             </ul>
         </div>
     </div>
