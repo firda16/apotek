@@ -320,7 +320,9 @@ HTML;
             );
 
 
-            return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil disimpan.');
+            return redirect()
+            ->route('purchases.index')
+            ->with('success', 'Pembelian berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Terjadi error saat menyimpan pembelian.', [

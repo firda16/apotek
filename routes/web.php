@@ -23,6 +23,7 @@ use App\Http\Controllers\Kasir\ProductKasirController;
 use App\Http\Controllers\Admin\Auth\RegisterController;
 use App\Http\Controllers\Kasir\CategoryKasirController;
 use App\Http\Controllers\Kasir\CustomerKasirController;
+use App\Http\Controllers\Kasir\NotificationKasirController;
 use App\Http\Controllers\Admin\Auth\ResetPasswordController;
 use App\Http\Controllers\Admin\Auth\ForgotPasswordController;
 
@@ -55,7 +56,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 // Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.laporan');
 
     Route::get('notification', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
-    Route::get('notification/semua', [NotificationController::class, 'show'])->name('show-all');
+    Route::get('notification/semua', [NotificationController::class, 'semua'])->name('show-all');
     Route::get('notification-read', [NotificationController::class, 'read'])->name('read');
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
     Route::post('profile/{user}', [UserController::class, 'updateProfile'])->name('profile.update');
@@ -135,7 +136,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('customer-check-phone', function (\Illuminate\Http\Request $request) {
         $phone = $request->phone;
         $name = $request->name;
-        $customer = \App\Models\Customer::where('telepon', $phone)->first();
+        $customer = Customer::where('telepon', $phone)->first();
         if ($customer && strtolower(trim($customer->nama)) !== strtolower(trim($name))) {
             return response()->json([
                 'exists' => true,
@@ -173,6 +174,13 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
     // customers
     Route::get('kasir/customers', [CustomerKasirController::class, 'index'])->name('kasir.customers');
     Route::get('kasir/customers/datatable', [CustomerKasirController::class, 'datatable'])->name('kasir.customers.datatable');
+
+    //notifikasi
+    Route::get('notifikasi-baca', [NotificationKasirController::class, 'baca'])->name('baca');
+    Route::get('notifikasi', [NotificationKasirController::class, 'tandai'])->name('tandai');
+    Route::get('notifikasi/semua', [NotificationKasirController::class, 'semua'])->name('notifikasi-semua');
+    Route::delete('/notifikasi/hapus-semua', [NotificationKasirController::class, 'destroyAll'])
+        ->name('notifications.destroyAll');
 });
 
 

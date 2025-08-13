@@ -36,20 +36,20 @@
 
 
         /* .dataTables_processing {
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            background: rgba(255, 255, 255, 0.8);
-                            z-index: 999;
-                            font-size: 16px;
-                            color: #333;
-                            padding: 40px;
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            height: 100%;
-                        } */
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                background: rgba(255, 255, 255, 0.8);
+                                z-index: 999;
+                                font-size: 16px;
+                                color: #333;
+                                padding: 40px;
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                height: 100%;
+                            } */
 
         .spinner {
             width: 40px;
@@ -83,6 +83,12 @@
 @endpush
 
 @section('content')
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-md-12">
 

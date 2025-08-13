@@ -3,28 +3,31 @@
 <x-assets.datatables />
 
 @push('page-css')
-<style>
-    .status {
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    color: white;
-    text-align: center;
-    display: inline-block;
-}
+    <style>
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            display: inline-block;
+        }
 
-.status-pending {
-    background-color: #ffc107; /* Kuning untuk Pending */
-}
+        .status-pending {
+            background-color: #ffc107;
+            /* Kuning untuk Pending */
+        }
 
-.status-selesai {
-    background-color: #28a745; /* Hijau untuk Selesai */
-}
+        .status-selesai {
+            background-color: #28a745;
+            /* Hijau untuk Selesai */
+        }
 
-.status-dibatalkan {
-    background-color: #dc3545; /* Merah untuk Dibatalkan */
-}
-</style>
+        .status-dibatalkan {
+            background-color: #dc3545;
+            /* Merah untuk Dibatalkan */
+        }
+    </style>
 @endpush
 
 @push('page-header')
@@ -41,6 +44,11 @@
 @endpush
 
 @section('content')
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
     <div class="row">
         <div class="col-md-12">
 

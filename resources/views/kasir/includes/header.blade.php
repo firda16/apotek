@@ -37,13 +37,13 @@
             <div class="dropdown-menu notifications">
                 <div class="topnav-dropdown-header">
                     <span class="notification-title">Notifikasi Kasir</span>
-                    <a href="{{ route('mark-as-read') }}" class="clear-noti">Tandai Semua Sudah Dibaca</a>
+                    <a href="{{ route('tandai') }}" class="clear-noti">Tandai Semua Sudah Dibaca</a>
                 </div>
                 <div class="noti-content">
                     <ul class="notification-list">
                         @forelse (auth()->user()->unReadNotifications as $notification)
                             <li class="notification-message">
-                                <a href="{{ route('read') }}">
+                                <a href="{{ route('baca', $notification->id) }}">
                                     <div class="media">
                                         <div class="media-body">
                                             @switch($notification->data['type'] ?? 'default')
@@ -57,10 +57,29 @@
                                                         </span>
                                                         <br>
                                                         <span class="text-muted">
-                                                            Kedaluwarsa: {{ \Carbon\Carbon::parse($notification->data['expiry_date'])->format('d/m/Y') }}
+                                                            Kedaluwarsa:
+                                                            {{ \Carbon\Carbon::parse($notification->data['expiry_date'])->format('d/m/Y') }}
                                                         </span>
                                                     </p>
-                                                    @break
+                                                @break
+
+                                                @case('sale_completed')
+                                                    <h6 class="text-success">
+                                                        <i class="fe fe-shopping-cart"></i> Penjualan Baru
+                                                    </h6>
+                                                    <p class="noti-details">
+                                                        <span class="noti-title">
+                                                            Invoice:
+                                                            {{ $notification->data['invoice_number'] ?? 'Tidak diketahui' }}
+                                                        </span>
+                                                        <br>
+                                                        <span class="badge badge-success">
+                                                            Rp
+                                                            {{ number_format($notification->data['total_amount'] ?? 0, 0, ',', '.') }}
+                                                        </span>
+                                                    </p>
+                                                @break
+
                                                 @case('low_stock')
                                                     <h6 class="text-warning">
                                                         <i class="fe fe-package"></i> Stok Rendah
@@ -74,7 +93,8 @@
                                                             Stok: {{ $notification->data['current_stock'] ?? '0' }}
                                                         </span>
                                                     </p>
-                                                    @break
+                                                @break
+
                                                 @case('stock_out')
                                                     <h6 class="text-danger">
                                                         <i class="fe fe-x-circle"></i> Stok Habis
@@ -86,7 +106,8 @@
                                                         <br>
                                                         <span class="text-danger">Stok habis</span>
                                                     </p>
-                                                    @break
+                                                @break
+
                                                 @default
                                                     <h6 class="text-info">
                                                         <i class="fe fe-info"></i> Notifikasi
@@ -96,65 +117,66 @@
                                                     </p>
                                             @endswitch
                                             <p class="noti-time">
-                                                <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
+                                                <span
+                                                    class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
                                             </p>
                                         </div>
                                     </div>
                                 </a>
                             </li>
-                        @empty
-                            <li class="notification-message">
-                                <div class="media">
-                                    <div class="media-body">
-                                        <p class="text-center text-muted">Tidak ada notifikasi baru</p>
+                            @empty
+                                <li class="notification-message">
+                                    <div class="media">
+                                        <div class="media-body">
+                                            <p class="text-center text-muted">Tidak ada notifikasi baru</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </li>
-                        @endforelse
-                    </ul>
-                </div>
-                <div class="topnav-dropdown-footer">
-                    <a href="{{ route('show-all') }}">Lihat Semua Notifikasi</a>
-                </div>
-            </div>
-        </li>
-        <!-- /Notifikasi -->
-
-        <!-- Menu Pengguna -->
-        <li class="nav-item dropdown has-arrow">
-            <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                <span class="user-img">
-                    <img class="rounded-circle"
-                        src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
-                        width="31" alt="Avatar">
-                </span>
-            </a>
-            <div class="dropdown-menu">
-                <div class="user-header">
-                    <div class="avatar avatar-sm">
-                        <img src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
-                            alt="Foto Pengguna" class="avatar-img rounded-circle">
+                                </li>
+                            @endforelse
+                        </ul>
                     </div>
-                    <div class="user-text">
-                        <h6>{{ auth()->user()->name }}</h6>
-                        <p class="text-muted mb-0">Kasir</p>
+                    <div class="topnav-dropdown-footer">
+                        <a href="{{ route('notifikasi-semua') }}">Lihat Semua Notifikasi</a>
                     </div>
                 </div>
+            </li>
+            <!-- /Notifikasi -->
 
-                <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a>
-                
-                <a href="javascript:void(0)" class="dropdown-item">
-                    <form action="{{ route('logout') }}" method="post">
-                        @csrf
-                        <button type="submit" class="btn">Keluar</button>
-                    </form>
+            <!-- Menu Pengguna -->
+            <li class="nav-item dropdown has-arrow">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                    <span class="user-img">
+                        <img class="rounded-circle"
+                            src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
+                            width="31" alt="Avatar">
+                    </span>
                 </a>
-            </div>
-        </li>
-        <!-- /Menu Pengguna -->
+                <div class="dropdown-menu">
+                    <div class="user-header">
+                        <div class="avatar avatar-sm">
+                            <img src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
+                                alt="Foto Pengguna" class="avatar-img rounded-circle">
+                        </div>
+                        <div class="user-text">
+                            <h6>{{ auth()->user()->name }}</h6>
+                            <p class="text-muted mb-0">Kasir</p>
+                        </div>
+                    </div>
 
-    </ul>
-    <!-- /Menu Header Kanan -->
+                    <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a>
 
-</div>
-<!-- /Header -->
+                    <a href="javascript:void(0)" class="dropdown-item">
+                        <form action="{{ route('logout') }}" method="post">
+                            @csrf
+                            <button type="submit" class="btn">Keluar</button>
+                        </form>
+                    </a>
+                </div>
+            </li>
+            <!-- /Menu Pengguna -->
+
+        </ul>
+        <!-- /Menu Header Kanan -->
+
+    </div>
+    <!-- /Header -->

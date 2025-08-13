@@ -174,20 +174,28 @@
             <!-- Menu Pengguna -->
             <li class="nav-item dropdown has-arrow">
                 <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                    <span class="user-img">
+                    {{-- <span class="user-img">
                         <img class="rounded-circle"
                             src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
-                            width="31" alt="Avatar">
+                            width="31" alt="Avatar">                   
+                    </span> --}}
+                    <span class="user-img">                        
+                        <i class="fe fe-user" style="font-size: 25px;"></i>
                     </span>
                 </a>
                 <div class="dropdown-menu">
                     <div class="user-header">
-                        <div class="avatar avatar-sm">
+                        {{-- <div class="avatar avatar-sm">
                             <img src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
                                 alt="Foto Pengguna" class="avatar-img rounded-circle">
-                        </div>
-                        <div class="user-text">
-                            <h6>{{ auth()->user()->name }}</h6>
+                        </div> --}}
+                        <div class="col">
+                            <div class="user-text">
+                                <h5>{{ auth()->user()->name }}</h5>
+                            </div>
+                            <div class="user-text">
+                                <small>Role: {{ auth()->user()->role }}</small>
+                            </div>
                         </div>
                     </div>
 
