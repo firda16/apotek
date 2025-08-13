@@ -96,6 +96,13 @@ class DashboardController extends Controller
             $total_suppliers  = Supplier::count();
             $total_sales      = Sale::count();
 
+            // Tambahkan ini biar variabelnya ada
+            $latest_sales = SaleItem::with('product')
+                ->whereDate('created_at', Carbon::today())
+                ->latest()
+                ->take(10)
+                ->get();
+
             $pieChart = new Chart;
             $pieChart->labels(['Total Purchases', 'Total Suppliers', 'Total Sales']);
             $pieChart->dataset('Data Summary', 'pie', [
@@ -107,10 +114,62 @@ class DashboardController extends Controller
             return view('kasir.dashboard', compact(
                 'title',
                 'pieChart',
-                'total_categories'
+                'total_categories',
+                'latest_sales'
             ));
         }
 
         abort(403, 'Role tidak dikenali');
+    }
+
+    // =======================================================
+    // TAMBAHKAN METHOD BARU INI UNTUK DASBOR KASIR
+    // =======================================================
+    public function kasirDashboard()
+    {
+        $title = 'kasir-dashboard';
+
+        // Menghitung data pendapatan
+        $total_pendapatan_hari_ini = SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
+        $total_pendapatan_bulan_ini = SaleItem::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('total_price');
+
+        // Menghitung total transaksi
+        $total_sales = Sale::count();
+
+        // Menghitung data produk
+        $stok_produk = Product::where('stock', '>', 0)->count();
+        $out_of_stock_products = Product::outOfStock()->count();
+        $total_expired_products = PurchaseItem::whereDate('expiry_date', '<=', now())->count();
+
+        // Mengambil 10 penjualan terakhir hari ini
+        $latest_sales = SaleItem::with('product')
+            ->whereDate('created_at', Carbon::today())
+            ->latest()
+            ->take(10)
+            ->get();
+
+        // Membuat diagram pie sederhana untuk kasir
+        $pieChart = new Chart;
+        $pieChart->labels(['Produk Tersedia', 'Stok Habis', 'Kedaluwarsa']);
+        $pieChart->dataset('Status Produk', 'pie', [
+            $stok_produk,
+            $out_of_stock_products,
+            $total_expired_products
+        ])->backgroundColor(['#36A2EB', '#FF6384', '#FFCE56']);
+
+        // Mengirim semua data yang dibutuhkan ke view kasir.dashboard
+        return view('kasir.dashboard', compact(
+            'title',
+            'total_pendapatan_hari_ini',
+            'total_pendapatan_bulan_ini',
+            'total_sales',
+            'stok_produk',
+            'out_of_stock_products',
+            'total_expired_products',
+            'latest_sales',
+            'pieChart'
+        ));
     }
 }

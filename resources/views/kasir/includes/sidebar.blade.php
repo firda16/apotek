@@ -6,19 +6,20 @@
                     <span>Menu Utama Kasir</span>
                 </li>
 
-                <li class="{{ route_is('dashboard') ? 'active' : '' }}">
-                    <a href="{{ route('dashboard') }}">
-                        <i class="fe fe-layout"></i>
-                        <span>Beranda</span>
+                   {{-- Beranda --}}
+                <li class="{{ Request::is('kasir/dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('kasir.dashboard') }}">
+                        <i class="fas fa-home"></i> <span>Beranda</span>
                     </a>
                 </li>
 
                 <li class="{{ route_is('kasircategories.index') ? 'active' : '' }}">
-                    <a href="{{ route('kasir.categories.index') }}"><i class="fe fe-layout"></i> <span>Kategori</span></a>
+                    <a href="{{ route('kasir.categories.index') }}"><i class="fe fe-layout"></i>
+                        <span>Kategori</span></a>
                 </li>
 
                 <li class="submenu">
-                    <a href="#"><i class="fe fe-document"></i> <span>produk</span> <span
+                    <a href="#"><i class="fe fe-document"></i> <span>Produk</span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a class="{{ route_is('kasir.products.index') ? 'active' : '' }}"
@@ -36,7 +37,7 @@
                 </li>
 
                 <li class="submenu">
-                    <a href="#"><i class="fe fe-add-cart"></i> <span>Transaksi</span> <span
+                    <a href="#"><i class="fe fe-add-cart"></i> <span>Penjualan</span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a class="{{ route_is('kasir.transaksi') ? 'active' : '' }}"
@@ -60,6 +61,11 @@
                     <a href="{{ route('kasir.riwayat.penjualan') }}">
                         <i class="fe fe-book"></i>
                         <span>Riwayat Penjualan</span>
+                    </a>
+                </li>
+                <li class="{{ Request::is('kasir/sales/reports*') ? 'active' : '' }}">
+                    <a href="{{ route('kasir.sales.report') }}">
+                       <i class="fas fa-chart-bar"></i> <span>Laporan Penjualan</span>
                     </a>
                 </li>
             </ul>

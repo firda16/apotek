@@ -37,8 +37,9 @@ use App\Http\Controllers\Admin\Auth\ForgotPasswordController;
 |
 */
 Route::get('', [DashboardController::class, 'Index']);
-Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
 Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
     // Khusus untuk kasir
@@ -172,10 +173,17 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::get('customers', [CustomerKasirController::class, 'index'])->name('customers');
     Route::get('customers/datatable', [CustomerKasirController::class, 'datatable'])->name('customers.datatable');
 
- // Riwayat Penjualan Kasir
+    // Riwayat Penjualan Kasir
     Route::get('riwayat-penjualan', [HistoryController::class, 'penjualan'])->name('riwayat.penjualan');
     Route::get('riwayat-penjualan/pdf', [HistoryController::class, 'cetakPenjualanPDF'])->name('riwayat.penjualan.pdf');
     Route::get('riwayat-penjualan/{invoice_number}', [HistoryController::class, 'show'])->name('riwayat.penjualan.show');
+
+    // Laporan Penjualan Kasir
+    Route::get('sales/{sale}/invoice', [SaleController::class, 'printInvoice'])->name('sales.invoice');
+    Route::get('sales/data', [SaleController::class, 'getData'])->name('sales.data');
+    Route::get('sales/reports', [SaleController::class, 'reports'])->name('sales.report');
+    Route::post('sales/reports', [SaleController::class, 'generateReport']);
+
 });
 
 

@@ -56,4 +56,13 @@ class Product extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+     public function scopeOutOfStock($query)
+    {
+        return $query->with('purchaseItems')
+            ->whereHas('purchaseItems', function ($q) {
+                $q->whereRaw('(quantity - sold_quantity) <= 0')
+                    ->where('expiry_date', '>', now());
+            });
+    }
+
 }

@@ -508,10 +508,12 @@ class SaleController extends Controller
 
         $title = 'sales reports';
 
-        return view('admin.sales.reports', [
-            'sales' => $sales,
-            'title' => $title
-        ]);
+        // Tambahkan pengecekan role untuk mengembalikan view yang benar
+        if (Auth::user()->role == 'admin') {
+            return view('admin.sales.reports', compact('sales', 'title'));
+        } elseif (Auth::user()->role == 'kasir') {
+            return view('kasir.reports.reports', compact('sales', 'title')); // Sesuai path file Anda
+        }
     }
 
     public function reports()
@@ -529,6 +531,12 @@ class SaleController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
-        return view('admin.sales.reports', compact('title', 'salesReport'));
+       // Tambahkan pengecekan role untuk mengembalikan view yang benar
+        if (Auth::user()->role == 'admin') {
+            return view('admin.sales.reports', compact('title'));
+        } elseif (Auth::user()->role == 'kasir') {
+             // Menggunakan path file yang Anda berikan: 'kasir.reports.reports'
+            return view('kasir.reports.reports', compact('title'));
+        }
     }
 }
