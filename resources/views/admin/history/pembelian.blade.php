@@ -57,9 +57,11 @@
     }
 
     /* Pastikan tombol aksi punya jarak */
-    .action-buttons button {
-        margin-right: 12px !important;
-        /* jarak pasti */
+    .action-buttons button, .action-buttons a {
+        margin-right: 8px !important;
+    }
+    .action-buttons a:last-child {
+        margin-right: 0 !important;
     }
 </style>
 
@@ -81,9 +83,8 @@
             <div class="card">
                 <div class="card-body">
 
-                    {{-- Form Filter yang Sudah Dirapikan --}}
+                    {{-- Form Filter --}}
                     <form action="{{ route('riwayat.pembelian') }}" method="GET">
-                        {{-- Class align-items-end akan mensejajarkan bagian bawah semua elemen form --}}
                         <div class="row g-3 align-items-end form-filter-row">
 
                             {{-- Tanggal Mulai --}}
@@ -126,14 +127,25 @@
                                     </a>
                                 </div>
                             </div>
-
                         </div>
                     </form>
 
                     {{-- Data Table --}}
                     @if ($filterApplied && ($purchases->count() > 0 || request()->has('start_date')))
                         <hr>
-                        <div class="table-responsive mt-4">
+
+                        {{-- PENAMBAHAN: Tombol Cetak PDF --}}
+                        <div class="text-end mb-3">
+                            {{-- Tombol ini hanya akan muncul jika ada data hasil filter --}}
+                            @if($purchases->count() > 0)
+                                {{-- URL menyertakan parameter filter yang sedang aktif --}}
+                                <a href="{{ route('riwayat.pembelian.pdf', request()->query()) }}" target="_blank" class="btn btn-success">
+                                    <i class="fas fa-print me-1"></i> Cetak PDF
+                                </a>
+                            @endif
+                        </div>
+
+                        <div class="table-responsive">
                             <table class="table table-striped table-bordered align-middle">
                                 <thead class="table-light">
                                     <tr>
@@ -180,7 +192,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="11" class="text-center text-muted">
-                                                Tidak ada data pembelian.
+                                                Tidak ada data pembelian yang cocok dengan kriteria filter.
                                             </td>
                                         </tr>
                                     @endforelse
