@@ -1,4 +1,4 @@
-@extends('admin.layouts.app')
+@extends('kasir.layouts.app')
 
 <x-assets.datatables />
 
@@ -22,7 +22,7 @@
     <div class="col-sm-12">
         <h3 class="page-title">Produk Kedaluwarsa</h3>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('products.index') }}">Produk</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('kasir.products.index') }}">Produk</a></li>
             <li class="breadcrumb-item active">Kedaluwarsa</li>
         </ul>
     </div>
@@ -120,15 +120,6 @@
                 </div>
             </div>
             <!-- /Produk Kedaluwarsa -->
-
-            <div class="mb-3">
-                <form method="POST" action="{{ route('products.deleteExpired') }}" onsubmit="return confirm('Hapus semua produk kadaluarsa?')">
-                    @csrf
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="fa fa-trash"></i> Hapus Semua Produk Kadaluarsa
-                    </button>
-                </form>
-            </div>
 
         </div>
     </div>

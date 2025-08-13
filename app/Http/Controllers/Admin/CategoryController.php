@@ -19,10 +19,15 @@ class CategoryController extends Controller
         return datatables()->of($query)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
-                $editBtn = "<a href='javascript:void(0)' data-id='{$row->id}' data-name='{$row->name}' class='editbtn'><button class='btn btn-primary'><i class='fas fa-edit'></i></button></a>";
-                $deleteBtn = "<a data-id='{$row->id}' data-route='" . route('categories.destroy', $row->id) . "' href='javascript:void(0)' id='deletebtn'><button class='btn btn-danger'><i class='fas fa-trash'></i></button></a>";
-                return $editBtn . ' ' . $deleteBtn;
+                $editBtn = "<a href='javascript:void(0)' data-id='{$row->id}' data-name='{$row->name}' class='editbtn'>
+                    <button class='btn btn-primary btn-sm'><i class='fas fa-edit'></i></button>
+                </a>";
+                $deleteBtn = "<a data-id='{$row->id}' data-route='" . route('categories.destroy', $row->id) . "' href='javascript:void(0)' id='deletebtn'>
+                    <button class='btn btn-danger btn-sm'><i class='fas fa-trash'></i></button>
+                  </a>";
+                return "<div class='text-center'>{$editBtn} {$deleteBtn}</div>";
             })
+
             ->rawColumns(['action'])
             ->make(true);
     }

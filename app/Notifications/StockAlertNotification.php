@@ -23,9 +23,8 @@ class StockAlertNotification extends Notification
      */
     public function __construct($purchaseItem)
     {
-        // $this->data = $data;
-        // $this->product = $product;
         $this->purchaseItem = $purchaseItem;
+        $this->product = $purchaseItem->product; // Tambahkan baris ini
     }
 
     /**
@@ -66,7 +65,7 @@ class StockAlertNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'product_name' => $this->purchaseItem->product->name ?? '',
+            'product_name' => $this->product->name ?? '',
             'quantity' => $this->purchaseItem->quantity - $this->purchaseItem->sold_quantity,
             'image' => $this->purchaseItem->product->image ?? '',
         ];
@@ -74,7 +73,7 @@ class StockAlertNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'product_name' => $this->purchaseItem->product->name ?? '',
+            'product_name' => $this->product->name ?? '',
             'quantity' => $this->purchaseItem->quantity - $this->purchaseItem->sold_quantity,
             'image' => $this->purchaseItem->product->image ?? '',
         ];

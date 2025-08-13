@@ -13,14 +13,14 @@ class NotificationController extends Controller
     public function markAsRead()
     {
         Auth::user()->unreadNotifications->markAsRead();
-        $notification = notify('Notifications marked as read');
+        $notification = notify('Notifikasi telah dibaca');
         return back()->with($notification);
     }
 
     public function read()
     {
         Auth::user()->unreadNotifications->markAsRead();
-        $notification = notify('Notification marked as read');
+        $notification = notify('Notifikasi telah dibaca');
         return back()->with($notification);
     }
 

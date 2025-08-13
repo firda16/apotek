@@ -1,26 +1,30 @@
 <?php
 
+use App\Models\Customer;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\HistoryController;
-use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\Auth\LoginController;
-use App\Http\Controllers\Admin\Auth\LogoutController;
-use App\Http\Controllers\Admin\NotificationController;
-use App\Http\Controllers\Admin\Auth\RegisterController;
-use App\Http\Controllers\Admin\Auth\ResetPasswordController;
-use App\Http\Controllers\Admin\Auth\ForgotPasswordController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleController;
-use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Kasir\KasirController;
+use App\Http\Controllers\Admin\HistoryController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
-use App\Models\Customer;
+use App\Http\Controllers\Admin\PurchaseController;
+use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Kasir\SaleKasirController;
+use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\Auth\LogoutController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Kasir\ProductKasirController;
+use App\Http\Controllers\Admin\Auth\RegisterController;
+use App\Http\Controllers\Kasir\CategoryKasirController;
+use App\Http\Controllers\Kasir\CustomerKasirController;
+use App\Http\Controllers\Admin\Auth\ResetPasswordController;
+use App\Http\Controllers\Admin\Auth\ForgotPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +76,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('purchases/datatable', [PurchaseController::class, 'datatable'])->name('purchases.datatable');
     Route::resource('purchases', PurchaseController::class);
 
+
+    Route::get('products/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
     Route::resource('products', ProductController::class)->except('show');
     Route::get('/products/{product}/stock-log', [ProductController::class, 'stockLog'])->name('products.stock-log');
 
@@ -112,7 +118,56 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('backup/delete/{file_name?}', [HistoryController::class, 'destroy'])->where('file_name', '(.*)')->name('backup.destroy');
 
     Route::get('settings', [SettingController::class, 'index'])->name('settings');
+
+    Route::get('customer-autocomplete', function (Illuminate\Http\Request $request) {
+        $term = $request->term;
+        $customers = Customer::where('nama', 'like', "%$term%")
+            ->select('id', 'nama', 'telepon')
+            ->get();
+        return response()->json($customers);
+    });
+    Route::get('customer-check-phone', function (\Illuminate\Http\Request $request) {
+        $phone = $request->phone;
+        $name = $request->name;
+        $customer = \App\Models\Customer::where('telepon', $phone)->first();
+        if ($customer && strtolower(trim($customer->nama)) !== strtolower(trim($name))) {
+            return response()->json([
+                'exists' => true,
+                'real_name' => $customer->nama
+            ]);
+        }
+        return response()->json(['exists' => false]);
+    });
+    Route::post('products/delete-expired', [ProductController::class, 'deleteExpired'])->name('products.deleteExpired');
+
 });
+
+// kasir
+Route::middleware(['auth', 'role:kasir'])->group(function () {
+    Route::get('dashboard-kasir', [DashboardController::class, 'kasirDashboard'])->name('kasir.dashboard');
+
+    // category
+    Route::get('kasir/categories', [CategoryKasirController::class, 'index'])->name('kasir.categories.index');
+    Route::get('kasir/categories/datatable', [CategoryKasirController::class, 'datatable'])->name('kasir.categories.datatable');
+    // products
+    Route::get('kasir/produk', [ProductKasirController::class, 'index'])->name('kasir.products.index');
+    Route::get('kasir/produk/datatable', [ProductKasirController::class, 'datatable'])->name('kasir.products.datatable');
+    Route::get('kasir/produk/tersedia', [ProductKasirController::class, 'available'])->name('kasir.products.available');
+    Route::get('kasir/produk/kadaluarsa', [ProductKasirController::class, 'expired'])->name('kasir.products.expired');
+    Route::get('kasir/produk/stok-habis', [ProductKasirController::class, 'outstock'])->name('kasir.products.outstock');
+
+    // transaksi
+    Route::get('/transaksi', [SaleKasirController::class, 'index'])->name('kasir.transaksi');
+    Route::get('/transaksi/create', [SaleKasirController::class, 'create'])->name('kasir.transaksi.create');
+    Route::get('/transaksi/{sale}/edit', [SaleKasirController::class, 'edit'])->name('kasir.transaksi.edit');
+    Route::put('/transaksi/{sale}', [SaleKasirController::class, 'update'])->name('kasir.transaksi.update');
+    Route::get('transaksi/{sale}/invoice', [SaleKasirController::class, 'printInvoice'])->name('kasir.transaksi.invoice');
+    Route::delete('transaksi/{sale}', [SaleKasirController::class, 'destroy'])->name('kasir.transaksi.destroy');
+    // customers
+    Route::get('kasir/customers', [CustomerKasirController::class, 'index'])->name('kasir.customers');
+    Route::get('kasir/customers/datatable', [CustomerKasirController::class, 'datatable'])->name('kasir.customers.datatable');
+});
+
 
 Route::middleware(['guest'])->group(function () {
     Route::get('', function () {
@@ -129,6 +184,8 @@ Route::middleware(['guest'])->group(function () {
     Route::post('forgot-password', [ForgotPasswordController::class, 'requestEmail']);
     Route::get('reset-password/{token}', [ResetPasswordController::class, 'index'])->name('password.reset');
     Route::post('reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
+
+
 });
 
 
@@ -137,19 +194,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-Route::middleware(['auth', 'role:kasir'])->group(function () {
-    Route::get('dashboard-kasir', [DashboardController::class, 'kasirDashboard'])->name('kasir.dashboard');
-    Route::get('/transaksi', [KasirController::class, 'transaksi'])->name('kasir.transaksi');
-    Route::post('/transaksi', [KasirController::class, 'storeTransaksi'])->name('kasir.transaksi.store');
-    Route::get('/laporan', [KasirController::class, 'laporan'])->name('kasir.laporan');
-    Route::get('/laporan/{id}', [KasirController::class, 'show'])->name('kasir.laporan.show');
-});
-Route::get('customer-autocomplete', function (Illuminate\Http\Request $request) {
-    $term = $request->term;
-    $customers = Customer::where('nama', 'like', "%$term%")
-        ->select('id', 'nama', 'telepon')
-        ->get();
-    return response()->json($customers);
-});
+
+
 
 

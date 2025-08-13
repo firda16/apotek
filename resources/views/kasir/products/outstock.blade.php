@@ -1,4 +1,4 @@
-@extends('admin.layouts.app')
+@extends('kasir.layouts.app')
 
 <x-assets.datatables />
 
@@ -10,7 +10,7 @@
 <div class="col-sm-12">
     <h3 class="page-title">Stok Habis</h3>
     <ul class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{route('products.index')}}">Produk</a></li>
+        <li class="breadcrumb-item"><a href="{{route('kasir.products.index')}}">Produk</a></li>
         <li class="breadcrumb-item active">Stok Habis</li>
     </ul>
 </div>

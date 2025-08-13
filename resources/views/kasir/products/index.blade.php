@@ -1,4 +1,4 @@
-@extends('admin.layouts.app')
+@extends('kasir.layouts.app')
 
 {{-- <x-assets.datatables /> --}}
 
@@ -12,9 +12,6 @@
             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
             <li class="breadcrumb-item active">Produk</li>
         </ul>
-    </div>
-    <div class="col-sm-5 col">
-        <a href="{{ route('products.create') }}" class="btn btn-primary float-right mt-2">Tambah Produk</a>
     </div>
 @endpush
 
@@ -55,7 +52,6 @@
                                     <th>Harga beli</th>
                                     <th>Harga jual</th>
                                     <th>Deskripsi</th>
-                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -78,11 +74,11 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(function() {
-           let table = $('#product-table').DataTable({
+            let table = $('#product-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '{{ route('products.datatable') }}',
+                    url: '{{ route('kasir.products.datatable') }}',
                     data: function(d) {
                         d.category = $('#filter-category').val();
                         d.unit = $('#filter-unit').val();
@@ -119,12 +115,6 @@
                         name: 'description',
                         searchable: false
                     },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    }
                 ],
                 order: [
                     [1, 'asc']
@@ -135,7 +125,6 @@
             $('#filter-category, #filter-unit').change(function() {
                 table.draw();
             });
-
         });
     </script>
 @endpush
