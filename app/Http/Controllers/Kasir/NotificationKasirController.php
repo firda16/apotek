@@ -1,24 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Kasir;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 // use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Notifications\DatabaseNotification;
 
-class NotificationController extends Controller
+
+class NotificationKasirController extends Controller
 {
-    public function markAsRead()
+    public function tandai()
     {
         Auth::user()->unreadNotifications->markAsRead();
         $notification = notify('Notifikasi telah dibaca');
         return back()->with($notification);
     }
 
-    public function read()
+    public function baca()
     {
         Auth::user()->unreadNotifications->markAsRead();
         $notification = notify('Notifikasi telah dibaca');
@@ -27,7 +28,7 @@ class NotificationController extends Controller
 
 
 
-    public function show()
+    public function semua()
     {
         $notifications = Auth::user()->notifications; // ini collection
         $perPage = 10;
@@ -45,7 +46,7 @@ class NotificationController extends Controller
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
-        return view('admin.notifications.index', ['notifications' => $paginated]);
+        return view('kasir.notifications.index', ['notifications' => $paginated]);
     }
 
 
@@ -82,3 +83,4 @@ class NotificationController extends Controller
     //     return back()->with($notification);
     // }
 }
+

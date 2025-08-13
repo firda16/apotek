@@ -10,6 +10,7 @@ use App\Models\SaleItem;
 use App\Models\Supplier;
 use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
+use App\Events\ProductExpired;
 use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -20,12 +21,17 @@ class DashboardController extends Controller
     public function index()
     {
         $role = Auth::user()->role;
-
+        
         if ($role === 'admin') {
             $title = 'dashboard';
+            // $expiredProducts = PurchaseItem::whereDate('expiry_date', '<=', now())->get();
+    
+            // foreach ($expiredProducts as $expired) {
+            //     event(new ProductExpired($expired));
+            // }
 
             $total_pengeluaran_hari_ini = PurchaseItem::whereDate('created_at', Carbon::today())->sum('total_price');
-            $total_pendapatan_hari_ini  = SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
+            $total_pendapatan_hari_ini = SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
 
             $total_pengeluaran_bulan_ini = PurchaseItem::whereMonth('created_at', Carbon::now()->month)
                 ->whereYear('created_at', Carbon::now()->year)
@@ -36,13 +42,13 @@ class DashboardController extends Controller
                 ->sum('total_price');
 
             $total_categories = Category::count();
-            $total_suppliers  = Supplier::count();
+            $total_suppliers = Supplier::count();
             $total_pembelian_produk = PurchaseItem::count();
-            $total_sales      = SaleItem::count();
-            $total_products   = Product::count();
+            $total_sales = SaleItem::count();
+            $total_products = Product::count();
             $out_of_stock_products = Product::where('stock', '<=', 0)->count();
             $total_expired_products = PurchaseItem::whereDate('expiry_date', '<=', now())->count();
-            $today_sales      = SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
+            $today_sales = SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
 
             $latest_sales = SaleItem::with('product')
                 ->whereDate('created_at', Carbon::today())
@@ -93,8 +99,8 @@ class DashboardController extends Controller
 
             $total_purchases = PurchaseItem::where('expiry_date', '!=', Carbon::now())->count();
             $total_categories = Category::count();
-            $total_suppliers  = Supplier::count();
-            $total_sales      = Sale::count();
+            $total_suppliers = Supplier::count();
+            $total_sales = Sale::count();
 
             // Tambahkan ini biar variabelnya ada
             $latest_sales = SaleItem::with('product')
