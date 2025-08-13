@@ -1,4 +1,6 @@
-@extends('admin.layouts.app')
+{{-- Menggunakan layout utama milik KASIR --}}
+@extends('kasir.layouts.app')
+
 
 <style>
     /* Container form filter */
@@ -55,8 +57,10 @@
     <div class="col-sm-7 col-auto">
         <h3 class="page-title">{{ $title }}</h3>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('riwayat.penjualan') }}">Riwayat</a></li>
+            {{-- PERBAIKAN: Mengarah ke dashboard kasir --}}
+            <li class="breadcrumb-item"><a href="{{ route('kasir.dashboard') }}">Beranda</a></li>
+            {{-- PERBAIKAN: Mengarah ke riwayat penjualan kasir --}}
+            <li class="breadcrumb-item"><a href="{{ route('kasir.riwayat.penjualan') }}">Riwayat</a></li>
             <li class="breadcrumb-item active">Penjualan</li>
         </ul>
     </div>
@@ -68,25 +72,22 @@
             <div class="card shadow-sm">
                 <div class="card-body">
 
-                    {{-- Form Filter --}}
-                    <form action="{{ route('riwayat.penjualan') }}" method="GET" class="form-filter mb-4">
+                    {{-- PERBAIKAN: Form action mengarah ke route kasir --}}
+                    <form action="{{ route('kasir.riwayat.penjualan') }}" method="GET" class="form-filter mb-4">
                         <div class="row g-3 align-items-end">
 
-                            {{-- Tanggal Mulai --}}
                             <div class="col-lg-3 col-md-6">
                                 <label for="start_date" class="form-label">Tanggal Mulai</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date"
                                     value="{{ request('start_date') }}">
                             </div>
 
-                            {{-- Tanggal Selesai --}}
                             <div class="col-lg-3 col-md-6">
                                 <label for="end_date" class="form-label">Tanggal Selesai</label>
                                 <input type="date" class="form-control" id="end_date" name="end_date"
                                     value="{{ request('end_date') }}">
                             </div>
 
-                            {{-- Metode Pembayaran --}}
                             <div class="col-lg-3 col-md-6">
                                 <label for="payment_method" class="form-label">Metode Pembayaran</label>
                                 <select name="payment_method" id="payment_method" class="form-select">
@@ -100,13 +101,12 @@
                                 </select>
                             </div>
 
-                            {{-- Tombol Aksi --}}
                             <div class="col-lg-3 col-md-6 d-flex align-items-center justify-content-end">
                                 <div class="d-flex action-buttons">
                                     <button type="submit" class="btn btn-primary" title="Filter Data">
                                         <i class="fas fa-filter me-1"></i> Filter
                                     </button>
-                                    <a href="{{ route('riwayat.penjualan') }}" class="btn btn-secondary"
+                                    <a href="{{ route('kasir.riwayat.penjualan') }}" class="btn btn-secondary"
                                         title="Reset Filter">
                                         <i class="fas fa-redo me-1"></i> Reset
                                     </a>
@@ -115,17 +115,17 @@
                         </div>
                     </form>
 
-                    {{-- Area Hasil Filter --}}
                     @if ($filterApplied)
-
-                    {{-- PENAMBAHAN: Tombol Cetak PDF --}}
                         <div class="text-end mb-3">
-                            @if($sales->count() > 0)
-                                <a href="{{ route('riwayat.penjualan.pdf', request()->query()) }}" target="_blank" class="btn btn-success">
+                            @if ($sales->count() > 0)
+                                {{-- PERBAIKAN: Cetak PDF mengarah ke route kasir --}}
+                                <a href="{{ route('kasir.riwayat.penjualan.pdf', request()->query()) }}" target="_blank"
+                                    class="btn btn-success">
                                     <i class="fas fa-print me-1"></i> Cetak PDF
                                 </a>
                             @endif
                         </div>
+
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered align-middle">
                                 <thead class="table-primary">
@@ -152,7 +152,8 @@
                                                 Rp{{ number_format($sale->total_price ?? 0, 0, ',', '.') }}</td>
                                             <td class="text-center">
                                                 @if (!empty($sale->invoice_number))
-                                                    <a href="{{ route('riwayat.penjualan.show', ['invoice_number' => $sale->invoice_number]) }}"
+                                                    {{-- PERBAIKAN: Tombol detail mengarah ke route kasir --}}
+                                                    <a href="{{ route('kasir.riwayat.penjualan.show', ['invoice_number' => $sale->invoice_number]) }}"
                                                         class="btn btn-sm btn-info">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
@@ -172,7 +173,6 @@
                             </table>
                         </div>
 
-                        {{-- Total Pendapatan & Pagination (Hanya tampil jika ada data) --}}
                         @if ($sales->count() > 0)
                             <div class="d-flex justify-content-between align-items-center mt-4">
                                 <div class="alert alert-primary mb-0 py-2 px-3 shadow-sm d-flex align-items-center">
@@ -188,7 +188,6 @@
                             </div>
                         @endif
                     @else
-                        {{-- Placeholder saat belum ada filter --}}
                         <div class="text-center p-5 bg-light rounded">
                             <i class="fas fa-search fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">Mulai Pencarian</h5>

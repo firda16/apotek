@@ -9,6 +9,7 @@ use App\Models\Sale;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth; 
 
 class HistoryController extends Controller
 {
@@ -51,8 +52,12 @@ class HistoryController extends Controller
             $sales = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
         }
 
-        // Kirim data ke view
-        return view('admin.history.penjualan', compact('title', 'sales', 'total_pendapatan', 'filterApplied'));
+        // Cek role user dan pilih view yang sesuai
+        if (Auth::user()->role == 'admin') {
+            return view('admin.history.penjualan', compact('title', 'sales', 'total_pendapatan', 'filterApplied'));
+        } elseif (Auth::user()->role == 'kasir') {
+            return view('kasir.history.penjualan', compact('title', 'sales', 'total_pendapatan', 'filterApplied'));
+        }
     }
 
     public function show($invoice_number)
@@ -63,6 +68,31 @@ class HistoryController extends Controller
         return view('admin.history.show', compact('sale'));
     }
 
+    // PENAMBAHAN: Fungsi baru untuk generate PDF Riwayat Penjualan
+    public function cetakPenjualanPDF(Request $request)
+    {
+        // Ambil data dengan relasi ke item produk
+        $query = Sale::with(['customer', 'saleItems.product']);
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        $sales = $query->orderBy('created_at', 'desc')->get();
+        $total_pendapatan = $sales->sum('total_price');
+
+        $tanggalMulai = $request->start_date ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'Awal';
+        $tanggalSelesai = $request->end_date ? \Carbon\Carbon::parse($request->end_date)->format('d M Y') : 'Akhir';
+
+        $pdf = Pdf::loadView('admin.history.penjualan_pdf', compact('sales', 'total_pendapatan', 'tanggalMulai', 'tanggalSelesai'));
+        return $pdf->stream('laporan-penjualan-' . now()->format('d-m-Y') . '.pdf');
+    }
 
 
 
@@ -136,10 +166,9 @@ class HistoryController extends Controller
             });
 
             // Pagination
-           $purchases = $query->orderBy('created_at', 'desc')
-                   ->paginate(10)
-                   ->withQueryString();
-
+            $purchases = $query->orderBy('created_at', 'desc')
+                ->paginate(10)
+                ->withQueryString();
         }
 
         return view('admin.history.pembelian', compact('title', 'purchases', 'totalPembelian', 'filterApplied'));
@@ -183,5 +212,3 @@ class HistoryController extends Controller
         return $pdf->stream('laporan-pembelian-' . now()->format('d-m-Y') . '.pdf');
     }
 }
-
-
