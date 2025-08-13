@@ -8,6 +8,7 @@ use App\Models\Purchase;
 use App\Models\Sale;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class HistoryController extends Controller
 {
@@ -143,4 +144,44 @@ class HistoryController extends Controller
 
         return view('admin.history.pembelian', compact('title', 'purchases', 'totalPembelian', 'filterApplied'));
     }
+
+
+    // ===================================================================================
+    // PENAMBAHAN: Fungsi baru untuk generate PDF Riwayat Pembelian
+    // ===================================================================================
+    public function cetakPembelianPDF(Request $request)
+    {
+        // 1. Logika filter disalin sama persis dari fungsi pembelian()
+        $query = Purchase::with(['items.product.category', 'supplier']);
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        // 2. Ambil SEMUA data yang terfilter (tanpa pagination)
+        $purchases = $query->orderBy('created_at', 'desc')->get();
+
+        // 3. Hitung totalnya agar konsisten
+        $totalPembelian = $purchases->flatMap->items->sum(function ($item) {
+            return $item->subtotal ?? ($item->quantity * $item->unit_price);
+        });
+
+        // Simpan tanggal filter untuk ditampilkan di judul PDF
+        $tanggalMulai = $request->start_date ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'Awal';
+        $tanggalSelesai = $request->end_date ? \Carbon\Carbon::parse($request->end_date)->format('d M Y') : 'Akhir';
+
+        // 4. Load view PDF dengan data yang sudah disiapkan
+        $pdf = PDF::loadView('admin.history.pembelian_pdf', compact('purchases', 'totalPembelian', 'tanggalMulai', 'tanggalSelesai'));
+
+        // 5. Tampilkan PDF di browser
+        return $pdf->stream('laporan-pembelian-' . now()->format('d-m-Y') . '.pdf');
+    }
 }
+
+
