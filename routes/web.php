@@ -149,31 +149,37 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 });
 
-// kasir
-Route::middleware(['auth', 'role:kasir'])->group(function () {
-    Route::get('dashboard-kasir', [DashboardController::class, 'kasirDashboard'])->name('kasir.dashboard');
+// --- GRUP ROUTE KASIR ---
+// PERBAIKAN: Menambahkan prefix dan name pada grup
+Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'kasirDashboard'])->name('dashboard');
 
     // category
-    Route::get('kasir/categories', [CategoryKasirController::class, 'index'])->name('kasir.categories.index');
-    Route::get('kasir/categories/datatable', [CategoryKasirController::class, 'datatable'])->name('kasir.categories.datatable');
+    Route::get('categories', [CategoryKasirController::class, 'index'])->name('categories.index');
+    Route::get('categories/datatable', [CategoryKasirController::class, 'datatable'])->name('categories.datatable');
     // products
-    Route::get('kasir/produk', [ProductKasirController::class, 'index'])->name('kasir.products.index');
-    Route::get('kasir/produk/datatable', [ProductKasirController::class, 'datatable'])->name('kasir.products.datatable');
-    Route::get('kasir/produk/tersedia', [ProductKasirController::class, 'available'])->name('kasir.products.available');
-    Route::get('kasir/produk/kadaluarsa', [ProductKasirController::class, 'expired'])->name('kasir.products.expired');
-    Route::get('kasir/produk/stok-habis', [ProductKasirController::class, 'outstock'])->name('kasir.products.outstock');
+    Route::get('produk', [ProductKasirController::class, 'index'])->name('products.index');
+    Route::get('produk/datatable', [ProductKasirController::class, 'datatable'])->name('products.datatable');
+    Route::get('produk/tersedia', [ProductKasirController::class, 'available'])->name('products.available');
+    Route::get('produk/kadaluarsa', [ProductKasirController::class, 'expired'])->name('products.expired');
+    Route::get('produk/stok-habis', [ProductKasirController::class, 'outstock'])->name('products.outstock');
 
     // transaksi
-    Route::get('/transaksi', [SaleKasirController::class, 'index'])->name('kasir.transaksi');
-    Route::post('/transaksi', [SaleKasirController::class, 'store'])->name('kasir.transaksi.store');
-    Route::get('/transaksi/create', [SaleKasirController::class, 'create'])->name('kasir.transaksi.create');
-    Route::get('/transaksi/{sale}/edit', [SaleKasirController::class, 'edit'])->name('kasir.transaksi.edit');
-    Route::put('/transaksi/{sale}', [SaleKasirController::class, 'update'])->name('kasir.transaksi.update');
-    Route::get('transaksi/{sale}/invoice', [SaleKasirController::class, 'printInvoice'])->name('kasir.transaksi.invoice');
-    Route::delete('transaksi/{sale}', [SaleKasirController::class, 'destroy'])->name('kasir.transaksi.destroy');
+    Route::get('/transaksi', [SaleKasirController::class, 'index'])->name('transaksi');
+    Route::post('/transaksi', [SaleKasirController::class, 'store'])->name('transaksi.store');
+    Route::get('/transaksi/create', [SaleKasirController::class, 'create'])->name('transaksi.create');
+    Route::get('/transaksi/{sale}/edit', [SaleKasirController::class, 'edit'])->name('transaksi.edit');
+    Route::put('/transaksi/{sale}', [SaleKasirController::class, 'update'])->name('transaksi.update');
+    Route::get('transaksi/{sale}/invoice', [SaleKasirController::class, 'printInvoice'])->name('transaksi.invoice');
+    Route::delete('transaksi/{sale}', [SaleKasirController::class, 'destroy'])->name('transaksi.destroy');
     // customers
-    Route::get('kasir/customers', [CustomerKasirController::class, 'index'])->name('kasir.customers');
-    Route::get('kasir/customers/datatable', [CustomerKasirController::class, 'datatable'])->name('kasir.customers.datatable');
+    Route::get('customers', [CustomerKasirController::class, 'index'])->name('customers');
+    Route::get('customers/datatable', [CustomerKasirController::class, 'datatable'])->name('customers.datatable');
+
+ // Riwayat Penjualan Kasir
+    Route::get('riwayat-penjualan', [HistoryController::class, 'penjualan'])->name('riwayat.penjualan');
+    Route::get('riwayat-penjualan/pdf', [HistoryController::class, 'cetakPenjualanPDF'])->name('riwayat.penjualan.pdf');
+    Route::get('riwayat-penjualan/{invoice_number}', [HistoryController::class, 'show'])->name('riwayat.penjualan.show');
 
     //notifikasi
     Route::get('notifikasi-baca', [NotificationKasirController::class, 'baca'])->name('baca');

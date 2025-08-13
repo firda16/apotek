@@ -9,7 +9,7 @@
                 <li class="{{ route_is('dashboard') ? 'active' : '' }}">
                     <a href="{{ route('dashboard') }}">
                         <i class="fe fe-layout"></i>
-                        <span>Dashboard Kasir</span>
+                        <span>Beranda</span>
                     </a>
                 </li>
 
@@ -56,7 +56,12 @@
                         <span>Data Pelanggan</span>
                     </a>
                 </li>
-
+                <li class="{{ route_is('kasir.riwayat.penjualan*') ? 'active' : '' }}">
+                    <a href="{{ route('kasir.riwayat.penjualan') }}">
+                        <i class="fe fe-book"></i>
+                        <span>Riwayat Penjualan</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

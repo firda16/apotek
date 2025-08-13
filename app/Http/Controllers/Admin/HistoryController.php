@@ -9,7 +9,7 @@ use App\Models\Sale;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Auth;
 
 class HistoryController extends Controller
 {
@@ -65,7 +65,13 @@ class HistoryController extends Controller
         $sale = Sale::with(['saleItems.product.category', 'customer'])
             ->where('invoice_number', $invoice_number)
             ->firstOrFail();
-        return view('admin.history.show', compact('sale'));
+
+            // Tambahkan pengecekan role untuk mengarahkan ke view yang benar
+        if (Auth::user()->role == 'admin') {
+            return view('admin.history.show', compact('sale'));
+        } elseif (Auth::user()->role == 'kasir') {
+            return view('kasir.history.show', compact('sale'));
+        }
     }
 
     // PENAMBAHAN: Fungsi baru untuk generate PDF Riwayat Penjualan
@@ -91,8 +97,19 @@ class HistoryController extends Controller
         $tanggalSelesai = $request->end_date ? \Carbon\Carbon::parse($request->end_date)->format('d M Y') : 'Akhir';
 
         $pdf = Pdf::loadView('admin.history.penjualan_pdf', compact('sales', 'total_pendapatan', 'tanggalMulai', 'tanggalSelesai'));
+
+        // Tambahkan pengecekan role untuk memuat template PDF yang benar
+        if (Auth::user()->role == 'admin') {
+            $pdf = Pdf::loadView('admin.history.penjualan_pdf', compact('sales', 'total_pendapatan', 'tanggalMulai', 'tanggalSelesai'));
+        } elseif (Auth::user()->role == 'kasir') {
+            // Pastikan Anda punya view PDF untuk kasir jika desainnya berbeda
+            // Jika sama, Anda bisa arahkan ke view yang sama dengan admin
+            $pdf = Pdf::loadView('kasir.history.penjualan_pdf', compact('sales', 'total_pendapatan', 'tanggalMulai', 'tanggalSelesai'));
+        }
+
         return $pdf->stream('laporan-penjualan-' . now()->format('d-m-Y') . '.pdf');
     }
+
 
 
 
