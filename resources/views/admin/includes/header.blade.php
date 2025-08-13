@@ -199,8 +199,8 @@
                         </div>
                     </div>
 
-                    <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a>
-                    <a class="dropdown-item" href="{{ route('settings') }}">Pengaturan</a>
+                    {{-- <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a> --}}
+                    {{-- <a class="dropdown-item" href="{{ route('settings') }}">Pengaturan</a> --}}
 
 
                     <a href="javascript:void(0)" class="dropdown-item">

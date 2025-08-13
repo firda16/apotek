@@ -352,7 +352,7 @@ class SaleKasirController extends Controller
             $product->save();
         }
 
-        return view('kasir.sales.edit', compact('title', 'sale', 'products', 'customer'));
+        return view('kasir.transaksi.edit', compact('title', 'sale', 'products', 'customer'));
     }
 
 

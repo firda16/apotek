@@ -371,7 +371,7 @@
                                         <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
                                         <select name="payment_method" class="form-select" required>
                                             <option disabled selected>Pilih Metode Pembayaran</option>
-                                            <option value="Cash">Tunai</option>
+                                            <option value="Cash">Cash</option>
                                             <option value="Transfer">Transfer Bank</option>
                                             <option value="QRIS">QRIS</option>
                                             {{-- <option value="E-Wallet">E-Wallet</option> --}}

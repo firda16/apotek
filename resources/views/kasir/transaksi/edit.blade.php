@@ -180,7 +180,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <form method="POST" action="{{ route('sales.update', $sale->id) }}">
+                    <form method="POST" action="{{ route('kasir.transaksi.update', $sale->id) }}">
                         @csrf
                         @method('PUT')
 
@@ -392,7 +392,7 @@
                                                 Pilih Metode Pembayaran</option>
                                             <option value="Cash"
                                                 {{ old('payment_method', $sale->payment_method) == 'Cash' ? 'selected' : '' }}>
-                                                Tunai</option>
+                                                Cash</option>
                                             <option value="Transfer"
                                                 {{ old('payment_method', $sale->payment_method) == 'Transfer' ? 'selected' : '' }}>
                                                 Transfer Bank</option>

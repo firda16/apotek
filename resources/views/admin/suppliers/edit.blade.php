@@ -61,11 +61,7 @@
 								<label>Alamat <span class="text-danger">*</span></label>
 								<input type="text" name="address" value="{{$supplier->address ?? old('address')}}" class="form-control">
 							</div>
-						</div>
-						<div class="col-lg-6">
-							<label>Produk</label>
-							<input type="text" name="product" value="{{$supplier->product ?? old('product')}}" class="form-control">
-						</div>
+						</div>						
 					</div>
 				</div>
 

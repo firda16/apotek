@@ -37,13 +37,13 @@
             <div class="dropdown-menu notifications">
                 <div class="topnav-dropdown-header">
                     <span class="notification-title">Notifikasi Kasir</span>
-                    <a href="{{ route('tandai') }}" class="clear-noti">Tandai Semua Sudah Dibaca</a>
+                    <a href="{{ route('kasir.tandai') }}" class="clear-noti">Tandai Semua Sudah Dibaca</a>
                 </div>
                 <div class="noti-content">
                     <ul class="notification-list">
                         @forelse (auth()->user()->unReadNotifications as $notification)
                             <li class="notification-message">
-                                <a href="{{ route('baca', $notification->id) }}">
+                                <a href="{{ route('kasir.baca', $notification->id) }}">
                                     <div class="media">
                                         <div class="media-body">
                                             @switch($notification->data['type'] ?? 'default')
@@ -136,7 +136,7 @@
                         </ul>
                     </div>
                     <div class="topnav-dropdown-footer">
-                        <a href="{{ route('notifikasi-semua') }}">Lihat Semua Notifikasi</a>
+                        <a href="{{ route('kasir.notifikasi-semua') }}">Lihat Semua Notifikasi</a>
                     </div>
                 </div>
             </li>
@@ -146,17 +146,17 @@
             <li class="nav-item dropdown has-arrow">
                 <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
                     <span class="user-img">
-                        <img class="rounded-circle"
-                            src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
-                            width="31" alt="Avatar">
+                        <span class="user-img">                        
+                        <i class="fe fe-user" style="font-size: 25px;"></i>
+                    </span>
                     </span>
                 </a>
                 <div class="dropdown-menu">
                     <div class="user-header">
-                        <div class="avatar avatar-sm">
+                        {{-- <div class="avatar avatar-sm">
                             <img src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
                                 alt="Foto Pengguna" class="avatar-img rounded-circle">
-                        </div>
+                        </div> --}}
                         <div class="user-text">
                             <h6>{{ auth()->user()->name }}</h6>
                             <p class="text-muted mb-0">Kasir</p>

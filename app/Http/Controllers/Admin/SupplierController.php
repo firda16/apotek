@@ -70,7 +70,7 @@ class SupplierController extends Controller
             'address'=>$request->address,
 
         ]);
-        $notification = notify("Supplier has been added");
+        $notification = notify("Pemasok berhasil di tambah");
         return redirect()->route('suppliers.index')->with($notification);
     }
 
@@ -114,22 +114,21 @@ class SupplierController extends Controller
             'address'=>$request->address,
 
         ]);
-        $notification = notify("Supplier has been added");
+        $notification = notify("Supplier berhasil diubah");
         return redirect()->route('suppliers.index')->with($notification);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    // /**
+    //  * Remove the specified resource from storage.
+    //  *
+    //  * @param  \Illuminate\Http\Request $request
+    //  * @return \Illuminate\Http\Response
+    //  */
+    public function destroy(Supplier $supplier)
 {
-    $supplier = Supplier::findOrFail($id);
     $supplier->delete();
 
-    return redirect()->route('suppliers.index')->with(notify("Supplier has been deleted"));
+    return redirect()->route('suppliers.index')->with("Supplier berhasil dihapus");
 }
 
 }
