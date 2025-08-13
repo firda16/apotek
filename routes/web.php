@@ -40,6 +40,9 @@ Route::get('', [DashboardController::class, 'Index']);
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
+    Route::delete('/notifications/delete-all', [NotificationController::class, 'destroyAll'])
+        ->name('notifications.destroyAll');
+
 
     // Khusus untuk kasir
 // Dashboard kasir
@@ -114,7 +117,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/riwayat/pembelian', [HistoryController::class, 'pembelian'])->name('riwayat.pembelian');
     Route::get('/riwayat-pembelian', [HistoryController::class, 'pembelian'])->name('riwayat.pembelian');
     Route::get('riwayat/pembelian/pdf', [HistoryController::class, 'cetakPembelianPDF'])->name('riwayat.pembelian.pdf');
-    
+
     Route::put('backup/create', [HistoryController::class, 'create'])->name('backup.store');
     Route::get('backup/download/{file_name?}', [HistoryController::class, 'download'])->name('backup.download');
     Route::delete('backup/delete/{file_name?}', [HistoryController::class, 'destroy'])->where('file_name', '(.*)')->name('backup.destroy');

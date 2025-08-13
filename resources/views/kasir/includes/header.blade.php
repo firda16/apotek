@@ -3,13 +3,13 @@
 
     <!-- Logo -->
     <div class="header-left" style="padding-left: 15px;">
-        <a href="{{ route('dashboard') }}" class="logo">
+        <a href="{{ route('kasir.dashboard') }}" class="logo">
             <img src="@if (!empty(AppSettings::get('logo'))) {{ asset('storage/' . AppSettings::get('logo')) }}
 			@else
 				{{ asset('assets/img/logo.png') }} @endif"
                 alt="Logo">
         </a>
-        <a href="{{ route('dashboard') }}" class="logo logo-small">
+        <a href="{{ route('kasir.dashboard') }}" class="logo logo-small">
             <img src="{{ asset('assets/img/logo-small.png') }}" alt="Logo" width="30" height="30">
         </a>
     </div>
@@ -28,14 +28,6 @@
     <!-- Menu Header Kanan -->
     <ul class="nav user-menu">
 
-        <!-- Tambah Penjualan -->
-        {{-- <li class="nav-item dropdown">
-            <a href="#" data-target="#add_sales" title="Tambah Penjualan" data-toggle="modal"
-                class="dropdown-toggle nav-link">
-                <i class="fas fa-clipboard"></i>
-            </a>
-        </li> --}}
-
         <!-- Notifikasi -->
         <li class="nav-item dropdown noti-dropdown">
             <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
@@ -44,43 +36,85 @@
             </a>
             <div class="dropdown-menu notifications">
                 <div class="topnav-dropdown-header">
-                    <span class="notification-title">Notifikasi</span>
+                    <span class="notification-title">Notifikasi Kasir</span>
                     <a href="{{ route('mark-as-read') }}" class="clear-noti">Tandai Semua Sudah Dibaca</a>
                 </div>
                 <div class="noti-content">
                     <ul class="notification-list">
-                        @foreach (auth()->user()->unReadNotifications as $notification)
+                        @forelse (auth()->user()->unReadNotifications as $notification)
                             <li class="notification-message">
                                 <a href="{{ route('read') }}">
                                     <div class="media">
-                                        <span class="avatar avatar-sm">
-                                            <img class="avatar-img rounded-circle" alt="Gambar Produk"
-                                                src="{{ isset($notification->data['image']) ? asset('storage/purchases/' . $notification->data['image']) : asset('assets/img/no-image.png') }}">
-                                        </span>
                                         <div class="media-body">
-                                            <h6 class="text-danger">Peringatan Stok</h6>
-                                            <p class="noti-details">
-                                                <span class="noti-title">
-                                                    {{ $notification->data['product_name'] ?? 'Produk tidak diketahui' }}
-                                                    <br>
-                                                    <span class="badge badge-warning">Stok:
-                                                        {{ $notification->data['quantity'] ?? '0' }}</span>
-                                                </span>
-                                                <span>Segera lakukan pembelian ulang.</span>
-                                            </p>
+                                            @switch($notification->data['type'] ?? 'default')
+                                                @case('expired_product')
+                                                    <h6 class="text-danger">
+                                                        <i class="fe fe-alert-triangle"></i> Produk Kedaluwarsa
+                                                    </h6>
+                                                    <p class="noti-details">
+                                                        <span class="noti-title">
+                                                            {{ $notification->data['product_name'] ?? 'Produk tidak diketahui' }}
+                                                        </span>
+                                                        <br>
+                                                        <span class="text-muted">
+                                                            Kedaluwarsa: {{ \Carbon\Carbon::parse($notification->data['expiry_date'])->format('d/m/Y') }}
+                                                        </span>
+                                                    </p>
+                                                    @break
+                                                @case('low_stock')
+                                                    <h6 class="text-warning">
+                                                        <i class="fe fe-package"></i> Stok Rendah
+                                                    </h6>
+                                                    <p class="noti-details">
+                                                        <span class="noti-title">
+                                                            {{ $notification->data['product_name'] ?? 'Produk tidak diketahui' }}
+                                                        </span>
+                                                        <br>
+                                                        <span class="badge badge-warning">
+                                                            Stok: {{ $notification->data['current_stock'] ?? '0' }}
+                                                        </span>
+                                                    </p>
+                                                    @break
+                                                @case('stock_out')
+                                                    <h6 class="text-danger">
+                                                        <i class="fe fe-x-circle"></i> Stok Habis
+                                                    </h6>
+                                                    <p class="noti-details">
+                                                        <span class="noti-title">
+                                                            {{ $notification->data['product_name'] ?? 'Produk tidak diketahui' }}
+                                                        </span>
+                                                        <br>
+                                                        <span class="text-danger">Stok habis</span>
+                                                    </p>
+                                                    @break
+                                                @default
+                                                    <h6 class="text-info">
+                                                        <i class="fe fe-info"></i> Notifikasi
+                                                    </h6>
+                                                    <p class="noti-details">
+                                                        {{ $notification->data['message'] ?? 'Pesan tidak tersedia' }}
+                                                    </p>
+                                            @endswitch
                                             <p class="noti-time">
-                                                <span
-                                                    class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
+                                                <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
                                             </p>
                                         </div>
                                     </div>
                                 </a>
                             </li>
-                        @endforeach
+                        @empty
+                            <li class="notification-message">
+                                <div class="media">
+                                    <div class="media-body">
+                                        <p class="text-center text-muted">Tidak ada notifikasi baru</p>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforelse
                     </ul>
                 </div>
                 <div class="topnav-dropdown-footer">
-                    <a href="#">Lihat Semua Notifikasi</a>
+                    <a href="{{ route('show-all') }}">Lihat Semua Notifikasi</a>
                 </div>
             </div>
         </li>
@@ -103,13 +137,12 @@
                     </div>
                     <div class="user-text">
                         <h6>{{ auth()->user()->name }}</h6>
+                        <p class="text-muted mb-0">Kasir</p>
                     </div>
                 </div>
 
                 <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a>
-                <a class="dropdown-item" href="{{ route('settings') }}">Pengaturan</a>
-
-
+                
                 <a href="javascript:void(0)" class="dropdown-item">
                     <form action="{{ route('logout') }}" method="post">
                         @csrf

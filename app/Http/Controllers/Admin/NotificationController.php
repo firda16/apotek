@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 // use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Notifications\DatabaseNotification;
 
 class NotificationController extends Controller
 {
@@ -45,6 +46,19 @@ class NotificationController extends Controller
         );
 
         return view('admin.notifications.index', ['notifications' => $paginated]);
+    }
+
+
+    
+
+    public function destroyAll()
+    {
+        DatabaseNotification::where('notifiable_id', Auth::id())
+            ->where('notifiable_type', get_class(Auth::user()))
+            ->delete();
+
+        $notification = notify('Semua notifikasi berhasil dihapus');
+        return back()->with($notification);
     }
 
 

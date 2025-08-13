@@ -16,8 +16,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Notifications\SaleCompleted;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use QCod\AppSettings\Setting\AppSettings;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\PurchaseCompletedNotification;
 
 
 
@@ -308,6 +312,13 @@ HTML;
 
             DB::commit();
             Log::info('Transaksi berhasil disimpan.');
+
+            $purchase->load('purchaseItems.product', 'supplier');
+            Notification::send(
+                Auth::user(),
+                new PurchaseCompletedNotification($purchase, $total)
+            );
+
 
             return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil disimpan.');
         } catch (\Exception $e) {
