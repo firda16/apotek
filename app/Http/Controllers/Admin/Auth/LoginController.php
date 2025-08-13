@@ -40,7 +40,8 @@ class LoginController extends Controller
     } elseif ($user->role === 'kasir') {
         // Jika peran adalah 'kasir', arahkan ke halaman kasir/dashboard
         // Asumsikan Anda memiliki route bernama 'kasir.dashboard' atau path '/kasir/dashboard'
-        return redirect()->route('kasir.dashboard'); 
+        // return redirect()->route('kasir.dashboard'); 
+        return redirect()->route('dashboard'); 
         
         // Atau jika Anda menggunakan URL langsung:
         // return redirect('/kasir/dashboard');

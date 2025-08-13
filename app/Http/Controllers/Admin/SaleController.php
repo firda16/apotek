@@ -486,144 +486,11 @@ class SaleController extends Controller
         }
     }
 
-
-
-
-    //  public function update(Request $request, Sale $sale)
-    // {
-    //     // 1. Log or dump the incoming request data
-    //     // This confirms what your form is actually sending.
-    //     Log::info('Incoming Update Sale Request:', $request->all());
-    //     // Or for a browser dump: dd($request->all());
-
-    //     $rules = [
-    //         'nama_customer' => 'required|string|max:255',
-    //         'nomor_telepon' => 'required|string|max:20',
-    //         'discount' => 'nullable|numeric|min:0|max:100',
-    //         'payment_method' => 'required|in:Cash,Transfer,QRIS',
-    //         'sale_items' => 'required|array|min:1',
-    //         'sale_items.*.nama_produk' => ['required', 'exists:products,id'],
-    //         'sale_items.*.quantity' => 'required|numeric|min:1',
-    //         'sale_items.*.unit_price' => 'required|numeric|min:0',
-    //         'total_final_price' => 'required|numeric|min:0', // Ensure this hidden field is validated
-    //     ];
-
-    //     $messages = [
-    //         // ... (your existing validation messages) ...
-    //         'total_final_price.required' => 'Total harga akhir wajib dihitung.',
-    //         'total_final_price.numeric' => 'Total harga akhir harus berupa angka.',
-    //         'total_final_price.min' => 'Total harga akhir tidak boleh negatif.',
-    //     ];
-
-    //     try {
-    //         $validatedData = $request->validate($rules, $messages);
-
-    //         // 2. Log or dump after successful validation
-    //         // If you don't see this, validation is failing.
-    //         Log::info('Sale Validation Passed:', $validatedData);
-    //         // Or for a browser dump: dd('Validation Passed!', $validatedData);
-
-    //         DB::beginTransaction();
-
-    //         // Check if customer exists before updating
-    //         $customer = $sale->customer; // Assuming $sale has a customer relationship
-    //         if (!$customer) {
-    //             // This shouldn't happen if the sale is properly associated with a customer
-    //             throw new \Exception('Customer not found for this sale.');
-    //         }
-    //         $customer->nama = $validatedData['nama_customer'];
-    //         $customer->telepon = $validatedData['nomor_telepon'];
-    //         $customer->save();
-    //         Log::info('Customer updated:', ['id' => $customer->id, 'nama' => $customer->nama]);
-
-
-    //         // Update Sale details
-    //         $sale->discount = $validatedData['discount'] ?? 0;
-    //         $sale->payment_method = $validatedData['payment_method'];
-    //         // Use the hidden_final_total value for total_price
-    //         $sale->total_price = $validatedData['total_final_price']; // Make sure to use the validated value
-    //         $sale->save();
-    //         Log::info('Sale updated:', ['id' => $sale->id, 'total_price' => $sale->total_price]);
-
-    //         // Handle Sale Items
-    //         // Get current product IDs and quantities before deleting
-    //         $oldSaleItems = $sale->saleItems()->get();
-    //         $oldProductQuantities = [];
-    //         foreach ($oldSaleItems as $oldItem) {
-    //             $oldProductQuantities[$oldItem->product_id] = $oldItem->quantity;
-    //         }
-
-    //         // Delete existing sale items first
-    //         $sale->saleItems()->delete();
-    //         Log::info('Existing sale items deleted for sale ID:', ['sale_id' => $sale->id]);
-
-    //         // Recreate new sale items and update product stock
-    //         foreach ($validatedData['sale_items'] as $itemData) {
-    //             $product = Product::find($itemData['nama_produk']);
-    //             if ($product) {
-    //                 $saleItem = $sale->saleItems()->create([
-    //                     'product_id' => $product->id,
-    //                     'quantity' => $itemData['quantity'],
-    //                     'unit_price' => $itemData['unit_price'],
-    //                     'total_price' => $itemData['quantity'] * $itemData['unit_price'],
-    //                 ]);
-    //                 Log::info('New sale item created:', ['sale_item_id' => $saleItem->id, 'product_id' => $product->id]);
-
-    //                 // Adjust product stock: Add back old quantity, then subtract new quantity
-    //                 $oldQty = $oldProductQuantities[$product->id] ?? 0;
-    //                 $newQty = $itemData['quantity'];
-
-    //                 // This logic assumes you decrement stock on sale creation/update
-    //                 // Make sure your stock logic is correct.
-    //                 // If you *only* decrement on new sale, then this part needs careful thought
-    //                 // to avoid over/under-stocking on updates.
-    //                 // A simpler way: increment old stock back, then decrement new stock.
-    //                 Product::where('id', $product->id)->increment('stock', $oldQty); // Return old stock
-    //                 Product::where('id', $product->id)->decrement('stock', $newQty); // Subtract new stock
-    //                 Log::info('Product stock adjusted for product ID:', ['product_id' => $product->id, 'old_qty' => $oldQty, 'new_qty' => $newQty]);
-
-    //                 // Basic check for sufficient stock (can also be a validation rule)
-    //                 if ($product->stock < 0) {
-    //                      // This means the new quantity makes stock negative after adjustment
-    //                      // You might want to throw an exception or handle this more gracefully
-    //                      throw new \Exception("Insufficient stock for product: " . $product->name);
-    //                 }
-    //             } else {
-    //                 Log::error('Product not found during sale item creation:', ['product_id' => $itemData['nama_produk']]);
-    //                 throw new \Exception("Produk dengan ID " . $itemData['nama_produk'] . " tidak ditemukan.");
-    //             }
-    //         }
-
-    //         DB::commit();
-    //         Log::info('Sale update successful and committed for sale ID:', ['sale_id' => $sale->id]);
-    //         return redirect()->route('sales.index')->with('success', 'Penjualan berhasil diperbarui!');
-
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         // Log the actual exception message for detailed debugging
-    //         Log::error('Sale Update Failed:', [
-    //             'error_message' => $e->getMessage(),
-    //             'file' => $e->getFile(),
-    //             'line' => $e->getLine(),
-    //             'trace' => $e->getTraceAsString(), // Full stack trace
-    //         ]);
-    //         return back()->withInput()->with('error', 'Terjadi kesalahan saat memperbarui penjualan: ' . $e->getMessage());
-    //     }
-    // }
-
     public function destroy(Sale $sale)
     {
         $sale->delete();
         return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus.');
     }
-
-
-    // public function destroy(Request $request)
-    // {
-    //     $sale = Sale::findOrFail($request->id);
-    //     $sale->delete();
-    //     return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus.');
-    // }
 
     public function generateReport(Request $request)
     {
@@ -632,14 +499,21 @@ class SaleController extends Controller
             'to_date' => 'required|date',
         ]);
 
-        $sales = Sale::with(['saleItems.product', 'customer']) // ← ini wajib!
+        $sales = Sale::with(['saleItems.product', 'customer'])
             ->whereBetween(DB::raw('DATE(created_at)'), [$request->from_date, $request->to_date])
+            ->when($request->payment_method, function ($query) use ($request) {
+                $query->where('payment_method', $request->payment_method);
+            })
             ->get();
 
         $title = 'sales reports';
 
-        return view('admin.sales.reports', compact('sales', 'title'));
+        return view('admin.sales.reports', [
+            'sales' => $sales,
+            'title' => $title
+        ]);
     }
+
     public function reports()
     {
         $title = 'Sales Reports';

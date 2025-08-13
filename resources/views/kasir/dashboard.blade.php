@@ -12,7 +12,7 @@
             <li class="breadcrumb-item active">Dashboard Kasir</li>
         </ul>
     </div>
-    <a href="{{ route('sales.create') }}" class="btn btn-primary">
+    <a href="{{ route('kasir.transaksi.create') }}" class="btn btn-primary">
         <i class="fe fe-plus"></i> Transaksi Baru
     </a>
 </div>

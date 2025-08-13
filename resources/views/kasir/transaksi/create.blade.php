@@ -182,7 +182,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <form method="POST" action="{{ route('sales.store') }}">
+                    <form method="POST" action="{{ route('kasir.transaksi.store') }}">
                         @csrf
 
                         <div class="row">

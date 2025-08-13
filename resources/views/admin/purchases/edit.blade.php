@@ -65,7 +65,7 @@
                             <select name="payment_method" id="payment_method"
                                 class="form-control @error('payment_method') is-invalid @enderror" required>
                                 <option value="">-- Pilih Metode Pembayaran --</option>
-                                @foreach (['Tunai', 'Transfer', 'QRIS', 'Ewallet'] as $method)
+                                @foreach (['Cash', 'Transfer', 'QRIS'] as $method)
                                     <option value="{{ $method }}"
                                         {{ old('payment_method', $purchase->payment_method) == $method ? 'selected' : '' }}>
                                         {{ $method }}

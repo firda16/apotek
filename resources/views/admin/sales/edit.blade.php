@@ -252,7 +252,7 @@
                                                 <option disabled value="">Pilih Produk</option>
                                                 @foreach ($products as $product)
                                                     <option value="{{ $product->id }}"
-                                                        {{ $product->available_stock <= 0 ? 'disabled' : '' }}
+                                                        {{-- {{ $product->available_stock <= 0 ? 'disabled' : '' }} --}}
                                                         data-category="{{ $product->category->name ?? '-' }}"
                                                         data-price="{{ $product->price }}"
                                                         {{ $item->product_id == $product->id ? 'selected' : '' }}>
