@@ -57,8 +57,8 @@
                             @foreach ($pembelians as $pembelian)
                                 @foreach ($pembelian->purchaseItems as $item)
                                     <tr>
-                                        <td>{{ $row++ }}</td>
-                                        <td>{{ $pembelian->created_at->format('d M Y') }}</td>
+                                        <td>{{ $row++ }}</td>                                        
+                                        <td>{{ \Carbon\Carbon::parse($pembelian->created_at)->translatedFormat('l, d F Y') }}</td>
                                         <td>{{ $pembelian->supplier->name ?? '-' }}</td>
                                         <td>{{ $pembelian->payment_method ?? '-' }}</td>
                                         <td>{{ $item->product->name ?? '-' }}</td>

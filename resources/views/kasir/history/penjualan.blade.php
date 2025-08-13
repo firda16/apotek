@@ -92,11 +92,11 @@
                                 <label for="payment_method" class="form-label">Metode Pembayaran</label>
                                 <select name="payment_method" id="payment_method" class="form-select">
                                     <option value="">Semua</option>
-                                    <option value="tunai" {{ request('payment_method') == 'tunai' ? 'selected' : '' }}>
-                                        Tunai</option>
-                                    <option value="transfer"
-                                        {{ request('payment_method') == 'transfer' ? 'selected' : '' }}>Transfer</option>
-                                    <option value="qris" {{ request('payment_method') == 'qris' ? 'selected' : '' }}>QRIS
+                                    <option value="Cash" {{ request('payment_method') == 'Cash' ? 'selected' : '' }}>
+                                        Cash</option>
+                                    <option value="Transfer"
+                                        {{ request('payment_method') == 'Transfer' ? 'selected' : '' }}>Transfer</option>
+                                    <option value="QRIS" {{ request('payment_method') == 'QRIS' ? 'selected' : '' }}>QRIS
                                     </option>
                                 </select>
                             </div>
@@ -143,8 +143,9 @@
                                     @forelse ($sales as $sale)
                                         <tr>
                                             <td class="text-center">{{ $loop->iteration + $sales->firstItem() - 1 }}</td>
-                                            <td class="text-center">
-                                                {{ \Carbon\Carbon::parse($sale->created_at)->format('d M Y') }}</td>
+
+                                            <td>{{ \Carbon\Carbon::parse($sale->created_at)->translatedFormat('l, d F Y') }}
+                                            </td>
                                             <td>{{ $sale->invoice_number ?? '-' }}</td>
                                             <td>{{ $sale->customer->nama ?? 'Umum' }}</td>
                                             <td class="text-center">{{ ucfirst($sale->payment_method ?? '-') }}</td>

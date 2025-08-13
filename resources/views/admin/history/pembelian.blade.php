@@ -106,8 +106,8 @@
                                 <label for="payment_method" class="form-label">Metode Pembayaran</label>
                                 <select name="payment_method" id="payment_method" class="form-select">
                                     <option value="">Semua</option>
-                                    <option value="tunai" {{ request('payment_method') == 'tunai' ? 'selected' : '' }}>
-                                        Tunai</option>
+                                    <option value="Cash" {{ request('payment_method') == 'Cash' ? 'selected' : '' }}>
+                                        Cash</option>
                                     <option value="transfer"
                                         {{ request('payment_method') == 'transfer' ? 'selected' : '' }}>Transfer</option>
                                     <option value="qris" {{ request('payment_method') == 'qris' ? 'selected' : '' }}>QRIS

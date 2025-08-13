@@ -296,7 +296,9 @@
                                             <td>{{ $purchase->quantity }}</td>
                                             <td class="text-center">Rp
                                                 {{ number_format($purchase->total_price, 0, ',', '.') }}</td>
-                                            <td>{{ $purchase->created_at->format('d M Y H:i') }}</td>
+                                            {{-- <td>{{ $purchase->created_at->format('d M Y H:i') }}</td> --}}
+                                            <td>{{ \Carbon\Carbon::parse($purchase->created_at)->translatedFormat('l, d F Y H:i') }}
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endif
@@ -340,7 +342,8 @@
                                             <td>{{ $sale->quantity }}</td>
                                             <td class="text-center">Rp
                                                 {{ number_format($sale->total_price, 0, ',', '.') }}</td>
-                                            <td>{{ $sale->created_at->format('d M Y H:i') }}</td>
+                                            {{-- <td>{{ $sale->created_at->format('d M Y H:i') }}</td> --}}
+                                            <td>{{ \Carbon\Carbon::parse($sale->created_at)->translatedFormat('l, d F Y H:i') }}</td>
                                         </tr>
                                     @endforeach
                                 @endif

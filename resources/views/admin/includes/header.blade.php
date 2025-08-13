@@ -171,46 +171,60 @@
             </li>
             <!-- /Notifikasi -->
 
+            <li>
+                <a href="javascript:void(0)" class="dropdown-item">
+                    <form action="{{ route('logout') }}" method="post">
+                        @csrf
+                        <button type="submit" class="btn logout-btn">
+                            <i class="fe fe-logout" style="font-size: 20px;"></i>
+                            <p class="logout-text">Keluar</p>
+                        </button>
+                    </form>
+                </a>
+            </li>
             <!-- Menu Pengguna -->
-            <li class="nav-item dropdown has-arrow">
-                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                    {{-- <span class="user-img">
+            <!--
+                    <li class="nav-item dropdown has-arrow">
+                        <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                            {{-- <span class="user-img">
                         <img class="rounded-circle"
                             src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
                             width="31" alt="Avatar">                   
                     </span> --}}
-                    <span class="user-img">                        
-                        <i class="fe fe-user" style="font-size: 25px;"></i>
-                    </span>
-                </a>
-                <div class="dropdown-menu">
-                    <div class="user-header">
-                        {{-- <div class="avatar avatar-sm">
+                            <span class="user-img">
+                                <i class="fe fe-user" style="font-size: 25px;"></i>
+                            </span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <div class="user-header">
+                                {{-- <div class="avatar avatar-sm">
                             <img src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
                                 alt="Foto Pengguna" class="avatar-img rounded-circle">
                         </div> --}}
-                        <div class="col">
-                            <div class="user-text">
-                                <h5>{{ auth()->user()->name }}</h5>
+                                <div class="col">
+                                    <div class="user-text">
+                                        <h5>{{ auth()->user()->name }}</h5>
+                                    </div>
+                                    <div class="user-text">
+                                        <small>Role: {{ auth()->user()->role }}</small>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="user-text">
-                                <small>Role: {{ auth()->user()->role }}</small>
-                            </div>
+
+                            {{-- <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a> --}}
+                            {{-- <a class="dropdown-item" href="{{ route('settings') }}">Pengaturan</a> --}}
+
+
+                            <a href="javascript:void(0)" class="dropdown-item">
+                                <form action="{{ route('logout') }}" method="post">
+                                    @csrf
+                                    <button type="submit" class="btn">Keluar</button>
+                                </form>
+                            </a>
                         </div>
-                    </div>
+                    </li>
+                -->
 
-                    {{-- <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a> --}}
-                    {{-- <a class="dropdown-item" href="{{ route('settings') }}">Pengaturan</a> --}}
-
-
-                    <a href="javascript:void(0)" class="dropdown-item">
-                        <form action="{{ route('logout') }}" method="post">
-                            @csrf
-                            <button type="submit" class="btn">Keluar</button>
-                        </form>
-                    </a>
-                </div>
-            </li>
             <!-- /Menu Pengguna -->
 
         </ul>

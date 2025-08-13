@@ -29,7 +29,7 @@
 								<th>Nama</th>
 								<th>Email</th>
 								<th>Peran</th>
-								<th>Foto</th>
+								{{-- <th>Foto</th> --}}
 								<th>Tanggal Dibuat</th>
 								<th class="text-center action-btn">Aksi</th>
 							</tr>
@@ -41,7 +41,7 @@
 								<td>{{ $user->name }}</td>
 								<td>{{ $user->email }}</td>
 								<td>{{ $user->role }}</td>
-								<td>
+								{{-- <td>
 								@if ($user->avatar && file_exists(public_path('storage/users/' . $user->avatar)))
     <img src="{{ asset('storage/users/' . $user->avatar) }}" alt="Avatar" width="40" height="40">
 @else
@@ -49,7 +49,7 @@
 @endif
 
 
-								</td>
+								</td> --}}
 								<td>{{ $user->created_at->format('d M Y') }}</td>
 								<td class="text-center">
 									<a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></a>

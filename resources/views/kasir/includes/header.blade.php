@@ -110,7 +110,8 @@
 
                                                 @default
                                                     <h6 class="text-info">
-                                                        <i class="fe fe-info"></i> Notifikasi
+                                                        {{-- <i class="fe fe-info"></i> Notifikasi --}}
+                                                        <i class="fe fe-info"></i> Transaksi
                                                     </h6>
                                                     <p class="noti-details">
                                                         {{ $notification->data['message'] ?? 'Pesan tidak tersedia' }}
@@ -142,37 +143,22 @@
             </li>
             <!-- /Notifikasi -->
 
-            <!-- Menu Pengguna -->
-            <li class="nav-item dropdown has-arrow">
-                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                    <span class="user-img">
-                        <span class="user-img">                        
-                        <i class="fe fe-user" style="font-size: 25px;"></i>
-                    </span>
-                    </span>
+            <li>
+                <a href="javascript:void(0)" class="dropdown-item">
+                    <form action="{{ route('logout') }}" method="post">
+                        @csrf
+                        <button type="submit" class="btn logout-btn">
+                            <i class="fe fe-logout" style="font-size: 20px;"></i>
+                            <p class="logout-text">Keluar</p>
+                        </button>
+                    </form>
                 </a>
-                <div class="dropdown-menu">
-                    <div class="user-header">
-                        {{-- <div class="avatar avatar-sm">
-                            <img src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
-                                alt="Foto Pengguna" class="avatar-img rounded-circle">
-                        </div> --}}
-                        <div class="user-text">
-                            <h6>{{ auth()->user()->name }}</h6>
-                            <p class="text-muted mb-0">Kasir</p>
-                        </div>
-                    </div>
-
-                    <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a>
-
-                    <a href="javascript:void(0)" class="dropdown-item">
-                        <form action="{{ route('logout') }}" method="post">
-                            @csrf
-                            <button type="submit" class="btn">Keluar</button>
-                        </form>
-                    </a>
-                </div>
             </li>
+
+            <!-- Menu Pengguna -->
+
+
+
             <!-- /Menu Pengguna -->
 
         </ul>

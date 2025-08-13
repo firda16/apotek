@@ -55,7 +55,8 @@
                                     @foreach ($sales as $key => $sale)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($sale->created_at)->format('d M Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($sale->created_at)->translatedFormat('l, d F Y') }}
+                                            </td>
                                             <td>{{ $sale->customer->nama ?? '-' }}</td>
                                             <td>{{ $sale->customer->telepon ?? '-' }}</td>
                                             <td>{{ $sale->payment_method ?? '-' }}</td>
@@ -159,7 +160,7 @@
                             exportOptions: {
                                 columns: "thead th:not(.action-btn)"
                             },
-                            customize: function(doc) {                                
+                            customize: function(doc) {
                                 // Styling tabel
                                 doc.styles.tableHeader.fontSize = 10;
                                 doc.styles.tableHeader.bold = true;

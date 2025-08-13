@@ -51,12 +51,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12">
+                            {{-- <div class="col-12">
                                 <div class="form-group">
                                     <label>Foto</label>
                                     <input type="file" name="avatar" class="form-control">
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-6">

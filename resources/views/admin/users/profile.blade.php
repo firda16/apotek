@@ -115,12 +115,12 @@
                                                             </select>
                                                         </div>
                                                     </div> --}}
-                                                    <div class="col-12">
+                                                    {{-- <div class="col-12">
                                                         <div class="form-group">
                                                             <label>Foto Pengguna</label>
                                                             <input type="file" class="form-control" name="avatar">
                                                         </div>
-                                                    </div>
+                                                    </div> --}}
                                                 </div>
                                                 <button type="submit" class="btn btn-primary btn-block">Simpan
                                                     Perubahan</button>

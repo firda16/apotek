@@ -37,9 +37,9 @@ class SaleKasirController extends Controller
                 ->orderBy('created_at', 'desc');
 
             return DataTables::of($sales)
-                ->addIndexColumn()
+                ->addIndexColumn()                
                 ->addColumn('tanggal_penjualan', function ($row) {
-                    return date('d M, Y', strtotime($row->created_at));
+                    return Carbon::parse($row->created_at)->translatedFormat('l, d F Y') ?? '-';
                 })
                 ->addColumn('nama_pelanggan', function ($row) {
                     return $row->customer->nama ?? '-';

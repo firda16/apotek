@@ -41,8 +41,11 @@ class SaleController extends Controller
 
             return DataTables::of($sales)
                 ->addIndexColumn()
+                // ->addColumn('tanggal_penjualan', function ($row) {
+                //     return date('d M, Y', strtotime($row->created_at));
+                // })
                 ->addColumn('tanggal_penjualan', function ($row) {
-                    return date('d M, Y', strtotime($row->created_at));
+                    return Carbon::parse($row->created_at)->translatedFormat('l, d F Y') ?? '-';
                 })
                 ->addColumn('nama_pelanggan', function ($row) {
                     return $row->customer->nama ?? '-';
@@ -531,11 +534,11 @@ class SaleController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
-       // Tambahkan pengecekan role untuk mengembalikan view yang benar
+        // Tambahkan pengecekan role untuk mengembalikan view yang benar
         if (Auth::user()->role == 'admin') {
             return view('admin.sales.reports', compact('title'));
         } elseif (Auth::user()->role == 'kasir') {
-             // Menggunakan path file yang Anda berikan: 'kasir.reports.reports'
+            // Menggunakan path file yang Anda berikan: 'kasir.reports.reports'
             return view('kasir.reports.reports', compact('title'));
         }
     }

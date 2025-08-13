@@ -105,11 +105,11 @@
 					<a href="{{ route('backup.index') }}"><i class="material-icons">backup</i> <span>Cadangan</span></a>
 				</li> --}}
 
-                <li class="{{ route_is('settings') ? 'active' : '' }}">
+                {{-- <li class="{{ route_is('settings') ? 'active' : '' }}">
                     <a href="{{ route('settings') }}">
                         <i class="material-icons">settings</i> <span>Pengaturan</span>
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </div>
     </div>

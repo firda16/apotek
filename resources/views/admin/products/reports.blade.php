@@ -121,7 +121,8 @@
                                     @foreach ($stockIn as $i => $item)
                                         <tr>
                                             <td>{{ $i + 1 }}</td>
-                                            <td>{{ $item->purchase->created_at->format('d M Y') }}</td>
+                                            {{-- <td>{{ $item->purchase->created_at->format('d M Y') }}</td> --}}
+                                            <td>{{ \Carbon\Carbon::parse($item->purchase->created_at)->translatedFormat('l, d F Y') }}</td>
                                             <td>{{ $item->product->name ?? '-' }}</td>
                                             <td>{{ $item->product->category->name ?? '-' }}</td>
                                             <td>{{ $item->quantity }}</td>
@@ -153,7 +154,8 @@
                                     @foreach ($stockOut as $i => $item)
                                         <tr>
                                             <td>{{ $i + 1 }}</td>
-                                            <td>{{ $item->sale->created_at->format('d M Y') }}</td>
+                                            {{-- <td>{{ $item->sale->created_at->format('d M Y') }}</td> --}}
+                                            <td>{{ $item->sale->created_at->translatedFormat('l, d F Y') }}</td>
                                             <td>{{ $item->product->name ?? '-' }}</td>
                                             <td>{{ $item->product->category->name ?? '-' }}</td>
                                             <td>{{ $item->quantity }}</td>
