@@ -52,10 +52,10 @@
                             <li class="notification-message">
                                 <a href="{{ route('read') }}">
                                     <div class="media">
-                                        <span class="avatar avatar-sm">
+                                        {{-- <span class="avatar avatar-sm">
                                             <img class="avatar-img rounded-circle" alt="Gambar Produk"
                                                 src="{{ isset($notification->data['image']) ? asset('storage/purchases/' . $notification->data['image']) : asset('assets/img/no-image.png') }}">
-                                        </span>
+                                        </span> --}}
                                         <div class="media-body">
                                             <h6 class="text-danger">Peringatan Stok</h6>
                                             <p class="noti-details">

@@ -25,7 +25,7 @@ class SaleKasirController extends Controller
 
     public function printInvoice(Sale $sale)
     {
-        $pdf = Pdf::loadView('kasir.sales.invoice', compact('sale'));
+        $pdf = Pdf::loadView('kasir.transaksi.invoice', compact('sale'));
         return $pdf->stream('invoice-' . $sale->invoice_number . '.pdf');
     }
 
@@ -323,10 +323,10 @@ class SaleKasirController extends Controller
             \Illuminate\Support\Facades\Notification::send(Auth::user(), new SaleCompleted($sale->id, $sale->invoice_number));
 
             return redirect()
-                ->route('kasir.sales.index')
+                ->route('kasir.transaksi')
                 ->with([
                     'success' => 'Penjualan berhasil ditambahkan!',
-                    'invoice_url' => route('sales.invoice', $sale->id)
+                    'invoice_url' => route('kasir.transaksi.invoice', $sale->id)
                 ]);
 
         } catch (\Exception $e) {

@@ -152,27 +152,54 @@
                     extend: 'collection',
                     text: 'Ekspor Data',
                     buttons: [{
-                            extend: 'pdf',
+                            extend: 'pdfHtml5',
+                            title: 'LAPORAN PENJUALAN',
+                            orientation: 'landscape',
+                            pageSize: 'A4',
+                            exportOptions: {
+                                columns: "thead th:not(.action-btn)"
+                            },
+                            customize: function(doc) {                                
+                                // Styling tabel
+                                doc.styles.tableHeader.fontSize = 10;
+                                doc.styles.tableHeader.bold = true;
+                                doc.styles.tableHeader.alignment = 'center';
+                                doc.styles.tableBodyOdd.alignment = 'center';
+                                doc.styles.tableBodyEven.alignment = 'center';
+
+                                // Margin halaman
+                                doc.pageMargins = [40, 60, 40, 40];
+                            }
+                        },
+                        {
+                            extend: 'excelHtml5',
+                            title: 'Laporan Penjualan',
                             exportOptions: {
                                 columns: "thead th:not(.action-btn)"
                             }
                         },
                         {
-                            extend: 'excel',
-                            exportOptions: {
-                                columns: "thead th:not(.action-btn)"
-                            }
-                        },
-                        {
-                            extend: 'csv',
+                            extend: 'csvHtml5',
+                            title: 'Laporan Penjualan',
                             exportOptions: {
                                 columns: "thead th:not(.action-btn)"
                             }
                         },
                         {
                             extend: 'print',
+                            title: 'Laporan Penjualan',
                             exportOptions: {
                                 columns: "thead th:not(.action-btn)"
+                            },
+                            customize: function(win) {
+                                $(win.document.body)
+                                    .css('font-size', '10pt')
+                                    .prepend(
+                                        '<h3 style="text-align:center; margin-bottom:20px;">LAPORAN PENJUALAN</h3>'
+                                    );
+                                $(win.document.body).find('table')
+                                    .addClass('table table-bordered')
+                                    .css('font-size', 'inherit');
                             }
                         }
                     ]

@@ -36,8 +36,9 @@ use App\Http\Controllers\Admin\Auth\ForgotPasswordController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('', [DashboardController::class, 'Index']);
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
     // Khusus untuk kasir
@@ -50,7 +51,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 // Route::get('/laporan', [KasirController::class, 'laporan'])->name('kasir.laporan');
 // Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.laporan');
 
-    Route::get('', [DashboardController::class, 'Index']);
     Route::get('notification', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
     Route::get('notification/semua', [NotificationController::class, 'show'])->name('show-all');
     Route::get('notification-read', [NotificationController::class, 'read'])->name('read');
@@ -160,6 +160,7 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
 
     // transaksi
     Route::get('/transaksi', [SaleKasirController::class, 'index'])->name('kasir.transaksi');
+    Route::post('/transaksi', [SaleKasirController::class, 'store'])->name('kasir.transaksi.store');
     Route::get('/transaksi/create', [SaleKasirController::class, 'create'])->name('kasir.transaksi.create');
     Route::get('/transaksi/{sale}/edit', [SaleKasirController::class, 'edit'])->name('kasir.transaksi.edit');
     Route::put('/transaksi/{sale}', [SaleKasirController::class, 'update'])->name('kasir.transaksi.update');

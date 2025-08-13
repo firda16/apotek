@@ -6,8 +6,8 @@
                     <span>Menu Utama Kasir</span>
                 </li>
 
-                <li class="{{ route_is('kasir.dashboard') ? 'active' : '' }}">
-                    <a href="{{ route('kasir.dashboard') }}">
+                <li class="{{ route_is('dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('dashboard') }}">
                         <i class="fe fe-layout"></i>
                         <span>Dashboard Kasir</span>
                     </a>
