@@ -32,9 +32,9 @@
 
 @push('page-header')
     <div class="col-sm-7 col-auto">
-        <h3 class="page-title">Penjualan</h3>
+        <h3 class="page-title">Data Transaksi</h3>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('kasir.dashboard') }}">Beranda</a></li>
             <li class="breadcrumb-item active">Penjualan</li>
         </ul>
     </div>
