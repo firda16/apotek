@@ -167,10 +167,10 @@
 
 @push('page-header')
     <div class="col-sm-12">
-        <h3 class="page-title">Edit Sale</h3>
+        <h3 class="page-title">Edit Transaksi</h3>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item active">Tambah Sale</li>
+            <li class="breadcrumb-item"><a href="{{ route('kasir.dashboard') }}">Beranda</a></li>
+            <li class="breadcrumb-item active">Penjualan</li>
         </ul>
     </div>
 @endpush
@@ -384,7 +384,7 @@
                                             <option disabled value="{{ old('payment_method', $sale->payment_method) }}" selected>Pilih Metode Pembayaran</option>
                                             <option value="Cash">Tunai</option>
                                             <option value="Transfer">Transfer Bank</option>
-                                            <option value="QRIS">QRIS</option>                                            
+                                            <option value="QRIS">QRIS</option>
                                         </select> --}}
                                         <select name="payment_method" class="form-select" required>
                                             <option disabled
@@ -464,14 +464,14 @@
                 <div class="col-md-2">
                     <label class="form-label">Jumlah <span class="required-asterisk">*</span></label>
                     <input type="number" name="sale_items[${index}][quantity]" class="form-control quantity" required value="1" min="1" placeholder="0">
-                </div>            
+                </div>
                 <div class="col-md-2">
                     <label class="form-label">Harga satuan <span class="required-asterisk">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text">Rp</span>
-                        <input type="number" data-category="{{ $product->price }}" name="sale_items[${index}][unit_price]" class="form-control price" min="0" placeholder="0">                                            
+                        <input type="number" data-category="{{ $product->price }}" name="sale_items[${index}][unit_price]" class="form-control price" min="0" placeholder="0">
                     </div>
-                </div>                         
+                </div>
                 <div class="col-md-3">
                     <label class="form-label">Subtotal</label>
                     <div class="input-group">

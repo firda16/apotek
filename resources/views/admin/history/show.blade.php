@@ -150,7 +150,7 @@
             </div>
 
             <div class="text-end mt-3">
-                <a href="{{ route('riwayat.penjualan') }}" class="btn btn-outline-secondary btn-back">
+                <a href="{{ url()->previous() }}" class="btn btn-outline-secondary btn-back">
                     ← Kembali ke Riwayat
                 </a>
             </div>
