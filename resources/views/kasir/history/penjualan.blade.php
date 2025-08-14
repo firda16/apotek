@@ -90,7 +90,7 @@
 
                             <div class="col-lg-3 col-md-6">
                                 <label for="payment_method" class="form-label">Metode Pembayaran</label>
-                                <select name="payment_method" id="payment_method" class="form-select">
+                                <select name="payment_method" id="payment_method" class="form-control">
                                     <option value="">Semua</option>
                                     <option value="Cash" {{ request('payment_method') == 'Cash' ? 'selected' : '' }}>
                                         Cash</option>
