@@ -21,11 +21,11 @@ class DashboardController extends Controller
     public function index()
     {
         $role = Auth::user()->role;
-        
+
         if ($role === 'admin') {
             $title = 'dashboard';
             // $expiredProducts = PurchaseItem::whereDate('expiry_date', '<=', now())->get();
-    
+
             // foreach ($expiredProducts as $expired) {
             //     event(new ProductExpired($expired));
             // }
@@ -46,7 +46,7 @@ class DashboardController extends Controller
             $total_pembelian_produk = PurchaseItem::count();
             $total_sales = SaleItem::count();
             $total_products = Product::count();
-            $out_of_stock_products = Product::where('stock', '<=', 0)->count();
+            $out_of_stock_products = Product::outOfStock()->count();
             $total_expired_products = PurchaseItem::whereDate('expiry_date', '<=', now())->count();
             $today_sales = SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
 

@@ -5,7 +5,7 @@
     <div class="col-sm-7 col-auto">
         <h3 class="page-title">Laporan Stok</h3>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('kasir.dashboard') }}">Beranda</a></li>
             <li class="breadcrumb-item active">Laporan Stok</li>
         </ul>
     </div>
