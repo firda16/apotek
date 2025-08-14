@@ -211,12 +211,14 @@ class ProductController extends Controller
                 'category',
                 'purchaseItems' => function ($query) {
                     $query->whereDate('expiry_date', '>', now())
-                        ->whereColumn('quantity', '>', 'sold_quantity');
+                        ->whereColumn('quantity', '>', 'sold_quantity')
+                        ->orWhereNull('expiry_date');
                 }
             ])
                 ->whereHas('purchaseItems', function ($query) {
                     $query->whereDate('expiry_date', '>', now())
-                        ->whereColumn('quantity', '>', 'sold_quantity');
+                        ->whereColumn('quantity', '>', 'sold_quantity')
+                        ->orWhereNull('expiry_date'); 
                 });
 
             return DataTables::of($products)
@@ -302,14 +304,14 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         // Cek apakah semua batch produk sudah expired (expiry_date <= hari ini)
-        $allExpired = $product->purchaseItems->count() > 0 &&
-            $product->purchaseItems->every(function ($item) {
-                return \Carbon\Carbon::parse($item->expiry_date)->lte(now());
-            });
+        // $allExpired = $product->purchaseItems->count() > 0 &&
+        //     $product->purchaseItems->every(function ($item) {
+        //         return \Carbon\Carbon::parse($item->expiry_date)->lte(now());
+        //     });
 
-        if (!$allExpired) {
-            return back()->with('error', 'Produk hanya bisa dihapus jika semua batch sudah kadaluarsa.');
-        }
+        // if (!$allExpired) {
+        //     return back()->with('error', 'Produk hanya bisa dihapus jika semua batch sudah kadaluarsa.');
+        // }
 
         $product->delete();
         return redirect()->route('products.index')->with(notify('Produk berhasil dihapus'));

@@ -65,8 +65,8 @@ class SupplierController extends Controller
             'name' => 'required|min:3|max:255',
             'email' => 'nullable|email|string',
             'phone' => 'nullable|min:10|max:20',
-            'company' => 'nullable|max:200|required',
-            'address' => 'nullable|required|max:200',
+            'company' => 'nullable|max:200',
+            'address' => 'nullable|max:200',
 
         ]);
         Supplier::create([
@@ -110,8 +110,8 @@ class SupplierController extends Controller
             'name' => 'required|min:3|max:255',
             'email' => 'nullable|email|string',
             'phone' => 'nullable|min:10|max:20',
-            'company' => 'nullable|max:200|required',
-            'address' => 'nullable|required|max:200',
+            'company' => 'nullable|max:200',
+            'address' => 'nullable|max:200',
 
         ]);
         $supplier->update([

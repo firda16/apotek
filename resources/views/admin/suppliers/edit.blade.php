@@ -44,7 +44,7 @@
 						<div class="col-lg-6">
 							<div class="form-group">
 								<label>No. Telepon<span class="text-danger">*</span></label>
-								<input class="form-control" type="text" value="{{$supplier->phone ?? old('phone')}}" name="phone">
+								<input class="form-control" type="number" value="{{$supplier->phone ?? old('phone')}}" name="phone">
 							</div>
 						</div>
 						<div class="col-lg-6">

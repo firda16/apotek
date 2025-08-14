@@ -68,6 +68,11 @@
                        <i class="fas fa-chart-bar"></i> <span>Laporan Penjualan</span>
                     </a>
                 </li>
+                <li class="{{ Request::is('kasir/panduan*') ? 'active' : '' }}">
+                    <a href="{{ route('kasir.panduan') }}">
+                       <i class="fas fa-info"></i> <span>Panduan</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

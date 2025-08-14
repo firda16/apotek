@@ -46,27 +46,27 @@
 
         {{-- Total Pendapatan --}}
         <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-success border-success">
-                            <i class="fe fe-money"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3 class="text-center">Rp {{ number_format($total_pendapatan_hari_ini ?? 0, 0, ',', '.') }}
-                            </h3>
+            <a href="{{ route('riwayat.penjualan') }}" class="text-decoration-none text-dark">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-success border-success">
+                                <i class="fe fe-money"></i>
+                            </span>
+                            <div class="dash-count">
+                                <h3 class="text-center">Rp {{ number_format($total_pendapatan_hari_ini ?? 0, 0, ',', '.') }}
+                                </h3>
+                            </div>
                         </div>
-                    </div>
-                    <div class="dash-widget-info">
-                        <a href="{{ route('riwayat.penjualan') }}" class="text-decoration-none text-dark">
+                        <div class="dash-widget-info">
                             <h6 class="text-muted">Total Pendapatan Hari Ini</h6>
                             <div class="progress progress-sm">
                                 <div class="progress-bar bg-success w-50"></div>
                             </div>
-                        </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         {{-- Total Pengeluaran Bulan INi --}}
@@ -97,28 +97,28 @@
         </div>
         {{-- Total Pendapatan bulan ini --}}
         <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <span class="dash-widget-icon text-success border-success">
-                            <i class="fe fe-money"></i>
-                        </span>
-                        <div class="dash-count">
-                            <h3 class="text-center">
-                                Rp {{ number_format($total_pendapatan_bulan_ini ?? 0, 0, ',', '.') }}
-                            </h3>
+            <a href="{{ route('riwayat.penjualan') }}" class="text-decoration-none text-dark">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <span class="dash-widget-icon text-success border-success">
+                                <i class="fe fe-money"></i>
+                            </span>
+                            <div class="dash-count">
+                                <h3 class="text-center">
+                                    Rp {{ number_format($total_pendapatan_bulan_ini ?? 0, 0, ',', '.') }}
+                                </h3>
+                            </div>
                         </div>
-                    </div>
-                    <div class="dash-widget-info">
-                        <a href="{{ route('riwayat.penjualan') }}" class="text-decoration-none text-dark">
+                        <div class="dash-widget-info">
                             <h6 class="text-muted">Total Pendapatan Bulan Ini</h6>
                             <div class="progress progress-sm">
                                 <div class="progress-bar bg-success w-50"></div>
                             </div>
-                        </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         {{-- <div class="col-xl-3 col-sm-6 col-12">
@@ -177,7 +177,7 @@
                             <span class="dash-widget-icon text-primary border-primary">
                                 <i class="fe fe-cart"></i>
                             </span>
-                            <div class="dash-count">
+                            <div class="dash-count text-dark">
                                 <h3>{{ $stok_produk }}</h3>
                             </div>
                         </div>
@@ -343,7 +343,8 @@
                                             <td class="text-center">Rp
                                                 {{ number_format($sale->total_price, 0, ',', '.') }}</td>
                                             {{-- <td>{{ $sale->created_at->format('d M Y H:i') }}</td> --}}
-                                            <td>{{ \Carbon\Carbon::parse($sale->created_at)->translatedFormat('l, d F Y H:i') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($sale->created_at)->translatedFormat('l, d F Y H:i') }}
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endif

@@ -224,7 +224,7 @@
                                     <label class="form-label">Nomor Telepon <span class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                        <input type="text" id="telepon_customer" name="nomor_telepon"
+                                        <input type="number" id="telepon_customer" name="nomor_telepon"
                                             class="form-control" placeholder="Contoh: 0876 5245 8976" required>
                                     </div>
                                 </div>

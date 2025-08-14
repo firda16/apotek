@@ -196,6 +196,16 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::delete('/notifikasi/hapus-semua', [NotificationKasirController::class, 'destroyAll'])
         ->name('notifications.destroyAll');
 
+    //pdf
+    // routes/web.php
+    Route::get('panduan', function () {
+        $title = 'Panduan Buku';
+        $pdfPath = asset('assets/PANDUAN KASIR_ APOTEK.pdf');
+        return view('kasir.panduan', compact('title', 'pdfPath'));
+    })->name('panduan');
+
+
+
 });
 
 

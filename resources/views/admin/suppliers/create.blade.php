@@ -45,7 +45,7 @@
 							<div class="col-lg-6">
 								<div class="form-group">
 									<label>Nomor Telepon<span class="text-danger">*</span></label>
-									<input class="form-control" type="text" name="phone">
+									<input class="form-control" type="number" name="phone">
 								</div>
 							</div>
 							<div class="col-lg-6">

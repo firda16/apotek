@@ -4,7 +4,7 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4>Semua Notifikasi</h4>
-            <form action="{{ route('notifications.destroyAll') }}" method="POST"
+            <form action="{{ route('kasir.notifications.destroyAll') }}" method="POST"
                 onsubmit="return confirm('Yakin hapus semua notifikasi?')">
                 @csrf
                 @method('DELETE')

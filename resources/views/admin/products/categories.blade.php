@@ -24,6 +24,27 @@
 @endpush
 
 @section('content')
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Tutup">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    @if (session('edit_success'))
+        <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+            {{ session('edit_success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Tutup">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    @if ($errors->edit && $errors->edit->has('name'))
+        <div class="alert alert-danger mt-2">
+            {{ $errors->edit->first('name') }}
+        </div>
+    @endif
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
@@ -114,28 +135,6 @@
             </div>
         </div>
     </div>
-
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Tutup">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-    @if (session('edit_success'))
-        <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
-            {{ session('edit_success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Tutup">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-    @if ($errors->edit && $errors->edit->has('name'))
-        <div class="alert alert-danger mt-2">
-            {{ $errors->edit->first('name') }}
-        </div>
-    @endif
 @endsection
 
 @push('page-js')
