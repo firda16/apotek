@@ -20,10 +20,10 @@
 
 @push('page-header')
     <div class="col-sm-12">
-        <h3 class="page-title">Produk Kedaluwarsa</h3>
+        <h3 class="page-title">Produk Kadaluwarsa</h3>
         <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('kasir.products.index') }}">Produk</a></li>
-            <li class="breadcrumb-item active">Kedaluwarsa</li>
+            <li class="breadcrumb-item active">Kadaluwarsa</li>
         </ul>
     </div>
 @endpush
@@ -33,12 +33,12 @@
         <div class="col-md-12">
 
             <div class="d-flex justify-content-between mb-3">
-                <h5>Produk Mendekati & Sudah Kadaluarsa</h5>
+                <h5>Produk Mendekati & Sudah Kadaluwarsa</h5>
                 <div class="mb-3">
                     <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="Akan Kadaluarsa">Akan
-                        Kadaluarsa</button>
+                        Kadaluwarsa</button>
                     <button class="btn btn-sm btn-outline-danger filter-btn" data-filter="Sudah Kadaluarsa">Sudah
-                        Kadaluarsa</button>
+                        Kadaluwarsa</button>
                     <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter="All">Tampilkan Semua</button>
                 </div>
 

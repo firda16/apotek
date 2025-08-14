@@ -7,7 +7,7 @@
 
 @push('page-header')
     <div class="col-sm-7 col-auto">
-        <h3 class="page-title">Stok Produk yang tersedia</h3>
+        <h3 class="page-title">Stok Produk Tersedia</h3>
         <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
             <li class="breadcrumb-item active">Produk</li>
