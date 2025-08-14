@@ -6,7 +6,7 @@
                     <span>Menu Utama Kasir</span>
                 </li>
 
-                   {{-- Beranda --}}
+                {{-- Beranda --}}
                 <li class="{{ Request::is('kasir/dashboard') ? 'active' : '' }}">
                     <a href="{{ route('kasir.dashboard') }}">
                         <i class="fas fa-home"></i> <span>Beranda</span>
@@ -65,14 +65,21 @@
                 </li>
                 <li class="{{ Request::is('kasir/sales/reports*') ? 'active' : '' }}">
                     <a href="{{ route('kasir.sales.report') }}">
-                       <i class="fas fa-chart-bar"></i> <span>Laporan Penjualan</span>
+                        <i class="fas fa-chart-bar"></i> <span>Laporan Penjualan</span>
                     </a>
                 </li>
-                <li class="{{ Request::is('kasir/panduan*') ? 'active' : '' }}">
+                {{-- <li class="{{ Request::is('kasir/panduan*') ? 'active' : '' }}">
                     <a href="{{ route('kasir.panduan') }}">
                        <i class="fas fa-info"></i> <span>Panduan</span>
                     </a>
+                </li> --}}
+                <li>
+                    <a href="{{ asset('assets/Panduan Kasir - Apotek.pdf') }}" target="_blank">
+                        <i class="fe fe-info"></i>
+                        <span>Panduan Kasir</span>
+                    </a>
                 </li>
+
             </ul>
         </div>
     </div>

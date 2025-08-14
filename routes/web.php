@@ -176,6 +176,25 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     // customers
     Route::get('customers', [CustomerKasirController::class, 'index'])->name('customers');
     Route::get('customers/datatable', [CustomerKasirController::class, 'datatable'])->name('customers.datatable');
+    Route::get('customer-autocomplete-kasir', function (Illuminate\Http\Request $request) {
+        $term = $request->term;
+        $customers = Customer::where('nama', 'like', "%$term%")
+            ->select('id', 'nama', 'telepon')
+            ->get();
+        return response()->json($customers);
+    });
+    Route::get('customer-check-phone-kasir', function (\Illuminate\Http\Request $request) {
+        $phone = $request->phone;
+        $name = $request->name;
+        $customer = Customer::where('telepon', $phone)->first();
+        if ($customer && strtolower(trim($customer->nama)) !== strtolower(trim($name))) {
+            return response()->json([
+                'exists' => true,
+                'real_name' => $customer->nama
+            ]);
+        }
+        return response()->json(['exists' => false]);
+    });
 
     // Riwayat Penjualan Kasir
     Route::get('riwayat-penjualan', [HistoryController::class, 'penjualan'])->name('riwayat.penjualan');
@@ -203,6 +222,8 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
         $pdfPath = asset('assets/PANDUAN KASIR_ APOTEK.pdf');
         return view('kasir.panduan', compact('title', 'pdfPath'));
     })->name('panduan');
+
+
 
 
 

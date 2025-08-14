@@ -24,7 +24,8 @@
                                 href="{{ route('products.index') }}">Data Produk</a></li>
                         <li><a class="{{ route_is('products.create') ? 'active' : '' }}"
                                 href="{{ route('products.create') }}">Tambah Produk</a></li>
-                        <li><a class="{{ route_is('products.available') ? 'active' : '' }}" href="{{ route('products.available') }}">Stok
+                        <li><a class="{{ route_is('products.available') ? 'active' : '' }}"
+                                href="{{ route('products.available') }}">Stok
                                 Tersedia</a></li>
                         <li><a class="{{ route_is('outstock') ? 'active' : '' }}" href="{{ route('outstock') }}">Stok
                                 Habis</a></li>
@@ -101,15 +102,34 @@
                     <a href="{{ route('profile') }}"><i class="fe fe-user-plus"></i> <span>Profil</span></a>
                 </li>
 
+                <li class="submenu">
+                    <a href="#"><i class="fas fa-info"></i> <span>Panduan</span> <span
+                            class="menu-arrow"></span></a>
+                    <ul>
+                        <li>
+                            <a href="{{ asset('assets/Panduan Admin - Apotek.pdf') }}" target="_blank">                                
+                                <span>Panduan Admin</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ asset('assets/Panduan Kasir - Apotek.pdf') }}" target="_blank">
+                              
+                                <span>Panduan Kasir</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
                 {{-- <li class="{{ route_is('backup.index') ? 'active' : '' }}">
 					<a href="{{ route('backup.index') }}"><i class="material-icons">backup</i> <span>Cadangan</span></a>
 				</li> --}}
 
-                {{-- <li class="{{ route_is('settings') ? 'active' : '' }}">
+                <li class="{{ route_is('settings') ? 'active' : '' }}">
                     <a href="{{ route('settings') }}">
                         <i class="material-icons">settings</i> <span>Pengaturan</span>
                     </a>
-                </li> --}}
+                </li>
             </ul>
         </div>
     </div>
