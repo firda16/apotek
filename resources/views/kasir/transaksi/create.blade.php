@@ -169,10 +169,10 @@
 
 @push('page-header')
     <div class="col-sm-12">
-        <h3 class="page-title">Tambah Sale</h3>
+        <h3 class="page-title">Transaksi Baru</h3>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item active">Tambah Sale</li>
+            <li class="breadcrumb-item"><a href="{{ route('kasir.dashboard') }}">Beranda</a></li>
+            <li class="breadcrumb-item active">Penjualan</li>
         </ul>
     </div>
 @endpush
@@ -445,7 +445,7 @@
             $("#nama_customer").autocomplete({
                 source: function(request, response) {
                     $.ajax({
-                        url: "{{ url('customer-autocomplete') }}",
+                        url: "{{ url('kasir/customer-autocomplete') }}",
                         data: {
                             term: request.term
                         },
