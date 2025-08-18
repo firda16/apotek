@@ -10,11 +10,43 @@
             font-size: 10px;
         }
         .header {
-            text-align: center;
+            display: flex;
+            align-items: center;
             margin-bottom: 20px;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
         }
-        .header h1 { margin: 0; font-size: 22px; }
-        .header p { margin: 5px 0; font-size: 12px; }
+        .header .logo {
+            flex: 0 0 120px;
+        }
+        .header .logo img {
+            max-width: 100px;
+        }
+        .header .company-info {
+            flex: 1;
+            text-align: left;
+            padding-left: 15px;
+        }
+        .header .company-info h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .header .company-info p {
+            margin: 2px 0;
+            font-size: 11px;
+        }
+        .report-title {
+            text-align: center;
+            margin: 10px 0 20px;
+        }
+        .report-title h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .report-title p {
+            margin: 5px 0;
+            font-size: 12px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -29,12 +61,12 @@
             background-color: #f2f2f2;
             font-weight: bold;
         }
-        /* Style untuk baris transaksi utama */
+        /* Baris transaksi utama */
         .transaction-row td {
             background-color: #e9ecef;
             font-weight: bold;
         }
-        /* Style untuk tabel detail produk */
+        /* Tabel detail produk */
         .product-details-table {
             width: 100%;
             margin-top: 5px;
@@ -51,18 +83,33 @@
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         tfoot strong { font-size: 12px; }
-        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
     </style>
 </head>
 <body>
 
-    <div class="header">
+   <!-- HEADER -->
+<table style="width: 100%; border-bottom: 2px solid #444; margin-bottom: 20px; padding-bottom: 10px;">
+    <tr>
+        <td style="width: 120px; text-align: center; vertical-align: middle;">
+            <img src="{{ public_path('assets/img/logo.png') }}" alt="Logo Apotek" style="max-width: 100px;">
+        </td>
+        <td style="text-align: left; vertical-align: middle; padding-left: 15px;">
+            <h2 style="margin: 0; font-size: 18px;">Apotek Sehat Sentosa</h2>
+            <p style="margin: 2px 0; font-size: 11px;">Jl. Jaya Alamat No. 123</p>
+            <p style="margin: 2px 0; font-size: 11px;">Telp: 0812-3456-7890</p>
+            <p style="margin: 2px 0; font-size: 11px;">Email: apotek@gmail.com</p>
+        </td>
+    </tr>
+</table>
+
+
+    <!-- JUDUL LAPORAN -->
+    <div class="report-title">
         <h1>Laporan Riwayat Penjualan</h1>
         <p>Periode: {{ $tanggalMulai }} s/d {{ $tanggalSelesai }}</p>
     </div>
 
-    <hr>
-
+    <!-- TABEL TRANSAKSI -->
     <table>
         <thead>
             <tr>
@@ -73,19 +120,19 @@
         </thead>
         <tbody>
             @forelse ($sales as $sale)
-                {{-- Baris utama untuk setiap transaksi --}}
+                <!-- Baris utama transaksi -->
                 <tr class="transaction-row">
                     <td class="text-center">{{ $loop->iteration }}</td>
                     <td>
-                        <strong>{{ $sale->invoice_number }}</strong> <br>
-                        Tanggal: {{ \Carbon\Carbon::parse($sale->created_at)->format('d-m-Y') }} <br>
+                        <strong>{{ $sale->invoice_number }}</strong><br>
+                        Tanggal: {{ \Carbon\Carbon::parse($sale->created_at)->format('d-m-Y') }}<br>
                         Pelanggan: {{ $sale->customer->nama ?? 'Umum' }}
                     </td>
                     <td class="text-right">
                         Rp{{ number_format($sale->total_price, 0, ',', '.') }}
                     </td>
                 </tr>
-                {{-- Baris untuk detail produk --}}
+                <!-- Detail produk -->
                 <tr>
                     <td colspan="3" style="padding: 5px 10px;">
                         <table class="product-details-table">
