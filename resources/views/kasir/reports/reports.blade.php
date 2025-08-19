@@ -36,7 +36,11 @@
                             {{ request('payment_method') ?: 'Semua Metode' }}
                         </div>
 
-
+                        {{-- Tombol Export PDF --}}
+                        <a href="{{ route('kasir.sales.reports.pdf', request()->all()) }}" target="_blank"
+                            class="btn btn-danger mb-3">
+                            <i class="fa fa-file-pdf"></i> PDF
+                        </a>
                         <div class="table-responsive">
                             <table id="sales-table" class="datatable table table-hover table-center mb-0">
                                 <thead>
@@ -152,8 +156,9 @@
                 buttons: [{
                     extend: 'collection',
                     text: 'Ekspor Data',
-                    buttons: [{
-                            extend: 'pdfHtml5',
+                    buttons: [
+                        {
+                            // extend: 'pdfHtml5',
                             title: 'LAPORAN PENJUALAN',
                             orientation: 'landscape',
                             pageSize: 'A4',
