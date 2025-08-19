@@ -3,7 +3,7 @@
 
 <style>
     /* Container form filter */
-    form {
+    form.form-filter {
         background: #f9fafb;
         padding: 20px;
         border-radius: 10px;
@@ -11,29 +11,28 @@
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     }
 
-
     /* Label */
-    form label {
+    form.form-filter label {
         font-weight: 600;
         color: #374151;
     }
 
     /* Input & Select */
-    form .form-control,
-    form .form-select {
+    form.form-filter .form-control,
+    form.form-filter .form-select {
         border-radius: 8px;
         border: 1px solid #d1d5db;
         transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-    form .form-control:focus,
-    form .form-select:focus {
+    form.form-filter .form-control:focus,
+    form.form-filter .form-select:focus {
         border-color: #1A4D6D;
         box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
     }
 
     /* Tombol filter */
-    form .btn-primary {
+    form.form-filter .btn-primary {
         border-radius: 8px;
         background-color: #1A4D6D;
         border-color: #1A4D6D;
@@ -41,7 +40,7 @@
         transition: background-color 0.3s ease;
     }
 
-    form .btn-primary:hover {
+    form.form-filter .btn-primary:hover {
         background-color: #1A4D6D;
         border-color: #1A4D6D;
     }
@@ -49,9 +48,9 @@
     /* Responsive spacing for inputs */
     @media (max-width: 575.98px) {
 
-        form .col-md-4,
-        form .col-md-3,
-        form .col-md-1 {
+        form.form-filter .col-md-4,
+        form.form-filter .col-md-3,
+        form.form-filter .col-md-1 {
             margin-bottom: 1rem;
         }
     }
@@ -80,9 +79,8 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-body">
-
                     {{-- Form Filter --}}
                     <form action="{{ route('riwayat.pembelian') }}" method="GET">
                         <div class="row g-3 align-items-end form-filter-row">

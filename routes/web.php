@@ -92,7 +92,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Route::get('products/available', [ProductController::class, 'available'])->name('available');
     Route::get('products/available', [ProductController::class, 'available'])->name('products.available');
     Route::get('products/outstock', [ProductController::class, 'outstock'])->name('outstock');
+    Route::get('/products/outstock/datatable', [ProductController::class, 'outstockDatatable'])
+        ->name('outstock.datatable');
     Route::get('products/expired', [ProductController::class, 'expired'])->name('expired');
+    Route::get('/products/expired/datatable', [ProductController::class, 'expiredDatatable'])
+        ->name('products.expired.datatable');
+
+    Route::post('/products/delete-expired', [ProductController::class, 'deleteExpired'])
+        ->name('products.deleteExpired');
     Route::get('/products/stock-report', [ProductController::class, 'stockReport'])->name('reports.stock');
     Route::get('/reports/stock/pdf', [ProductController::class, 'stockReportPdf'])->name('reports.stock.pdf');
 
