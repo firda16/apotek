@@ -173,6 +173,7 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::put('/transaksi/{sale}', [SaleKasirController::class, 'update'])->name('transaksi.update');
     Route::get('transaksi/{sale}/invoice', [SaleKasirController::class, 'printInvoice'])->name('transaksi.invoice');
     Route::delete('transaksi/{sale}', [SaleKasirController::class, 'destroy'])->name('transaksi.destroy');
+    
     // customers
     Route::get('customers', [CustomerKasirController::class, 'index'])->name('customers');
     Route::get('customers/datatable', [CustomerKasirController::class, 'datatable'])->name('customers.datatable');
@@ -222,8 +223,30 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
         $pdfPath = asset('assets/PANDUAN KASIR_ APOTEK.pdf');
         return view('kasir.panduan', compact('title', 'pdfPath'));
     })->name('panduan');
+    
+    // Autocomplete pelanggan kasir
+    Route::get('customer-autocomplete', function (Illuminate\Http\Request $request) {
+        $term = $request->term;
+        $customers = \App\Models\Customer::where('nama', 'like', "%$term%")
+            ->orWhere('telepon', 'like', "%$term%")
+            ->select('id', 'nama', 'telepon')
+            ->get();
+        return response()->json($customers);
+    });
 
-
+    // Cek nomor telepon pelanggan kasir
+    Route::get('customer-check-phone', function (Illuminate\Http\Request $request) {
+        $phone = $request->phone;
+        $name = $request->name;
+        $customer = \App\Models\Customer::where('telepon', $phone)->first();
+        if ($customer && strtolower(trim($customer->nama)) !== strtolower(trim($name))) {
+            return response()->json([
+                'exists' => true,
+                'real_name' => $customer->nama
+            ]);
+        }
+        return response()->json(['exists' => false]);
+    });
 
 
 
