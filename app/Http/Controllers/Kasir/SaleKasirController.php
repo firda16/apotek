@@ -534,4 +534,28 @@ class SaleKasirController extends Controller
 
         return view('kasir.sales.reports', compact('title', 'salesReport'));
     }
+    public function exportPdf(Request $request)
+    {
+        $from = $request->from_date ?? now()->startOfMonth()->toDateString();
+        $to   = $request->to_date ?? now()->endOfMonth()->toDateString();
+
+        $query = Sale::with(['customer', 'saleItems.product']);
+
+        if ($request->payment_method) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        $sales = $query->whereBetween('created_at', [$from, $to])->get();
+
+        $totalPendapatan = $sales->sum('total_price');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.sales.reports_pdf', [
+            'sales' => $sales,
+            'tanggalMulai' => \Carbon\Carbon::parse($from)->format('d-m-Y'),
+            'tanggalSelesai' => \Carbon\Carbon::parse($to)->format('d-m-Y'),
+            'totalPendapatan' => $totalPendapatan,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->stream('laporan-penjualan.pdf');
+    }
 }

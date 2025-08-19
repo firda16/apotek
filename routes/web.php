@@ -179,6 +179,7 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::put('/transaksi/{sale}', [SaleKasirController::class, 'update'])->name('transaksi.update');
     Route::get('transaksi/{sale}/invoice', [SaleKasirController::class, 'printInvoice'])->name('transaksi.invoice');
     Route::delete('transaksi/{sale}', [SaleKasirController::class, 'destroy'])->name('transaksi.destroy');
+   
 
     // customers
     Route::get('customers', [CustomerKasirController::class, 'index'])->name('customers');
@@ -214,6 +215,7 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::get('sales/data', [SaleController::class, 'getData'])->name('sales.data');
     Route::get('sales/reports', [SaleController::class, 'reports'])->name('sales.report');
     Route::post('sales/reports', [SaleController::class, 'generateReport']);
+    Route::get('/reports/pdf', [SaleKasirController::class, 'exportPdf'])->name('sales.reports.pdf');
 
     //notifikasi
     Route::get('notifikasi-baca', [NotificationKasirController::class, 'baca'])->name('baca');
