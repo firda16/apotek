@@ -36,7 +36,11 @@
                             {{ request('payment_method') ?: 'Semua Metode' }}
                         </div>
 
-
+                        {{-- Tombol Export PDF --}}
+                        <a href="{{ route('sales.reports.pdf', request()->all()) }}" target="_blank"
+                            class="btn btn-danger mb-3">
+                            <i class="fa fa-file-pdf"></i> PDF
+                        </a>
                         <div class="table-responsive">
                             <table id="sales-table" class="datatable table table-hover table-center mb-0">
                                 <thead>
@@ -153,26 +157,6 @@
                     extend: 'collection',
                     text: 'Ekspor Data',
                     buttons: [{
-                            extend: 'pdfHtml5',
-                            title: 'LAPORAN PENJUALAN',
-                            orientation: 'landscape',
-                            pageSize: 'A4',
-                            exportOptions: {
-                                columns: "thead th:not(.action-btn)"
-                            },
-                            customize: function(doc) {
-                                // Styling tabel
-                                doc.styles.tableHeader.fontSize = 10;
-                                doc.styles.tableHeader.bold = true;
-                                doc.styles.tableHeader.alignment = 'center';
-                                doc.styles.tableBodyOdd.alignment = 'center';
-                                doc.styles.tableBodyEven.alignment = 'center';
-
-                                // Margin halaman
-                                doc.pageMargins = [40, 60, 40, 40];
-                            }
-                        },
-                        {
                             extend: 'excelHtml5',
                             title: 'Laporan Penjualan',
                             exportOptions: {
@@ -197,7 +181,7 @@
                                     .css('font-size', '10pt')
                                     .prepend(
                                         '<h3 style="text-align:center; margin-bottom:20px;">LAPORAN PENJUALAN</h3>'
-                                    );
+                                        );
                                 $(win.document.body).find('table')
                                     .addClass('table table-bordered')
                                     .css('font-size', 'inherit');
@@ -206,6 +190,7 @@
                     ]
                 }]
             });
+
         });
     </script>
 @endpush

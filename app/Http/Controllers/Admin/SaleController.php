@@ -315,10 +315,6 @@ class SaleController extends Controller
                         'stok' => "Stok tidak mencukupi untuk produk {$product->name}."
                     ])->withInput();
                 }
-
-
-
-
             }
 
             DB::commit();
@@ -334,7 +330,6 @@ class SaleController extends Controller
                     'success' => 'Penjualan berhasil ditambahkan!',
                     'invoice_url' => route('sales.invoice', $sale->id)
                 ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Gagal menyimpan penjualan: ' . $e->getMessage());
@@ -481,7 +476,6 @@ class SaleController extends Controller
             DB::commit();
             Log::info('--- Update penjualan berhasil ---');
             return redirect()->route('sales.index')->with('success', 'Penjualan berhasil diperbarui.');
-
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Gagal update penjualan: ' . $e->getMessage());
@@ -541,5 +535,30 @@ class SaleController extends Controller
             // Menggunakan path file yang Anda berikan: 'kasir.reports.reports'
             return view('kasir.reports.reports', compact('title'));
         }
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $from = $request->from_date ?? now()->startOfMonth()->toDateString();
+        $to   = $request->to_date ?? now()->endOfMonth()->toDateString();
+
+        $query = Sale::with(['customer', 'saleItems.product']);
+
+        if ($request->payment_method) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        $sales = $query->whereBetween('created_at', [$from, $to])->get();
+
+        $totalPendapatan = $sales->sum('total_price');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.sales.reports_pdf', [
+            'sales' => $sales,
+            'tanggalMulai' => \Carbon\Carbon::parse($from)->format('d-m-Y'),
+            'tanggalSelesai' => \Carbon\Carbon::parse($to)->format('d-m-Y'),
+            'totalPendapatan' => $totalPendapatan,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->stream('laporan-penjualan.pdf');
     }
 }

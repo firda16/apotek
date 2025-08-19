@@ -30,7 +30,10 @@
                     <strong>Metode Pembayaran:</strong>
                     {{ request('payment_method') ?: 'Semua Metode' }}
                 </div>
-
+                <a href="{{ route('purchases.reports.pdf', request()->all()) }}" target="_blank"
+                    class="btn btn-danger mb-3">
+                    <i class="fa fa-file-pdf"></i> PDF
+                </a>
 
                 <div class="table-responsive">
                     <table id="purchase-table" class="table table-bordered">
@@ -57,8 +60,9 @@
                             @foreach ($pembelians as $pembelian)
                                 @foreach ($pembelian->purchaseItems as $item)
                                     <tr>
-                                        <td>{{ $row++ }}</td>                                        
-                                        <td>{{ \Carbon\Carbon::parse($pembelian->created_at)->translatedFormat('l, d F Y') }}</td>
+                                        <td>{{ $row++ }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($pembelian->created_at)->translatedFormat('l, d F Y') }}
+                                        </td>
                                         <td>{{ $pembelian->supplier->name ?? '-' }}</td>
                                         <td>{{ $pembelian->payment_method ?? '-' }}</td>
                                         <td>{{ $item->product->name ?? '-' }}</td>
@@ -149,13 +153,14 @@
                 buttons: [{
                     extend: 'collection',
                     text: 'Ekspor Data',
-                    buttons: [{
-                            extend: 'pdf',
-                            text: 'PDF',
-                            exportOptions: {
-                                columns: ':visible'
-                            }
-                        },
+                    buttons: [
+                        // {
+                        //     extend: 'pdf',
+                        //     text: 'PDF',
+                        //     exportOptions: {
+                        //         columns: ':visible'
+                        //     }
+                        // },
                         {
                             extend: 'excel',
                             text: 'Excel',
