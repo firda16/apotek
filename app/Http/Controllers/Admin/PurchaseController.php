@@ -11,6 +11,7 @@ use App\Models\SaleItem;
 use App\Models\Supplier;
 use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -137,8 +138,6 @@ HTML;
                     }
                 })
                 ->make(true);
-
-
         } catch (\Exception $e) {
             Log::error('DataTable Error: ' . $e->getMessage());
             return response()->json([
@@ -321,8 +320,8 @@ HTML;
 
 
             return redirect()
-            ->route('purchases.index')
-            ->with('success', 'Pembelian berhasil disimpan.');
+                ->route('purchases.index')
+                ->with('success', 'Pembelian berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Terjadi error saat menyimpan pembelian.', [
@@ -478,7 +477,37 @@ HTML;
         return view('admin.purchases.reports', compact('pembelians', 'title'));
     }
 
+    public function exportPdf(Request $request)
+    {
+        $request->validate([
+            'from_date' => 'required|date',
+            'to_date'   => 'required|date|after_or_equal:from_date',
+        ]);
 
+        $pembelians = Purchase::with(['supplier', 'purchaseItems.product.category'])
+            ->whereBetween(DB::raw('DATE(created_at)'), [$request->from_date, $request->to_date])
+            ->when($request->payment_method, function ($query) use ($request) {
+                $query->where('payment_method', $request->payment_method);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalPembelian = $pembelians->flatMap->purchaseItems->sum(function ($item) {
+            return $item->total_price ?? ($item->quantity * $item->unit_price);
+        });
+
+        $tanggalMulai   = \Carbon\Carbon::parse($request->from_date)->format('d M Y');
+        $tanggalSelesai = \Carbon\Carbon::parse($request->to_date)->format('d M Y');
+
+        $pdf = Pdf::loadView('admin.purchases.reports_pdf', compact(
+            'pembelians',
+            'totalPembelian',
+            'tanggalMulai',
+            'tanggalSelesai'
+        ));
+
+        return $pdf->stream('laporan-pembelian-' . now()->format('d-m-Y') . '.pdf');
+    }
 
 
     public function checkInvoice(Request $request)

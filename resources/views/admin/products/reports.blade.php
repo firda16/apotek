@@ -26,6 +26,7 @@
                     {{ date('d M Y', strtotime(request('to_date'))) }}
                 </div>
 
+
                 {{-- Ringkasan Cepat --}}
                 <div class="row text-center mb-4">
                     <div class="col-md-4 mb-2">
@@ -53,6 +54,12 @@
                         </div>
                     </div>
                 </div>
+                <div class="text-right mb-3">
+                    <a href="{{ route('reports.stock.pdf', request()->all()) }}" target="_blank" class="btn btn-danger">
+                        <i class="fa fa-file-pdf"></i> Export PDF
+                    </a>
+                </div>
+
 
                 {{-- Tab Navigasi --}}
                 <ul class="nav nav-tabs" id="stockTabs" role="tablist">
@@ -74,8 +81,13 @@
                 </ul>
 
                 <div class="tab-content mt-3">
+
                     {{-- Tab Stok Saat Ini --}}
                     <div class="tab-pane fade show active" id="current" role="tabpanel">
+                        <a href="{{ route('reports.stock.pdf', array_merge(request()->all(), ['type' => 'current'])) }}"
+                            target="_blank" class="btn btn-danger mb-3">
+                            <i class="fa fa-file-pdf"></i> PDF
+                        </a>
                         <div class="table-responsive">
                             <table id="current-stock-table" class="table table-bordered">
                                 <thead class="thead-light">
@@ -104,6 +116,10 @@
 
                     {{-- Tab Stok Masuk --}}
                     <div class="tab-pane fade" id="in" role="tabpanel">
+                        <a href="{{ route('reports.stock.pdf', array_merge(request()->all(), ['type' => 'in'])) }}"
+                            target="_blank" class="btn btn-danger mb-3">
+                            <i class="fa fa-file-pdf"></i> PDF
+                        </a>
                         <div class="table-responsive">
                             <table id="stock-in-table" class="table table-bordered">
                                 <thead class="thead-light">
@@ -121,8 +137,8 @@
                                     @foreach ($stockIn as $i => $item)
                                         <tr>
                                             <td>{{ $i + 1 }}</td>
-                                            {{-- <td>{{ $item->purchase->created_at->format('d M Y') }}</td> --}}
-                                            <td>{{ \Carbon\Carbon::parse($item->purchase->created_at)->translatedFormat('l, d F Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($item->purchase->created_at)->translatedFormat('l, d F Y') }}
+                                            </td>
                                             <td>{{ $item->product->name ?? '-' }}</td>
                                             <td>{{ $item->product->category->name ?? '-' }}</td>
                                             <td>{{ $item->quantity }}</td>
@@ -138,6 +154,50 @@
 
                     {{-- Tab Stok Keluar --}}
                     <div class="tab-pane fade" id="out" role="tabpanel">
+                        <a href="{{ route('reports.stock.pdf', array_merge(request()->all(), ['type' => 'out'])) }}"
+                            target="_blank" class="btn btn-danger mb-3">
+                            <i class="fa fa-file-pdf"></i> PDF
+                        </a>
+                        <div class="table-responsive">
+                            <table id="stock-out-table" class="table table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tanggal</th>
+                                        <th>Produk</th>
+                                        <th>Kategori</th>
+                                        <th>Jumlah Keluar</th>
+                                        <th>Satuan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($stockOut as $i => $item)
+                                        <tr>
+                                            <td>{{ $i + 1 }}</td>
+                                            <td>{{ $item->sale->created_at->translatedFormat('l, d F Y') }}</td>
+                                            <td>{{ $item->product->name ?? '-' }}</td>
+                                            <td>{{ $item->product->category->name ?? '-' }}</td>
+                                            <td>{{ $item->quantity }}</td>
+                                            <td>{{ $item->product->unit ?? '-' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+                {{-- Tab Stok Keluar --}}
+                <div class="tab-pane fade" id="out" role="tabpanel">
+                    {{-- Tab Stok Keluar --}}
+                    <div class="tab-pane fade" id="out" role="tabpanel">
+                        <a href="{{ route('reports.stock.pdf', array_merge(request()->all(), ['type' => 'out'])) }}"
+                            target="_blank" class="btn btn-danger mb-3">
+                            <i class="fa fa-file-pdf"></i> Export PDF
+                        </a>
                         <div class="table-responsive">
                             <table id="stock-out-table" class="table table-bordered">
                                 <thead class="thead-light">
@@ -201,32 +261,30 @@
 @endsection
 
 @push('page-js')
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
-<script>
-$(document).ready(function() {
-    $('#current-stock-table, #stock-in-table, #stock-out-table').DataTable({
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'collection',
-                text: 'Ekspor Data',
-                className: 'btn btn-sm btn-primary dropdown-toggle',
-                buttons: [
-                    'pdfHtml5',
-                    'excelHtml5',
-                    'csvHtml5',
-                    'print'
-                ]
-            }
-        ]
-    });
-});
-</script>
+    <script>
+        $(document).ready(function() {
+            $('#current-stock-table, #stock-in-table, #stock-out-table').DataTable({
+                dom: 'Bfrtip',
+                buttons: [{
+                    extend: 'collection',
+                    text: 'Ekspor Data',
+                    className: 'btn btn-sm btn-primary dropdown-toggle',
+                    buttons: [
+                        // 'pdfHtml5',
+                        'excelHtml5',
+                        'csvHtml5',
+                        'print'
+                    ]
+                }]
+            });
+        });
+    </script>
 @endpush
