@@ -414,6 +414,13 @@
     <script>
         let index = 1;
         $(function() {
+
+            $('.select-product').select2({
+                placeholder: "Cari Produk",
+                allowClear: false,
+                width: '100%'
+            });
+
             $('#telepon_customer').on('input', function() {
                 let phone = $(this).val();
                 let name = $('#nama_customer').val();
@@ -471,6 +478,13 @@
 
         // Tambah produk
         $('#add-product').click(function() {
+            setTimeout(() => {
+                $('.select-product').select2({
+                    placeholder: "Cari Produk",
+                    allowClear: false,
+                    width: '100%'
+                });
+            }, 100);
             let html = `
         <div class="card mb-3 p-3 sale-items-card sale-items shadow-sm border-0">
             <div class="row g-3 align-items-end">
