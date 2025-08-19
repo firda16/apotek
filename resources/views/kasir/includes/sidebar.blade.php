@@ -65,7 +65,7 @@
                 </li>
                 <li class="{{ Request::is('kasir/sales/reports*') ? 'active' : '' }}">
                     <a href="{{ route('kasir.sales.report') }}">
-                        <i class="fas fa-chart-bar"></i> <span>Laporan Penjualan</span>
+                        <i class="fe fe-document"></i> <span>Laporan Penjualan</span>
                     </a>
                 </li>
                 {{-- <li class="{{ Request::is('kasir/panduan*') ? 'active' : '' }}">
