@@ -159,49 +159,89 @@ class ProductController extends Controller
     public function expired()
     {
         $title = 'Produk Kedaluwarsa';
-        App::setLocale('id');
+        $soonExpiryDays = 30;
 
+        return view('admin.products.expired', compact('title', 'soonExpiryDays'));
+    }
+
+    public function expiredDatatable(Request $request)
+    {
         $soonExpiryDays = 30;
         $soonExpiryDate = now()->addDays($soonExpiryDays);
 
         $allProducts = Product::with(['category', 'purchaseItems'])->get();
 
-        $filtered = $allProducts->filter(function ($product) use ($soonExpiryDate) {
-            // Ambil batch yang expired/akan expired dan stoknya masih ada
+        $filtered = $allProducts->filter(function ($product) use ($soonExpiryDate, $soonExpiryDays) {
             $batches = $product->purchaseItems->filter(function ($item) use ($soonExpiryDate) {
                 $expiry = \Carbon\Carbon::parse($item->expiry_date);
                 $available = ($item->quantity - $item->sold_quantity) > 0;
 
-                // Sudah expired dan stok masih ada
-                if ($expiry->lte(now()) && $available) {
-                    return true;
-                }
-                // Akan expired (< 30 hari) dan stok masih ada
-                if ($expiry->gt(now()) && $expiry->lte($soonExpiryDate) && $available) {
-                    return true;
-                }
-                return false;
+                return (
+                    ($expiry->lte(now()) && $available) ||
+                    ($expiry->gt(now()) && $expiry->lte($soonExpiryDate) && $available)
+                );
             });
 
-            // Tampilkan produk hanya jika ada batch yang memenuhi kondisi di atas
             return $batches->count() > 0;
-        })->values();
+        });
 
-        // Manual paginate Collection
-        $page = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
-        $results = $filtered->slice(($page - 1) * $perPage, $perPage)->values();
+        return DataTables::of($filtered)
+            ->addIndexColumn()
+            ->addColumn('category', fn($row) => $row->category->name ?? '-')
+            ->addColumn('price', fn($row) => (settings('app_currency') ?? 'Rp') . ' ' . number_format($row->price, 0, ',', '.'))
+            ->addColumn('quantity', function ($row) use ($soonExpiryDays) {
+                $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
+                    $expiry = \Carbon\Carbon::parse($item->expiry_date);
+                    $available = ($item->quantity - $item->sold_quantity) > 0;
+                    return (
+                        ($expiry->lte(now()) && $available) ||
+                        ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
+                    );
+                })->sortBy('expiry_date');
 
-        $products = new \Illuminate\Pagination\LengthAwarePaginator(
-            $results,
-            $filtered->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+                $closest = $relevant->first();
+                return $closest ? $closest->quantity - $closest->sold_quantity : 0;
+            })
+            ->addColumn('expiry_date', function ($row) use ($soonExpiryDays) {
+                $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
+                    $expiry = \Carbon\Carbon::parse($item->expiry_date);
+                    $available = ($item->quantity - $item->sold_quantity) > 0;
+                    return (
+                        ($expiry->lte(now()) && $available) ||
+                        ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
+                    );
+                })->sortBy('expiry_date');
 
-        return view('admin.products.expired', compact('title', 'products', 'soonExpiryDays'));
+                $closest = $relevant->first();
+                return $closest ? \Carbon\Carbon::parse($closest->expiry_date)->translatedFormat('d F Y') : '-';
+            })
+            ->addColumn('status', function ($row) use ($soonExpiryDays) {
+                $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
+                    $expiry = \Carbon\Carbon::parse($item->expiry_date);
+                    $available = ($item->quantity - $item->sold_quantity) > 0;
+                    return (
+                        ($expiry->lte(now()) && $available) ||
+                        ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
+                    );
+                })->sortBy('expiry_date');
+
+                $closest = $relevant->first();
+                if (!$closest)
+                    return '<span class="badge bg-secondary">Aktif</span>';
+
+                $expiry = \Carbon\Carbon::parse($closest->expiry_date);
+
+                if ($expiry->lt(now())) {
+                    return '<span class="badge bg-danger text-white">Sudah Kadaluarsa</span>';
+                } elseif ($expiry->lte(now()->copy()->addDays($soonExpiryDays))) {
+                    return '<span class="badge bg-warning text-dark">Akan Kadaluarsa</span>';
+                }
+                return '<span class="badge bg-secondary">Aktif</span>';
+            })
+            ->rawColumns(['status'])
+            ->make(true);
     }
+
 
 
 
@@ -249,71 +289,51 @@ class ProductController extends Controller
 
 
 
+
     public function outstock(Request $request)
     {
-        $title = "Produk Habis";
+        $title = "Produk Stok Habis";
+        return view('admin.products.outstock', compact('title'));
+    }
 
-        // Ambil semua produk dan relasinya
+    public function outstockDatatable(Request $request)
+    {
         $allProducts = Product::with(['category', 'purchaseItems'])->get();
 
-        // Filter produk yang stoknya habis (FIFO aware)
-        // $filtered = $allProducts->filter(function ($product) {
-        //     return $product->available_stock <= 0;
-        // });
-
+        // filter stok habis
         $filtered = $allProducts->filter(function ($product) {
-            // Ambil hanya batch yang belum expired
             $unexpiredBatches = $product->purchaseItems->where('expiry_date', '>', now());
 
-            // Jika tidak ada batch belum expired, jangan tampilkan
             if ($unexpiredBatches->isEmpty()) {
                 return false;
             }
 
-            // Hitung total stok dari batch belum expired
-            $availableStock = $unexpiredBatches->sum(fn($item) => $item->quantity - $item->sold_quantity);
+            $availableStock = $unexpiredBatches->sum(
+                fn($item) => $item->quantity - $item->sold_quantity
+            );
 
-            // Tampilkan hanya jika stok habis
             return $availableStock <= 0;
         });
 
-
-        // Manual paginate Collection
-        $page = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
-        $results = $filtered->slice(($page - 1) * $perPage, $perPage)->values();
-
-        $products = new LengthAwarePaginator(
-            $results,
-            $filtered->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        return view('admin.products.outstock', compact('title', 'products'));
+        return DataTables::of($filtered)
+            ->addIndexColumn() // bikin DT_RowIndex otomatis
+            ->addColumn('category', function ($row) {
+                return $row->category->name ?? '-';
+            })
+            ->addColumn('stock', function ($row) {
+                return $row->available_stock ?? 0;
+            })
+            // ->addColumn('action', function ($row) {
+            //     $edit = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>';
+            //     $delete = '<button data-id="' . $row->id . '" class="btn btn-sm btn-danger delete-btn"><i class="fas fa-trash"></i></button>';
+            //     return $edit . ' ' . $delete;
+            // })
+            // ->rawColumns(['action'])
+            ->make(true);
     }
-
-    // public function outstock(Request $request)
-    // {
-    //     $title = "Produk Habis";
-    //     $products = Product::where('stock', '<=', 0)->with('category')->paginate(10);
-
-    //     return view('admin.products.outstock', compact('title', 'products'));
-    // }
 
     public function destroy(Product $product)
     {
-        // Cek apakah semua batch produk sudah expired (expiry_date <= hari ini)
-        // $allExpired = $product->purchaseItems->count() > 0 &&
-        //     $product->purchaseItems->every(function ($item) {
-        //         return \Carbon\Carbon::parse($item->expiry_date)->lte(now());
-        //     });
-
-        // if (!$allExpired) {
-        //     return back()->with('error', 'Produk hanya bisa dihapus jika semua batch sudah kadaluarsa.');
-        // }
-
         $product->delete();
         return redirect()->route('products.index')->with(notify('Produk berhasil dihapus'));
     }
@@ -351,8 +371,8 @@ class ProductController extends Controller
                     $validItems = $product->purchaseItems()
                         ->whereDate('expiry_date', '>', now())
                         ->whereHas('purchase', function ($query) use ($startDate, $endDate) {
-                            $query->whereBetween('created_at', [$startDate, $endDate]);
-                        })
+                        $query->whereBetween('created_at', [$startDate, $endDate]);
+                    })
                         ->get();
 
                     $totalPurchased = $validItems->sum('quantity');
@@ -510,7 +530,7 @@ class ProductController extends Controller
     }
 
 
-        public function stockReportPdf(Request $request)
+    public function stockReportPdf(Request $request)
     {
         $currentStock = collect();
         $stockIn = collect();
@@ -525,7 +545,7 @@ class ProductController extends Controller
 
         if ($request->filled('from_date') && $request->filled('to_date')) {
             $startDate = Carbon::parse($request->from_date)->startOfDay();
-            $endDate   = Carbon::parse($request->to_date)->endOfDay();
+            $endDate = Carbon::parse($request->to_date)->endOfDay();
 
             // --- ambil data sama kayak stockReport() ---
             $currentStock = Product::with('category')
@@ -539,12 +559,12 @@ class ProductController extends Controller
                         ->get();
 
                     $totalPurchased = $validItems->sum('quantity');
-                    $totalSold      = $validItems->sum('sold_quantity');
+                    $totalSold = $validItems->sum('sold_quantity');
 
                     return [
-                        'product_name'    => $product->name,
-                        'category_name'   => $product->category->name ?? '-',
-                        'unit'            => $product->unit ?? '-',
+                        'product_name' => $product->name,
+                        'category_name' => $product->category->name ?? '-',
+                        'unit' => $product->unit ?? '-',
                         'available_stock' => $totalPurchased - $totalSold
                     ];
                 });
@@ -566,9 +586,9 @@ class ProductController extends Controller
             // summary stok masuk
             $stockInSummary = $stockIn->groupBy('product_id')->map(function ($items) {
                 return [
-                    'product_name'   => $items->first()->product->name ?? '-',
-                    'category_name'  => $items->first()->product->category->name ?? '-',
-                    'unit'           => $items->first()->product->unit ?? '-',
+                    'product_name' => $items->first()->product->name ?? '-',
+                    'category_name' => $items->first()->product->category->name ?? '-',
+                    'unit' => $items->first()->product->unit ?? '-',
                     'total_quantity' => $items->sum('quantity')
                 ];
             })->values();
@@ -576,9 +596,9 @@ class ProductController extends Controller
             // summary stok keluar
             $stockOutSummary = $stockOut->groupBy('product_id')->map(function ($items) {
                 return [
-                    'product_name'   => $items->first()->product->name ?? '-',
-                    'category_name'  => $items->first()->product->category->name ?? '-',
-                    'unit'           => $items->first()->product->unit ?? '-',
+                    'product_name' => $items->first()->product->name ?? '-',
+                    'category_name' => $items->first()->product->category->name ?? '-',
+                    'unit' => $items->first()->product->unit ?? '-',
                     'total_quantity' => $items->sum('quantity')
                 ];
             })->values();
