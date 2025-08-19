@@ -41,6 +41,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Tanggal</th>
+                                <th>No Invoice</th>
                                 <th>Nama Pemasok</th>
                                 <th>Metode Pembayaran</th>
                                 <th>Produk</th>
@@ -63,6 +64,7 @@
                                         <td>{{ $row++ }}</td>
                                         <td>{{ \Carbon\Carbon::parse($pembelian->created_at)->translatedFormat('l, d F Y') }}
                                         </td>
+                                        <td>{{ $pembelian->invoice_number ?? '-' }}</td>
                                         <td>{{ $pembelian->supplier->name ?? '-' }}</td>
                                         <td>{{ $pembelian->payment_method ?? '-' }}</td>
                                         <td>{{ $item->product->name ?? '-' }}</td>

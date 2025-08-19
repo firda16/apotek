@@ -27,7 +27,7 @@ class NotificationController extends Controller
 
 
 
-    public function show()
+    public function semua()
     {
         $notifications = Auth::user()->notifications; // ini collection
         $perPage = 10;
@@ -49,7 +49,7 @@ class NotificationController extends Controller
     }
 
 
-    
+
 
     public function destroyAll()
     {
