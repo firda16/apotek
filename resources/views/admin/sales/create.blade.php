@@ -7,6 +7,7 @@
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             border-radius: 0.5rem;
         }
+        
 
         .card-header {
             background: linear-gradient(135deg, #342af0 0%, #1637dc 100%);
@@ -414,6 +415,13 @@
     <script>
         let index = 1;
         $(function() {
+
+            $('.select-product').select2({
+                placeholder: "Cari Produk",
+                allowClear: false,
+                width: '100%'
+            });
+
             $('#telepon_customer').on('input', function() {
                 let phone = $(this).val();
                 let name = $('#nama_customer').val();
@@ -471,6 +479,13 @@
 
         // Tambah produk
         $('#add-product').click(function() {
+            setTimeout(() => {
+                $('.select-product').select2({
+                    placeholder: "Cari Produk",
+                    allowClear: false,
+                    width: '100%'
+                });
+            }, 100);
             let html = `
         <div class="card mb-3 p-3 sale-items-card sale-items shadow-sm border-0">
             <div class="row g-3 align-items-end">
@@ -532,6 +547,13 @@
             updateTotalPrice();
             // Panggil fungsi untuk memperbarui opsi produk setelah baris dihapus
             updateProductOptions();
+
+            $('.select-product').select2({
+                placeholder: "Cari Produk",
+                allowClear: false,
+                width: '100%'
+            });
+            
         });
 
         // Fungsi untuk memperbarui opsi produk
