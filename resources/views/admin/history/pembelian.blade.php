@@ -148,6 +148,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>No</th>
+                                        <th>No Invoice</th>
                                         <th>Pemasok</th>
                                         <th>Tanggal Pembelian</th>
                                         <th>Nama Obat</th>
@@ -165,6 +166,7 @@
                                         @foreach ($purchase->items as $item)
                                             <tr>
                                                 <td>{{ $purchases->firstItem() + $index }}</td>
+                                                <td>{{ $purchase->invoice_number ?? '-' }}</td>
                                                 <td>{{ $purchase->supplier->name ?? '-' }}</td>
                                                 <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d M Y') }}
                                                 </td>

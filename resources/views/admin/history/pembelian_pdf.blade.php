@@ -9,20 +9,43 @@
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             color: #333;
-            font-size: 10px; /* Ukuran font dikecilkan agar muat banyak kolom */
+            font-size: 10px;
         }
-        .header {
+
+        /* Gaya untuk Header/Kop Surat */
+        .header-center {
             text-align: center;
             margin-bottom: 20px;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
         }
-        .header h1 {
+        .header-center img {
+            max-width: 100px;
+        }
+        .header-center h2 {
+            margin: 5px 0 0 0;
+            font-size: 18px;
+        }
+        .header-center p {
+            margin: 2px 0;
+            font-size: 11px;
+        }
+
+        /* Gaya untuk Judul Laporan */
+        .report-title {
+            text-align: center;
+            margin: 10px 0 20px;
+        }
+        .report-title h1 {
             margin: 0;
-            font-size: 22px;
+            font-size: 20px;
         }
-        .header p {
+        .report-title p {
             margin: 5px 0;
             font-size: 12px;
         }
+
+        /* Gaya untuk Tabel Utama */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -30,7 +53,7 @@
         }
         table th, table td {
             border: 1px solid #ddd;
-            padding: 6px; /* Padding dikecilkan */
+            padding: 6px;
             text-align: left;
             vertical-align: top;
         }
@@ -41,33 +64,36 @@
         table tfoot td {
             font-weight: bold;
         }
+
+        /* Perataan Teks */
         .text-center {
             text-align: center;
         }
         .text-right {
             text-align: right;
         }
-        hr {
-            border: 0;
-            border-top: 1px solid #eee;
-            margin: 20px 0;
-        }
     </style>
 </head>
 <body>
 
-    <div class="header">
+    <div class="header-center">
+        <img src="{{ public_path('assets/img/logo.png') }}" alt="Logo Apotek">
+        <h2>Apotek Sehat Sentosa</h2>
+        <p>Jl. Jaya Alamat No. 123</p>
+        <p>Telp: 0812-3456-7890 | Email: apotek@gmail.com</p>
+    </div>
+
+    <div class="report-title">
         <h1>Laporan Riwayat Pembelian</h1>
         <p>Periode: {{ $tanggalMulai }} s/d {{ $tanggalSelesai }}</p>
     </div>
-
-    <hr>
 
     <table>
         <thead>
             <tr>
                 <th class="text-center">No</th>
                 <th>Tanggal</th>
+                <th>No Invoice</th>
                 <th>Pemasok</th>
                 <th>Nama Obat</th>
                 <th>Kategori</th>
@@ -86,6 +112,7 @@
                     <tr>
                         <td class="text-center">{{ $counter++ }}</td>
                         <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d-m-Y') }}</td>
+                        <td>{{ $purchase->invoice_number ?? '-' }}</td>
                         <td>{{ $purchase->supplier->name ?? '-' }}</td>
                         <td>{{ $item->product->name ?? '-' }}</td>
                         <td>{{ $item->product->category->name ?? '-' }}</td>
@@ -99,13 +126,13 @@
                 @endforeach
             @empty
                 <tr>
-                    <td colspan="11" class="text-center">Tidak ada data untuk periode ini.</td>
+                    <td colspan="12" class="text-center">Tidak ada data untuk periode ini.</td>
                 </tr>
             @endforelse
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="9" class="text-right"><strong>Total Keseluruhan Pembelian</strong></td>
+                <td colspan="10" class="text-right"><strong>Total Keseluruhan Pembelian</strong></td>
                 <td colspan="2" class="text-right"><strong>Rp{{ number_format($totalPembelian, 0, ',', '.') }}</strong></td>
             </tr>
         </tfoot>
