@@ -9,6 +9,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\SaleItem;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Yajra\DataTables\Facades\DataTables;
@@ -218,7 +219,7 @@ class ProductController extends Controller
                 ->whereHas('purchaseItems', function ($query) {
                     $query->whereDate('expiry_date', '>', now())
                         ->whereColumn('quantity', '>', 'sold_quantity')
-                        ->orWhereNull('expiry_date'); 
+                        ->orWhereNull('expiry_date');
                 });
 
             return DataTables::of($products)
@@ -350,8 +351,8 @@ class ProductController extends Controller
                     $validItems = $product->purchaseItems()
                         ->whereDate('expiry_date', '>', now())
                         ->whereHas('purchase', function ($query) use ($startDate, $endDate) {
-                        $query->whereBetween('created_at', [$startDate, $endDate]);
-                    })
+                            $query->whereBetween('created_at', [$startDate, $endDate]);
+                        })
                         ->get();
 
                     $totalPurchased = $validItems->sum('quantity');
@@ -506,5 +507,107 @@ class ProductController extends Controller
         }
 
         return back()->with('success', 'Semua produk kadaluarsa berhasil dihapus.');
+    }
+
+
+        public function stockReportPdf(Request $request)
+    {
+        $currentStock = collect();
+        $stockIn = collect();
+        $stockInSummary = collect();
+        $stockOut = collect();
+        $stockOutSummary = collect();
+
+        $tanggalMulai = $request->from_date ? Carbon::parse($request->from_date)->format('d-m-Y') : '-';
+        $tanggalSelesai = $request->to_date ? Carbon::parse($request->to_date)->format('d-m-Y') : '-';
+
+        $type = $request->get('type'); // null kalau export keseluruhan
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $startDate = Carbon::parse($request->from_date)->startOfDay();
+            $endDate   = Carbon::parse($request->to_date)->endOfDay();
+
+            // --- ambil data sama kayak stockReport() ---
+            $currentStock = Product::with('category')
+                ->get()
+                ->map(function ($product) use ($startDate, $endDate) {
+                    $validItems = $product->purchaseItems()
+                        ->whereDate('expiry_date', '>', now())
+                        ->whereHas('purchase', function ($query) use ($startDate, $endDate) {
+                            $query->whereBetween('created_at', [$startDate, $endDate]);
+                        })
+                        ->get();
+
+                    $totalPurchased = $validItems->sum('quantity');
+                    $totalSold      = $validItems->sum('sold_quantity');
+
+                    return [
+                        'product_name'    => $product->name,
+                        'category_name'   => $product->category->name ?? '-',
+                        'unit'            => $product->unit ?? '-',
+                        'available_stock' => $totalPurchased - $totalSold
+                    ];
+                });
+
+            $stockIn = PurchaseItem::with(['product.category', 'purchase'])
+                ->whereHas('purchase', function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                })
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            $stockOut = SaleItem::with(['product.category', 'sale'])
+                ->whereHas('sale', function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                })
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            // summary stok masuk
+            $stockInSummary = $stockIn->groupBy('product_id')->map(function ($items) {
+                return [
+                    'product_name'   => $items->first()->product->name ?? '-',
+                    'category_name'  => $items->first()->product->category->name ?? '-',
+                    'unit'           => $items->first()->product->unit ?? '-',
+                    'total_quantity' => $items->sum('quantity')
+                ];
+            })->values();
+
+            // summary stok keluar
+            $stockOutSummary = $stockOut->groupBy('product_id')->map(function ($items) {
+                return [
+                    'product_name'   => $items->first()->product->name ?? '-',
+                    'category_name'  => $items->first()->product->category->name ?? '-',
+                    'unit'           => $items->first()->product->unit ?? '-',
+                    'total_quantity' => $items->sum('quantity')
+                ];
+            })->values();
+        }
+
+        // --- bedakan template ---
+        if ($type) {
+            // export salah satu (current, in, out)
+            $pdf = Pdf::loadView('admin.products.reports_pdf_single', compact(
+                'tanggalMulai',
+                'tanggalSelesai',
+                'type',
+                'currentStock',
+                'stockIn',
+                'stockOut'
+            ))->setPaper('A4', 'portrait');
+        } else {
+            // export full (gabungan)
+            $pdf = Pdf::loadView('admin.products.reports_pdf', compact(
+                'tanggalMulai',
+                'tanggalSelesai',
+                'currentStock',
+                'stockIn',
+                'stockOut',
+                'stockInSummary',
+                'stockOutSummary'
+            ))->setPaper('A4', 'portrait');
+        }
+
+        return $pdf->stream("laporan-stok-" . ($type ?? 'all') . ".pdf");
     }
 }

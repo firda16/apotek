@@ -75,6 +75,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/check-invoice', [App\Http\Controllers\Admin\PurchaseController::class, 'checkInvoice'])
         ->name('check.invoice');
     Route::get('purchases/reports', [PurchaseController::class, 'reports'])->name('purchases.report');
+    Route::get('purchases/reports/pdf', [PurchaseController::class, 'exportPdf'])
+        ->name('purchases.reports.pdf');
     Route::get('/get-last-price', [PurchaseController::class, 'getLastPrice']);
 
     Route::post('purchases/reports', [PurchaseController::class, 'generateReport']);
@@ -92,6 +94,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('products/outstock', [ProductController::class, 'outstock'])->name('outstock');
     Route::get('products/expired', [ProductController::class, 'expired'])->name('expired');
     Route::get('/products/stock-report', [ProductController::class, 'stockReport'])->name('reports.stock');
+    Route::get('/reports/stock/pdf', [ProductController::class, 'stockReportPdf'])->name('reports.stock.pdf');
+
 
 
     Route::get('customers/datatable', [CustomerController::class, 'datatable'])->name('customers.datatable');
@@ -109,6 +113,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('sales/data', [SaleController::class, 'getData'])->name('sales.data');
     Route::get('sales/reports', [SaleController::class, 'reports'])->name('sales.report');
     Route::post('sales/reports', [SaleController::class, 'generateReport']);
+    Route::get('sales/reports/pdf', [SaleController::class, 'exportPdf'])->name('sales.reports.pdf');
+
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
 
     // Route::get('history', [HistoryController::class,'index'])->name('history.index');
@@ -173,7 +179,7 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::put('/transaksi/{sale}', [SaleKasirController::class, 'update'])->name('transaksi.update');
     Route::get('transaksi/{sale}/invoice', [SaleKasirController::class, 'printInvoice'])->name('transaksi.invoice');
     Route::delete('transaksi/{sale}', [SaleKasirController::class, 'destroy'])->name('transaksi.destroy');
-    
+
     // customers
     Route::get('customers', [CustomerKasirController::class, 'index'])->name('customers');
     Route::get('customers/datatable', [CustomerKasirController::class, 'datatable'])->name('customers.datatable');
@@ -223,7 +229,7 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
         $pdfPath = asset('assets/PANDUAN KASIR_ APOTEK.pdf');
         return view('kasir.panduan', compact('title', 'pdfPath'));
     })->name('panduan');
-    
+
     // Autocomplete pelanggan kasir
     Route::get('customer-autocomplete', function (Illuminate\Http\Request $request) {
         $term = $request->term;
