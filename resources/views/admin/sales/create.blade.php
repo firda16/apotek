@@ -7,7 +7,7 @@
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             border-radius: 0.5rem;
         }
-        
+
 
         .card-header {
             background: linear-gradient(135deg, #342af0 0%, #1637dc 100%);
@@ -215,7 +215,8 @@
                                             class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <input type="text" name="nama_customer" id="nama_customer" class="form-control"
+                                        <input type="text" name="nama_customer" id="nama_customer"
+                                            value="{{ old('nama_customer') }}" class="form-control"
                                             placeholder="Masukkan nama pelanggan" autocomplete="off" required>
                                     </div>
                                 </div>
@@ -226,7 +227,8 @@
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                         <input type="number" id="telepon_customer" name="nomor_telepon"
-                                            class="form-control" placeholder="Contoh: 0876 5245 8976" required>
+                                            value="{{ old('nomor_telepon') }}" class="form-control"
+                                            placeholder="Contoh: 0876 5245 8976" required>
                                     </div>
                                 </div>
                             </div>
@@ -553,7 +555,7 @@
                 allowClear: false,
                 width: '100%'
             });
-            
+
         });
 
         // Fungsi untuk memperbarui opsi produk

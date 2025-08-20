@@ -64,6 +64,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('profile/update-password/{user}', [UserController::class, 'updatePassword'])->name('update-password');
 
     Route::resource('users', UserController::class);
+    Route::post('/suppliers/check-phone', [SupplierController::class, 'checkPhone'])
+        ->name('suppliers.checkPhone');
+
     Route::resource('suppliers', SupplierController::class);
 
     Route::get('categories/datatable', [CategoryController::class, 'datatable'])->name('categories.datatable');
@@ -186,7 +189,7 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::put('/transaksi/{sale}', [SaleKasirController::class, 'update'])->name('transaksi.update');
     Route::get('transaksi/{sale}/invoice', [SaleKasirController::class, 'printInvoice'])->name('transaksi.invoice');
     Route::delete('transaksi/{sale}', [SaleKasirController::class, 'destroy'])->name('transaksi.destroy');
-   
+
 
     // customers
     Route::get('customers', [CustomerKasirController::class, 'index'])->name('customers');

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use App\Http\Controllers\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SupplierController extends Controller
 {
@@ -53,33 +54,46 @@ class SupplierController extends Controller
         ));
     }
 
+    public function checkPhone(Request $request): JsonResponse
+    {
+        $exists = Supplier::where('phone', $request->phone)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    
+
+
+
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|min:3|max:255',
             'email' => 'nullable|email|string',
-            'phone' => 'nullable|min:10|max:20',
+            'phone' => 'required|min:10|max:20|unique:suppliers,phone',
             'company' => 'nullable|max:200',
             'address' => 'nullable|max:200',
-
+        ], [
+            'phone.unique' => 'Nomor telepon ini sudah terdaftar, silakan gunakan nomor lain.',
         ]);
+
         Supplier::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'company' => $request->company,
             'address' => $request->address,
-
         ]);
-        $notification = notify("Pemasok berhasil di tambah");
+
+        $notification = notify("Pemasok berhasil ditambah");
         return redirect()->route('suppliers.index')->with($notification);
     }
+
 
 
     /**
