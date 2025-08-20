@@ -201,12 +201,14 @@ class ProductKasirController extends Controller
                 'category',
                 'purchaseItems' => function ($query) {
                     $query->whereDate('expiry_date', '>', now())
-                        ->whereColumn('quantity', '>', 'sold_quantity');
+                        ->whereColumn('quantity', '>', 'sold_quantity')
+                        ->orWhereNull('expiry_date');
                 }
             ])
                 ->whereHas('purchaseItems', function ($query) {
                     $query->whereDate('expiry_date', '>', now())
-                        ->whereColumn('quantity', '>', 'sold_quantity');
+                        ->whereColumn('quantity', '>', 'sold_quantity')
+                        ->orWhereNull('expiry_date');
                 });
 
             return DataTables::of($products)

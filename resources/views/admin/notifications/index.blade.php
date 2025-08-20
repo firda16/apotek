@@ -10,6 +10,7 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
+        margin-right: 12px; 
     }
     .bg-soft-success { background-color: rgba(40, 199, 111, 0.1); }
     .text-success { color: #28c76f !important; }
@@ -45,7 +46,7 @@
                     <div class="d-flex align-items-center">
 
                         {{-- Ikon Notifikasi Dinamis --}}
-                        <div class="me-3">
+                        <div class="me-3 mr-3">
                             @php
                                 $title = $notif->data['title'] ?? '';
                                 $iconClass = 'fe-bell'; // Default icon

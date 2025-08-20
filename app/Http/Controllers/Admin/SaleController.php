@@ -146,7 +146,8 @@ class SaleController extends Controller
         // produk yang kadaluarsa tidak muncul di form penjualan.
         $products = Product::with(['purchaseItems'])
             ->whereHas('purchaseItems', function ($query) {
-                $query->whereDate('expiry_date', '>', Carbon::today());
+                $query->whereDate('expiry_date', '>', Carbon::today())
+                    ->orWhereNull('expiry_date');
             })->get();
         $categories = Category::all();
 

@@ -2,7 +2,7 @@
 
 @push('page-css')
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-datetimepicker.min.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
 
 @push('page-header')
@@ -128,14 +128,19 @@
                                                     @enderror
                                                 </td>
                                                 <td>
-                                                    <input type="number" step="0.01"
-                                                        name="purchase_items[{{ $index }}][unit_price]"
-                                                        class="form-control purchase-unit-price @error("purchase_items.{$index}.unit_price") is-invalid @enderror"
-                                                        required value="{{ old("purchase_items.{$index}.unit_price") }}">
-                                                    @error("purchase_items.{$index}.unit_price")
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    <div class="input-group input-group-sm">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number"
+                                                            name="purchase_items[{{ $index }}][unit_price]"
+                                                            class="form-control purchase-unit-price @error("purchase_items.{$index}.unit_price") is-invalid @enderror"
+                                                            required
+                                                            value="{{ old("purchase_items.{$index}.unit_price") }}">
+                                                        @error("purchase_items.{$index}.unit_price")
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
                                                 </td>
+
                                                 <td>
                                                     <input type="date"
                                                         name="purchase_items[{{ $index }}][expiry_date]"
@@ -146,17 +151,21 @@
                                                     @enderror
                                                 </td>
                                                 <td>
-                                                    <input type="number" step="0.01"
-                                                        name="purchase_items[{{ $index }}][total_price]"
-                                                        class="form-control purchase-total_price" readonly
-                                                        value="{{ old("purchase_items.{$index}.total_price") }}">
-                                                    @error("purchase_items.{$index}.total_price")
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    {{-- Diubah: Menghapus step="0.01" --}}
+                                                    <div class="input-group">
+                                                        <input type="number"
+                                                            name="purchase_items[{{ $index }}][total_price]"
+                                                            class="form-control purchase-total_price" readonly
+                                                            value="{{ old("purchase_items.{$index}.total_price") }}">
+                                                        @error("purchase_items.{$index}.total_price")
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
                                                 </td>
                                                 <td>
-                                                    <button type="button"
-                                                        class="btn btn-danger btn-sm remove-row">Hapus</button>
+                                                    <button type="button" class="btn btn-danger btn-sm remove-row">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -176,20 +185,34 @@
                                                     class="form-control purchase-quantity" min="1" required>
                                             </td>
                                             <td>
-                                                <input type="number" step="0.01" name="purchase_items[0][unit_price]"
-                                                    class="form-control purchase-unit-price" required>
+                                                {{-- Diubah: Menghapus step="0.01" --}}
+                                                <div class="input-group">
+                                                    <span class="input-group-text">Rp</span>
+                                                    <input type="number" name="purchase_items[0][unit_price]"
+                                                        class="form-control purchase-unit-price" required>
+                                                </div>
                                             </td>
                                             <td>
-                                                <input type="date" name="purchase_items[0][expiry_date]"
-                                                    class="form-control">
+                                                <div class="input-group input-group-sm" style="max-width: 180px;">
+                                                    <input type="date" name="purchase_items[0][expiry_date]"
+                                                        class="form-control">
+                                                </div>
+                                                <small class="text-muted">Kosongkan jika tidak ada <br> tanggal
+                                                    kadaluarsa</small>
+                                            </td>
+
+                                            <td>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">Rp</span>
+                                                    {{-- Diubah: Menghapus step="0.01" --}}
+                                                    <input type="number" name="purchase_items[0][total_price]"
+                                                        class="form-control purchase-total_price" readonly>
+                                                </div>
                                             </td>
                                             <td>
-                                                <input type="number" step="0.01" name="purchase_items[0][total_price]"
-                                                    class="form-control purchase-total_price" readonly>
-                                            </td>
-                                            <td>
-                                                <button type="button"
-                                                    class="btn btn-danger btn-sm remove-row">Hapus</button>
+                                                <button type="button" class="btn btn-danger btn-sm remove-row">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endif
@@ -198,18 +221,26 @@
                             <button type="button" class="btn btn-secondary btn-sm" id="add-row">+ Tambah
                                 Produk</button>
                         </div>
-                        <div class="mb-3 mt-3">
-                            <label for="total_price">Total Harga</label>
-                            <input type="number" step="0.01" name="total_price" id="total_price"
-                                class="form-control" readonly required>
+                        <div class="row">
+                            <div class="col-md-4 mt-3">
+                                <label for="total_price">Total Harga</label>
+                                {{-- Diubah: Menghapus step="0.01" --}}
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" name="total_price" id="total_price" class="form-control"
+                                        readonly required>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3 mt-3">
-                            <label for="status">Status</label>
-                            <select name="status" id="status" class="form-control">
-                                <option value="pending" selected>Pending</option>
-                                <option value="selesai">Selesai</option>
-                            </select>
+                        <div class="row">
+                            <div class="col-md-4 mt-3">
+                                <label for="status">Status</label>
+                                <select name="status" id="status" class="form-control">
+                                    <option value="pending" selected>Pending</option>
+                                    <option value="selesai">Selesai</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="submit-section mt-4">
@@ -260,9 +291,7 @@
             $('.select2').select2();
         }
 
-        let i = {{ old('purchase_items') ? count(old('purchase_items')) : 1 }}; // Lanjutkan indeks jika ada old input
-
-        // const productCategoryMap = @json($products->mapWithKeys(fn($p) => [$p->id => $p->category_id]));
+        let i = {{ old('purchase_items') ? count(old('purchase_items')) : 1 }};
 
         const productsOptions = `
         <option value="">-- Pilih Produk --</option>
@@ -272,45 +301,29 @@
     `;
 
         function calculatetotal_price(row) {
-            const quantity = parseFloat(row.find('.purchase-quantity').val()) || 0;
-            const unitPrice = parseFloat(row.find('.purchase-unit-price').val()) || 0;
+            const quantity = parseInt(row.find('.purchase-quantity').val()) || 0;
+            const unitPrice = parseInt(row.find('.purchase-unit-price').val()) || 0;
             const total_price = quantity * unitPrice;
-            row.find('.purchase-total_price').val(total_price.toFixed(2));
+            row.find('.purchase-total_price').val(total_price); // Diubah: Menghapus .toFixed(2)
             updateTotalPrice();
         }
 
         function updateTotalPrice() {
             let total = 0;
             $('.purchase-total_price').each(function() {
-                total += parseFloat($(this).val()) || 0;
+                total += parseInt($(this).val()) || 0;
             });
-            $('#total_price').val(total.toFixed(2));
+            $('#total_price').val(total); // Diubah: Menghapus .toFixed(2)
         }
 
         $(document).ready(function() {
             initializeSelect2();
-            updateTotalPrice(); // Calculate initial total on page load if old data exists
+            updateTotalPrice();
 
-            // Event listener for product selection to update category
-            $(document).on('change', '.product-select', function() {
-                const selectedProductId = $(this).val();
-                const row = $(this).closest('tr');
-                // const categorySelect = row.find('select[name$="[category_id]"]');
-                // const categoryId = productCategoryMap[selectedProductId];
-
-                // if (categoryId) {
-                //     categorySelect.val(categoryId).trigger('change');
-                // } else {
-                //     categorySelect.val('');
-                // }
-            });
-
-            // Event listener for quantity and unit price changes
             $(document).on('input', '.purchase-quantity, .purchase-unit-price', function() {
                 calculatetotal_price($(this).closest('tr'));
             });
 
-            // Add new row
             document.getElementById('add-row').addEventListener('click', function() {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
@@ -318,34 +331,45 @@
                     <select name="purchase_items[${i}][product_id]" class="form-control product-select select2">
                         ${productsOptions}
                     </select>
-                </td>                
+                </td>
                 <td>
                     <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" min="1" required>
                 </td>
                 <td>
-                    <input type="number" step="0.01" name="purchase_items[${i}][unit_price]" class="form-control purchase-unit-price" required>
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input type="number" name="purchase_items[${i}][unit_price]" class="form-control purchase-unit-price" required>
+                    </div>
                 </td>
                 <td>
-                    <input type="date" name="purchase_items[${i}][expiry_date]" class="form-control">
+                     <div class="input-group input-group-sm" style="max-width: 180px;">
+                        <input type="date" name="purchase_items[${i}][expiry_date]" class="form-control">
+                        </div>
+                    <small class="text-muted">Kosongkan jika tidak ada <br> tanggal
+                        kadaluarsa</small>
                 </td>
                 <td>
-                    <input type="number" step="0.01" name="purchase_items[${i}][total_price]" class="form-control purchase-total_price" readonly>
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input type="number" name="purchase_items[${i}][total_price]" class="form-control purchase-total_price" readonly>
+                    </div>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-danger btn-sm remove-row">Hapus</button>
+                    <button type="button" class="btn btn-danger btn-sm remove-row">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </td>
             `;
                 document.getElementById('purchase-items').appendChild(newRow);
                 initializeSelect2();
                 i++;
-                updateTotalPrice(); // Update total after adding a new row
+                updateTotalPrice();
             });
 
-            // Remove row
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('remove-row')) {
                     e.target.closest('tr').remove();
-                    updateTotalPrice(); // Update total after removing a row
+                    updateTotalPrice();
                 }
             });
 
@@ -365,8 +389,9 @@
                     },
                     success: function(res) {
                         if (res.unit_price !== null) {
-                            row.find('.purchase-unit-price').val(res.unit_price);
-                            calculatetotal_price(row); // hitung ulang subtotal
+                            row.find('.purchase-unit-price').val(parseInt(res
+                                .unit_price)); // Diubah: Menggunakan parseInt
+                            calculatetotal_price(row);
                         }
                     }
                 });

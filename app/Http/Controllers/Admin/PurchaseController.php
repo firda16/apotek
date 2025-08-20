@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Carbon\Carbon;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Category;
@@ -54,7 +55,7 @@ class PurchaseController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('tanggal', function ($purchase) {
-                    return \Carbon\Carbon::parse($purchase->created_at)->translatedFormat('l, d F Y') ?? '-';
+                    return Carbon::parse($purchase->created_at)->translatedFormat('l, d F Y') ?? '-';
                 })
                 ->addColumn('invoice_number', function ($purchase) {
                     return $purchase->invoice_number ?: '-';
@@ -72,7 +73,7 @@ class PurchaseController extends Controller
                         $category = optional($product->category);
                         $html .= '<li>';
                         $html .= '<strong>' . ($product->name ?? '-') . '</strong><br>';
-                        $html .= 'Exp: ' . ($item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-') . '<br>';
+                        $html .= 'Exp: ' . (Carbon::parse($item->expiry_date)->translatedFormat('l, d F Y') ?? 'tidak ada tanggal kadaluarsa') . '<br>';
                         // $html .= 'Kategori: ' . ($category->name ?? '-') . '<br>';
                         $html .= 'Jumlah: ' . $item->quantity . '<br>';
                         $html .= 'Harga: Rp ' . number_format($item->unit_price, 0, ',', '.') . '<br>';
