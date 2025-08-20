@@ -125,8 +125,8 @@
 					<a href="{{ route('backup.index') }}"><i class="material-icons">backup</i> <span>Cadangan</span></a>
 				</li> --}}
 
-                <li class="{{ route_is('settings') ? 'active' : '' }}">
-                    <a href="{{ route('settings') }}">
+                <li class="{{ route_is('settings.edit') ? 'active' : '' }}">
+                    <a href="{{ route('settings.edit') }}">
                         <i class="material-icons">settings</i> <span>Pengaturan</span>
                     </a>
                 </li>

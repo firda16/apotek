@@ -104,13 +104,14 @@
                         <p><strong>Status:</strong> {{ $sale->status }}</p>
                     </td>
                     <td class="company-info">
-                        {{-- <h3>Nama Toko</h3> --}}
-                        <img src="{{ public_path('assets/img/logo.png') }}" class="logo img-fluid"
-                            style="max-width: 150px;">
-
-                        <p>Jl. Jaya Alamat No. 123</p>
-                        <p>Telp: 0812-3456-7890</p>
-                        <p>Email: Apotek@gmail.com</p>
+                        @if (!empty($setting?->image))
+                            <img src="{{ asset($setting->image) }}" alt="Logo" height="50">
+                        @else
+                            <span>{{ $setting?->nama ?? 'Website' }}</span>
+                        @endif
+                        <p>{{ $setting?->alamat ?? '-' }}</p>
+                        <p>Telp: {{ $setting?->telepon ?? '-' }}</p>
+                        <p>Email: {{ $setting?->email ?? '-' }}</p>
                     </td>
                 </tr>
             </table>

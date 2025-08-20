@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Laporan Riwayat Penjualan</title>
@@ -9,6 +10,7 @@
             color: #333;
             font-size: 10px;
         }
+
         .header {
             display: flex;
             align-items: center;
@@ -16,97 +18,135 @@
             border-bottom: 2px solid #444;
             padding-bottom: 10px;
         }
+
         .header .logo {
             flex: 0 0 120px;
         }
+
         .header .logo img {
             max-width: 100px;
         }
+
         .header .company-info {
             flex: 1;
             text-align: left;
             padding-left: 15px;
         }
+
         .header .company-info h2 {
             margin: 0;
             font-size: 18px;
         }
+
         .header .company-info p {
             margin: 2px 0;
             font-size: 11px;
         }
+
         .report-title {
             text-align: center;
             margin: 10px 0 20px;
         }
+
         .report-title h1 {
             margin: 0;
             font-size: 20px;
         }
+
         .report-title p {
             margin: 5px 0;
             font-size: 12px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        table th, table td {
+
+        table th,
+        table td {
             border: 1px solid #ddd;
             padding: 6px;
             text-align: left;
         }
+
         table thead th {
             background-color: #f2f2f2;
             font-weight: bold;
         }
+
         /* Baris transaksi utama */
         .transaction-row td {
             background-color: #e9ecef;
             font-weight: bold;
         }
+
         /* Tabel detail produk */
         .product-details-table {
             width: 100%;
             margin-top: 5px;
             border-collapse: collapse;
         }
-        .product-details-table th, .product-details-table td {
+
+        .product-details-table th,
+        .product-details-table td {
             border: 1px solid #eee;
             padding: 5px;
             font-size: 9px;
         }
+
         .product-details-table thead th {
             background-color: #fafafa;
         }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        tfoot strong { font-size: 12px; }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        tfoot strong {
+            font-size: 12px;
+        }
     </style>
 </head>
+
 <body>
 
-   <!-- HEADER -->
-<table style="width: 100%; border-bottom: 2px solid #444; margin-bottom: 20px; padding-bottom: 10px;">
-    <tr>
-        <td style="width: 120px; text-align: center; vertical-align: middle;">
-            <img src="{{ public_path('assets/img/logo.png') }}" alt="Logo Apotek" style="max-width: 100px;">
-        </td>
-        <td style="text-align: left; vertical-align: middle; padding-left: 15px;">
-            <h2 style="margin: 0; font-size: 18px;">Apotek Sehat Sentosa</h2>
-            <p style="margin: 2px 0; font-size: 11px;">Jl. Jaya Alamat No. 123</p>
-            <p style="margin: 2px 0; font-size: 11px;">Telp: 0812-3456-7890</p>
-            <p style="margin: 2px 0; font-size: 11px;">Email: apotek@gmail.com</p>
-        </td>
-    </tr>
-</table>
+    <!-- HEADER -->
+    <table style="width: 100%; border-bottom: 2px solid #444; margin-bottom: 20px; padding-bottom: 10px;">
+        <tr>
+            <td style="width: 120px; text-align: center; vertical-align: middle;">
+                @if (!empty($setting?->image))
+                    <img src="{{ public_path($setting->image) }}" alt="Logo" height="50">
+                @else
+                    <span>{{ $setting?->nama ?? 'Website' }}</span>
+                @endif
+            </td>
+            <td style="text-align: left; vertical-align: middle; padding-left: 15px;">
+                <h2 style="margin: 0; font-size: 18px;">{{ $setting?->nama ?? '-' }}</h2>
+                <p style="margin: 2px 0; font-size: 11px;">{{ $setting?->alamat ?? 'Jl. Jaya Alamat No. 123' }}</p>
+                <p style="margin: 2px 0; font-size: 11px;">Telp: {{ $setting?->telepon ?? '0812-3456-7890' }}</p>
+                <p style="margin: 2px 0; font-size: 11px;">Email: {{ $setting?->email ?? '-' }}</p>
+            </td>
+        </tr>
+    </table>
 
 
     <!-- JUDUL LAPORAN -->
     <div class="report-title">
         <h1>Laporan Riwayat Penjualan</h1>
-        <p>Periode: {{ $tanggalMulai }} s/d {{ $tanggalSelesai }}</p>
+        <p>Periode:
+            {{ \Carbon\Carbon::parse($tanggalMulai)->translatedFormat('l, d F Y') ?? '-' }}
+            s/d
+            {{ \Carbon\Carbon::parse($tanggalSelesai)->translatedFormat('l, d F Y') ?? '-' }}
+        </p>
+        <p>Metode Pembayaran:
+            {{ request('payment_method') ?: 'Semua Metode' }}
+        </p>
     </div>
 
     <!-- TABEL TRANSAKSI -->
@@ -145,13 +185,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($sale->saleItems as $item)
-                                <tr>
-                                    <td>{{ $item->product->name ?? 'Produk Dihapus' }}</td>
-                                    <td class="text-center">{{ $item->quantity }}</td>
-                                    <td class="text-right">Rp{{ number_format($item->unit_price, 0, ',', '.') }}</td>
-                                    <td class="text-right">Rp{{ number_format($item->quantity * $item->unit_price, 0, ',', '.') }}</td>
-                                </tr>
+                                @foreach ($sale->saleItems as $item)
+                                    <tr>
+                                        <td>{{ $item->product->name ?? 'Produk Dihapus' }}</td>
+                                        <td class="text-center">{{ $item->quantity }}</td>
+                                        <td class="text-right">Rp{{ number_format($item->unit_price, 0, ',', '.') }}
+                                        </td>
+                                        <td class="text-right">
+                                            Rp{{ number_format($item->quantity * $item->unit_price, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>
@@ -172,4 +215,5 @@
     </table>
 
 </body>
+
 </html>

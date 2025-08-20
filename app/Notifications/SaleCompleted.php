@@ -63,7 +63,7 @@ class SaleCompleted extends Notification
         return [
             'title' => 'Penjualan Selesai',
             'message' => 'Penjualan dengan invoice #' . $this->invoice_number . ' berhasil',
-            'url' => route('sales.invoice', $this->sale_id),
+            'url' => route('kasir.transaksi.invoice', $this->sale_id),
         ];
     }
 

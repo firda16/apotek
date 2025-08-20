@@ -34,9 +34,12 @@ class Product extends Model
     public function getAvailableStockAttribute()
     {
         return $this->purchaseItems
-            ->where('expiry_date', '>', now())
+            ->filter(function ($item) {
+                return is_null($item->expiry_date) || $item->expiry_date > now();
+            })
             ->sum(fn($item) => $item->quantity - $item->sold_quantity);
     }
+
 
 
     public function purchase()
@@ -56,7 +59,7 @@ class Product extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
-     public function scopeOutOfStock($query)
+    public function scopeOutOfStock($query)
     {
         return $query->with('purchaseItems')
             ->whereHas('purchaseItems', function ($q) {
