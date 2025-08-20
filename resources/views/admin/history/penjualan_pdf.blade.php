@@ -180,6 +180,7 @@
                                 <tr>
                                     <th>Nama Produk</th>
                                     <th class="text-center">Jumlah</th>
+                                    <th class="text-center">Metode Pembayaran</th>
                                     <th class="text-right">Harga Satuan</th>
                                     <th class="text-right">Subtotal</th>
                                 </tr>
@@ -189,6 +190,7 @@
                                     <tr>
                                         <td>{{ $item->product->name ?? 'Produk Dihapus' }}</td>
                                         <td class="text-center">{{ $item->quantity }}</td>
+                                        <td class="text-center">{{ ucfirst($sale->payment_method ??'-')}}</td>
                                         <td class="text-right">Rp{{ number_format($item->unit_price, 0, ',', '.') }}
                                         </td>
                                         <td class="text-right">
