@@ -15,6 +15,30 @@
             background-color: #e2e3e5;
             color: #383d41;
         }
+
+        .btn.active {
+            background-color: #007bff !important;
+            /* Contoh warna latar belakang */
+            color: white !important;
+            /* Contoh warna teks */
+            border-color: #007bff !important;
+            /* Contoh warna border */
+        }
+
+        .btn-outline-warning.active {
+            background-color: #ffc107 !important;
+            color: black !important;
+        }
+
+        .btn-outline-danger.active {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        .btn-outline-secondary.active {
+            background-color: #6c757d !important;
+            color: white !important;
+        }
     </style>
 @endpush
 
@@ -62,64 +86,22 @@
                                     {{-- <th class="action-btn">Aksi</th> --}}
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($products as $product)
-                                    @php
-                                        // Ambil batch yang expired/akan expired dan stoknya masih ada
-                                        $relevantItems = $product->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
-                                            $expiry = \Carbon\Carbon::parse($item->expiry_date);
-                                            $available = ($item->quantity - $item->sold_quantity) > 0;
-                                            return (
-                                                ($expiry->lte(now()) && $available) ||
-                                                ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
-                                            );
-                                        })->sortBy('expiry_date');
-
-                                        $closestItem = $relevantItems->first();
-
-                                        if (!$closestItem) {
-                                            continue;
-                                        }
-
-                                        $expiryDate = \Carbon\Carbon::parse($closestItem->expiry_date);
-                                        $today = now();
-                                        $daysDiff = $expiryDate->diffInDays($today, false);
-
-                                        if ($expiryDate->lt($today)) {
-                                            $status = '<span class="badge text-white bg-danger">Sudah Kadaluarsa</span>';
-                                        } elseif ($expiryDate->lte($today->copy()->addDays($soonExpiryDays))) {
-                                            $status = '<span class="badge bg-warning text-dark">Akan Kadaluarsa</span>';
-                                        } else {
-                                            $status = '<span class="badge bg-secondary">Aktif</span>';
-                                        }
-                                    @endphp
-                                    <tr>
-                                        <td>{{ $products->firstItem() + $loop->index }}</td>
-                                        <td>{{ $product->name }}</td>
-                                        <td>{{ $product->category?->name ?? '-' }}</td>
-                                        <td>{{ (settings('app_currency') ?? 'Rp') . ' ' . number_format($product->price, 0, ',', '.') }}
-                                        </td>
-                                        <td>{{ $closestItem->quantity - $closestItem->sold_quantity }}</td>
-                                        <td>{{ $expiryDate->translatedFormat('d F Y') }}</td>
-                                        <td>{!! $status !!}</td> <!-- Status dengan badge -->
-                                        {{-- <td>
-                                            <a href="{{ route('products.edit', $product->id) }}"
-                                                class="btn btn-sm btn-primary">Edit</a>
-                                            <a href="javascript:void(0)" class="btn btn-sm btn-danger" id="deletebtn"
-                                                data-id="{{ $product->id }}"
-                                                data-route="{{ route('products.destroy', $product->id) }}">Hapus</a>
-                                        </td> --}}
-                                    </tr>
-                                @endforeach
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
-                    <div class="mt-3">
-                        {{ $products->links('pagination::bootstrap-5') }}
-                    </div>
+
                 </div>
             </div>
             <!-- /Produk Kedaluwarsa -->
+            <div class="mt-3">
+                <form method="POST" action="{{ route('products.deleteExpired') }}"
+                    onsubmit="return confirm('Hapus semua produk kadaluarsa?')">
+                    @csrf
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fa fa-trash"></i> Hapus Semua Produk Kadaluarsa
+                    </button>
+                </form>
+            </div>
 
         </div>
     </div>
@@ -127,46 +109,66 @@
 
 @push('page-js')
     <script>
-        document.querySelectorAll('.filter-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                const filter = this.dataset.filter;
+        $(function() {
+            var table = $('#expired-product').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '{{ route('kasir.products.kadaluarsa.datatable') }}',
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'category',
+                        name: 'category'
+                    },
+                    {
+                        data: 'price',
+                        name: 'price'
+                    },
+                    {
+                        data: 'quantity',
+                        name: 'quantity'
+                    },
+                    {
+                        data: 'expiry_date',
+                        name: 'expiry_date'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            });
 
-                const rows = document.querySelectorAll('#expired-product tbody tr');
+            // Berikan kelas 'active' pada tombol 'Tampilkan Semua' secara default
+            $('[data-filter="All"]').addClass('active');
 
-                rows.forEach(function(row) {
-                    const statusCell = row.querySelector('td:nth-child(7)').textContent.trim();
+            // Filter tabel berdasarkan tombol
+            $('.filter-btn').on('click', function() {
+                var filterValue = $(this).data('filter');
+                var statusColumnIndex = 6;
 
-                    if (filter === 'All') {
-                        row.style.display = '';
-                    } else if (statusCell.includes(filter)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+                // Hapus kelas 'active' dari semua tombol filter
+                $('.filter-btn').removeClass('active');
+
+                // Tambahkan kelas 'active' pada tombol yang baru saja diklik
+                $(this).addClass('active');
+
+                if (filterValue === 'All') {
+                    table.columns(statusColumnIndex).search('').draw();
+                } else {
+                    table.columns(statusColumnIndex).search(filterValue).draw();
+                }
             });
         });
     </script>
-@endpush
-
-
-@push('page-js')
-    {{-- <script>
-    $(document).ready(function() {
-        var table = $('#expired-product').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{route('expired')}}",
-            columns: [
-                {data: 'product', name: 'product'},
-                {data: 'category', name: 'category'},
-                {data: 'price', name: 'price'},
-                {data: 'quantity', name: 'quantity'},
-                {data: 'discount', name: 'discount'},
-				{data: 'expiry_date', name: 'expiry_date'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
-            ]
-        });
-    });
-</script> --}}
 @endpush

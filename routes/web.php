@@ -178,11 +178,15 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::get('categories', [CategoryKasirController::class, 'index'])->name('categories.index');
     Route::get('categories/datatable', [CategoryKasirController::class, 'datatable'])->name('categories.datatable');
     // products
+    
+    Route::get('/produk/expired/datatable', [ProductKasirController::class, 'expiredDatatable'])
+        ->name('products.kadaluarsa.datatable');
     Route::get('produk', [ProductKasirController::class, 'index'])->name('products.index');
     Route::get('produk/datatable', [ProductKasirController::class, 'datatable'])->name('products.datatable');
     Route::get('produk/tersedia', [ProductKasirController::class, 'available'])->name('products.available');
     Route::get('produk/kadaluarsa', [ProductKasirController::class, 'expired'])->name('products.expired');
     Route::get('produk/stok-habis', [ProductKasirController::class, 'outstock'])->name('products.outstock');
+    Route::get('/products/outstock/datatable', [ProductKasirController::class, 'outstockDatatable'])->name('products.outstock.datatable');
 
     // transaksi
     Route::get('/transaksi', [SaleKasirController::class, 'index'])->name('transaksi');

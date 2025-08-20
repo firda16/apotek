@@ -12,10 +12,7 @@
             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
             <li class="breadcrumb-item active">Produk</li>
         </ul>
-    </div>
-    <div class="col-sm-5 col">
-        <a href="{{ route('products.create') }}" class="btn btn-primary float-right mt-2">Tambah Produk</a>
-    </div>
+    </div>    
 @endpush
 
 @section('content')

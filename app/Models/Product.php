@@ -63,9 +63,21 @@ class Product extends Model
     {
         return $query->with('purchaseItems')
             ->whereHas('purchaseItems', function ($q) {
-                $q->whereRaw('(quantity - sold_quantity) <= 0')
+                $q->where('expiry_date', '>', now());
+            })
+            ->whereDoesntHave('purchaseItems', function ($q) {
+                $q->whereRaw('(quantity - sold_quantity) > 0')
                     ->where('expiry_date', '>', now());
             });
     }
+
+    // public function scopeOutOfStock($query)
+    // {
+    //     return $query->with('purchaseItems')
+    //         ->whereDoesntHave('purchaseItems', function ($q) {
+    //             $q->whereRaw('(quantity - sold_quantity) > 0');
+    //         });
+    // }
+
 
 }

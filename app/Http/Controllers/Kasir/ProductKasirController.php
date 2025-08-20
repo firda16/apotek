@@ -148,51 +148,152 @@ class ProductKasirController extends Controller
     public function expired()
     {
         $title = 'Produk Kedaluwarsa';
-        App::setLocale('id');
+        $soonExpiryDays = 30;
 
+        return view('kasir.products.expired', compact('title', 'soonExpiryDays'));
+    }
+
+    public function expiredDatatable(Request $request)
+    {
         $soonExpiryDays = 30;
         $soonExpiryDate = now()->addDays($soonExpiryDays);
+        App::setLocale('id');
 
         $allProducts = Product::with(['category', 'purchaseItems'])->get();
 
-        $filtered = $allProducts->filter(function ($product) use ($soonExpiryDate) {
-            // Ambil batch yang expired/akan expired dan stoknya masih ada
+        // Lakukan filter awal pada koleksi produk
+        $filteredProducts = $allProducts->filter(function ($product) use ($soonExpiryDate, $soonExpiryDays) {
             $batches = $product->purchaseItems->filter(function ($item) use ($soonExpiryDate) {
+                if (is_null($item->expiry_date)) {
+                    return false;
+                }
                 $expiry = \Carbon\Carbon::parse($item->expiry_date);
                 $available = ($item->quantity - $item->sold_quantity) > 0;
-
-                // Sudah expired dan stok masih ada
-                if ($expiry->lte(now()) && $available) {
-                    return true;
-                }
-                // Akan expired (< 30 hari) dan stok masih ada
-                if ($expiry->gt(now()) && $expiry->lte($soonExpiryDate) && $available) {
-                    return true;
-                }
-                return false;
+                return (
+                    ($expiry->lte(now()) && $available) ||
+                    ($expiry->gt(now()) && $expiry->lte($soonExpiryDate) && $available)
+                );
             });
-
-            // Tampilkan produk hanya jika ada batch yang memenuhi kondisi di atas
             return $batches->count() > 0;
-        })->values();
+        });
 
-        // Manual paginate Collection
-        $page = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
-        $results = $filtered->slice(($page - 1) * $perPage, $perPage)->values();
+        // Tangani filter dari permintaan DataTables
+        if ($request->has('columns.6.search.value') && $request->input('columns.6.search.value') != '') {
+            $filterValue = $request->input('columns.6.search.value');
 
-        $products = new \Illuminate\Pagination\LengthAwarePaginator(
-            $results,
-            $filtered->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+            // Memfilter koleksi produk berdasarkan nilai status
+            $filteredProducts = $filteredProducts->filter(function ($row) use ($filterValue, $soonExpiryDays) {
+                // Logika untuk menentukan status setiap produk
+                $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
+                    $expiry = \Carbon\Carbon::parse($item->expiry_date);
+                    $available = ($item->quantity - $item->sold_quantity) > 0;
+                    return (
+                        ($expiry->lte(now()) && $available) ||
+                        ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
+                    );
+                })->sortBy('expiry_date');
 
-        return view('kasir.products.expired', compact('title', 'products', 'soonExpiryDays'));
+                $closest = $relevant->first();
+                $actualStatus = '';
+
+                if (!$closest) {
+                    $actualStatus = 'Aktif';
+                } else {
+                    $expiry = \Carbon\Carbon::parse($closest->expiry_date);
+                    if ($expiry->lt(now())) {
+                        $actualStatus = 'Sudah Kadaluarsa';
+                    } elseif ($expiry->lte(now()->copy()->addDays($soonExpiryDays))) {
+                        $actualStatus = 'Akan Kadaluarsa';
+                    }
+                }
+                return $actualStatus === $filterValue;
+            });
+        }
+
+        // Buat objek Datatables dari koleksi yang sudah difilter
+        return DataTables::of($filteredProducts)
+            ->addIndexColumn()
+            ->addColumn('category', fn($row) => $row->category->name ?? '-')
+            ->addColumn('price', fn($row) => (settings('app_currency') ?? 'Rp') . ' ' . number_format($row->price, 0, ',', '.'))
+            ->addColumn('quantity', function ($row) use ($soonExpiryDays) {
+                $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
+                    $expiry = \Carbon\Carbon::parse($item->expiry_date);
+                    $available = ($item->quantity - $item->sold_quantity) > 0;
+                    return (
+                        ($expiry->lte(now()) && $available) ||
+                        ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
+                    );
+                })->sortBy('expiry_date');
+
+                $closest = $relevant->first();
+                return $closest ? $closest->quantity - $closest->sold_quantity : 0;
+            })
+            ->addColumn('expiry_date', function ($row) use ($soonExpiryDays) {
+                $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
+                    $expiry = \Carbon\Carbon::parse($item->expiry_date);
+                    $available = ($item->quantity - $item->sold_quantity) > 0;
+                    return (
+                        ($expiry->lte(now()) && $available) ||
+                        ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
+                    );
+                })->sortBy('expiry_date');
+
+                $closest = $relevant->first();
+                return $closest ? \Carbon\Carbon::parse($closest->expiry_date)->translatedFormat('d F Y') : '-';
+            })
+            ->addColumn('status', function ($row) use ($soonExpiryDays) {
+                $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
+                    $expiry = \Carbon\Carbon::parse($item->expiry_date);
+                    $available = ($item->quantity - $item->sold_quantity) > 0;
+                    return (
+                        ($expiry->lte(now()) && $available) ||
+                        ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
+                    );
+                })->sortBy('expiry_date');
+
+                $closest = $relevant->first();
+                if (!$closest)
+                    return '<span class="badge bg-secondary">Aktif</span>';
+
+                $expiry = \Carbon\Carbon::parse($closest->expiry_date);
+
+                if ($expiry->lt(now())) {
+                    return '<span class="badge bg-danger text-white">Sudah Kadaluarsa</span>';
+                } elseif ($expiry->lte(now()->copy()->addDays($soonExpiryDays))) {
+                    return '<span class="badge bg-warning text-dark">Akan Kadaluarsa</span>';
+                }
+                return '<span class="badge bg-secondary">Aktif</span>';
+            })
+            ->rawColumns(['status'])
+            ->make(true);
     }
 
+    // Fungsi pembantu untuk mendapatkan status HTML
+    private function getStatusHtml($row, $soonExpiryDays)
+    {
+        $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
+            $expiry = \Carbon\Carbon::parse($item->expiry_date);
+            $available = ($item->quantity - $item->sold_quantity) > 0;
+            return (
+                ($expiry->lte(now()) && $available) ||
+                ($expiry->gt(now()) && $expiry->lte(now()->copy()->addDays($soonExpiryDays)) && $available)
+            );
+        })->sortBy('expiry_date');
 
+        $closest = $relevant->first();
+        if (!$closest) {
+            return '<span class="badge bg-secondary">Aktif</span>';
+        }
+
+        $expiry = \Carbon\Carbon::parse($closest->expiry_date);
+
+        if ($expiry->lt(now())) {
+            return '<span class="badge bg-danger text-white">Sudah Kadaluarsa</span>';
+        } elseif ($expiry->lte(now()->copy()->addDays($soonExpiryDays))) {
+            return '<span class="badge bg-warning text-dark">Akan Kadaluarsa</span>';
+        }
+        return '<span class="badge bg-secondary">Aktif</span>';
+    }
 
     public function available(Request $request)
     {
@@ -228,50 +329,26 @@ class ProductKasirController extends Controller
 
 
 
-
     public function outstock(Request $request)
     {
-        $title = "Produk Habis";
+        $title = "Produk Stok Habis";
+        return view('kasir.products.outstock', compact('title'));
+    }
 
-        // Ambil semua produk dan relasinya
-        $allProducts = Product::with(['category', 'purchaseItems'])->get();
+    public function outstockDatatable(Request $request)
+    {
+        $products = Product::outOfStock()->with('category')->get();
 
-        // Filter produk yang stoknya habis (FIFO aware)
-        // $filtered = $allProducts->filter(function ($product) {
-        //     return $product->available_stock <= 0;
-        // });
-
-        $filtered = $allProducts->filter(function ($product) {
-            // Ambil hanya batch yang belum expired
-            $unexpiredBatches = $product->purchaseItems->where('expiry_date', '>', now());
-
-            // Jika tidak ada batch belum expired, jangan tampilkan
-            if ($unexpiredBatches->isEmpty()) {
-                return false;
-            }
-
-            // Hitung total stok dari batch belum expired
-            $availableStock = $unexpiredBatches->sum(fn($item) => $item->quantity - $item->sold_quantity);
-
-            // Tampilkan hanya jika stok habis
-            return $availableStock <= 0;
-        });
-
-
-        // Manual paginate Collection
-        $page = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
-        $results = $filtered->slice(($page - 1) * $perPage, $perPage)->values();
-
-        $products = new LengthAwarePaginator(
-            $results,
-            $filtered->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        return view('kasir.products.outstock', compact('title', 'products'));
+        return DataTables::of($products)
+            ->addIndexColumn()
+            ->addColumn('category', fn($row) => $row->category->name ?? '-')
+            ->addColumn('stok', function ($row) {
+                // total stok semua batch valid
+                return $row->purchaseItems
+                    ->where('expiry_date', '>', now())
+                    ->sum(fn($item) => $item->quantity - $item->sold_quantity);
+            })
+            ->make(true);
     }
 
     // public function outstock(Request $request)

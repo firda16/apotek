@@ -50,7 +50,7 @@ $(function() {
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'name', name: 'name' },
             { data: 'category', name: 'category' },
-            { data: 'stock', name: 'stock' },
+            { data: 'stok', name: 'stok' },
             // { data: 'action', name: 'action', orderable: false, searchable: false },
         ],
         order: [[1, 'asc']]

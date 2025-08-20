@@ -140,7 +140,9 @@ class SaleKasirController extends Controller
         // produk yang kadaluarsa tidak muncul di form penjualan.
         $products = Product::with(['purchaseItems'])
             ->whereHas('purchaseItems', function ($query) {
-                $query->whereDate('expiry_date', '>', Carbon::today());
+                $query->whereDate('expiry_date', '>', Carbon::today())
+                    ->orWhereNull('expiry_date'); // Tambahkan baris ini
+    
             })->get();
         $categories = Category::all();
 
@@ -171,6 +173,8 @@ class SaleKasirController extends Controller
 
         try {
             // 🔁 Cek stok & masa kedaluwarsa tiap produk
+            // ... di dalam method store()
+
             foreach ($request->sale_items as $item) {
                 $product = Product::find($item['nama_produk']);
 
@@ -178,38 +182,28 @@ class SaleKasirController extends Controller
                     return back()->withErrors(['stok' => 'Produk tidak ditemukan.']);
                 }
 
-                // ❗ Cek apakah produk punya stok kadaluarsa
-                // $expired = $product->purchaseItems()
-                //     ->whereDate('expiry_date', '<=', now()) // expired atau hari ini
-                //     ->where('quantity', '>', 0)
-                //     ->exists();
+                // DEBUG LOG purchaseItems
+                foreach ($product->purchaseItems as $pi) {
+                    Log::info("Product {$product->name} - PurchaseItem ID {$pi->id} - expiry_date: " . ($pi->expiry_date ?? 'NULL') . " - qty: {$pi->quantity} - sold: {$pi->sold_quantity}");
+                }
 
-                // if ($expired) {
-                //     return back()->withErrors([
-                //         'expired' => "Produk {$product->name} sudah kadaluarsa dan tidak bisa dijual."
-                //     ]);
-                // }
                 $availableStock = $product->purchaseItems()
-                    ->whereDate('expiry_date', '>', now())
-                    ->get()
-                    ->sum(function ($item) {
-                        return $item->quantity - $item->sold_quantity;
-                    });
+                    ->where(function ($query) {
+                        $query->whereDate('expiry_date', '>', now())
+                            ->orWhereNull('expiry_date'); // biar null dianggap valid
+                    })
+                    ->sum(DB::raw('quantity - sold_quantity'));
+
+                Log::info("Product {$product->name} - AvailableStock dihitung: {$availableStock}");
 
                 if ($availableStock < $item['quantity']) {
                     return back()->withErrors([
                         'stok' => "Stok untuk produk {$product->name} tidak mencukupi."
                     ])->withInput();
                 }
-
-
-                // // ❗ Cek ketersediaan stok
-                // if ($product->stock < $item['quantity']) {
-                //     return back()->withErrors([
-                //         'stok' => "Stok untuk produk {$product->name} tidak mencukupi."
-                //     ]);
-                // }
             }
+
+            // ...
 
             // ✅ Hitung total harga
             $overall_total_price = 0;
@@ -270,11 +264,21 @@ class SaleKasirController extends Controller
                 $remainingQty = $item_quantity;
 
                 // Ambil batch purchase_items yang belum expired dan masih punya stok, diurutkan dari yang paling awal (FIFO)
+                // $purchases = $product->purchaseItems()
+                //     ->whereDate('expiry_date', '>', now())
+                //     ->whereColumn('sold_quantity', '<', 'quantity')
+                //     ->orderBy('expiry_date') // FIFO: barang lama dijual lebih dulu
+                //     ->get();
                 $purchases = $product->purchaseItems()
-                    ->whereDate('expiry_date', '>', now())
+                    ->where(function ($q) {
+                        $q->whereDate('expiry_date', '>', now())
+                            ->orWhereNull('expiry_date'); // biar batch NULL ikut
+                    })
                     ->whereColumn('sold_quantity', '<', 'quantity')
-                    ->orderBy('expiry_date') // FIFO: barang lama dijual lebih dulu
+                    ->orderByRaw('CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END') // expired date duluan, null di belakang
+                    ->orderBy('expiry_date') // FIFO
                     ->get();
+
 
                 foreach ($purchases as $purchaseItem) {
                     if ($product->available_stock < $item['quantity']) {
@@ -490,8 +494,41 @@ class SaleKasirController extends Controller
 
     public function destroy(Sale $sale)
     {
-        $sale->delete();
-        return redirect()->route('kasir.transaksi')->with('success', 'Penjualan berhasil dihapus.');
+        DB::beginTransaction();
+
+        try {
+            foreach ($sale->saleItems as $saleItem) {
+                $qtyToReturn = $saleItem->quantity;
+
+                // Ambil semua batch purchase_items untuk produk ini yang pernah terjual
+                $batches = PurchaseItem::where('product_id', $saleItem->product_id)
+                    ->where('sold_quantity', '>', 0)
+                    ->orderBy('expiry_date', 'asc') // FIFO
+                    ->get();
+
+                foreach ($batches as $batch) {
+                    if ($qtyToReturn <= 0)
+                        break;
+
+                    $deduct = min($batch->sold_quantity, $qtyToReturn);
+
+                    $batch->decrement('sold_quantity', $deduct);
+
+                    $qtyToReturn -= $deduct;
+                }
+            }
+
+            // Hapus saleItems dan sale
+            $sale->saleItems()->delete();
+            $sale->delete();
+
+            DB::commit();
+
+            return redirect()->route('kasir.transaksi')->with('success', 'Penjualan berhasil dihapus.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menghapus penjualan: ' . $e->getMessage());
+        }
     }
 
 
@@ -537,7 +574,7 @@ class SaleKasirController extends Controller
     public function exportPdf(Request $request)
     {
         $from = $request->from_date ?? now()->startOfMonth()->toDateString();
-        $to   = $request->to_date ?? now()->endOfMonth()->toDateString();
+        $to = $request->to_date ?? now()->endOfMonth()->toDateString();
 
         $query = Sale::with(['customer', 'saleItems.product']);
 

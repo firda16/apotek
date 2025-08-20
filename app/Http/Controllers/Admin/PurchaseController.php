@@ -73,7 +73,10 @@ class PurchaseController extends Controller
                         $category = optional($product->category);
                         $html .= '<li>';
                         $html .= '<strong>' . ($product->name ?? '-') . '</strong><br>';
-                        $html .= 'Exp: ' . (Carbon::parse($item->expiry_date)->translatedFormat('l, d F Y') ?? 'tidak ada tanggal kadaluarsa') . '<br>';
+                        $html .= 'Exp: ' . ($item->expiry_date
+                            ? Carbon::parse($item->expiry_date)->translatedFormat('l, d F Y')
+                            : 'tidak ada tanggal kadaluarsa') . '<br>';
+
                         // $html .= 'Kategori: ' . ($category->name ?? '-') . '<br>';
                         $html .= 'Jumlah: ' . $item->quantity . '<br>';
                         $html .= 'Harga: Rp ' . number_format($item->unit_price, 0, ',', '.') . '<br>';
@@ -482,7 +485,7 @@ HTML;
     {
         $request->validate([
             'from_date' => 'required|date',
-            'to_date'   => 'required|date|after_or_equal:from_date',
+            'to_date' => 'required|date|after_or_equal:from_date',
         ]);
 
         $pembelians = Purchase::with(['supplier', 'purchaseItems.product.category'])
@@ -497,7 +500,7 @@ HTML;
             return $item->total_price ?? ($item->quantity * $item->unit_price);
         });
 
-        $tanggalMulai   = \Carbon\Carbon::parse($request->from_date)->format('d M Y');
+        $tanggalMulai = \Carbon\Carbon::parse($request->from_date)->format('d M Y');
         $tanggalSelesai = \Carbon\Carbon::parse($request->to_date)->format('d M Y');
 
         $pdf = Pdf::loadView('admin.purchases.reports_pdf', compact(
@@ -520,11 +523,27 @@ HTML;
         return response()->json(['exists' => $exists]);
     }
 
-    public function destroy(Request $request, Purchase $purchase)
+    // public function destroy(Request $request, Purchase $purchase)
+    // {
+    //     foreach ($purchase->purchaseItems as $item) {
+    //         Product::find($item->product_id)->decrement('stock', $item->quantity);
+    //     }
+    //     return redirect()->route('purchases.index')->with('success', 'Data pembelian berhasil dihapus.');
+    // }
+    public function destroy(Purchase $purchase)
     {
+        // Kembalikan stok sebelum hapus
         foreach ($purchase->purchaseItems as $item) {
-            Product::find($item->product_id)->decrement('stock', $item->quantity);
+            $item->decrement('quantity', $item->quantity);
         }
+
+        // Hapus semua item terkait
+        $purchase->purchaseItems()->delete();
+
+        // Hapus purchase utama
+        $purchase->delete();
+
         return redirect()->route('purchases.index')->with('success', 'Data pembelian berhasil dihapus.');
     }
+
 }
