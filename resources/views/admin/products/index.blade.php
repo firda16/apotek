@@ -3,6 +3,18 @@
 {{-- <x-assets.datatables /> --}}
 
 @push('page-css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .dataTables_filter {
+        float: right !important;
+        text-align: right !important;
+    }
+    .dataTables_filter label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        }
+</style>
 @endpush
 
 @push('page-header')
@@ -134,6 +146,17 @@
             // Event ketika filter berubah
             $('#filter-category, #filter-unit').change(function() {
                 table.draw();
+            });
+            // Aktifkan Select2
+            $('#filter-category').select2({
+                placeholder: "-- Semua Kategori --",
+                allowClear: true,
+                width: '100%'
+            });
+            $('#filter-unit').select2({
+                placeholder: "-- Semua Unit --",
+                allowClear: true,
+                width: '100%'
             });
 
         });
