@@ -196,12 +196,18 @@ class SaleController extends Controller
                 //         'expired' => "Produk {$product->name} sudah kadaluarsa dan tidak bisa dijual."
                 //     ]);
                 // }
+                // $availableStock = $product->purchaseItems()
+                //     ->whereDate('expiry_date', '>', now())
+                //     ->get()
+                //     ->sum(function ($item) {
+                //         return $item->quantity - $item->sold_quantity;
+                //     });
                 $availableStock = $product->purchaseItems()
-                    ->whereDate('expiry_date', '>', now())
-                    ->get()
-                    ->sum(function ($item) {
-                        return $item->quantity - $item->sold_quantity;
-                    });
+                    ->where(function ($query) {
+                        $query->whereDate('expiry_date', '>', now())
+                            ->orWhereNull('expiry_date'); // biar null dianggap valid
+                    })
+                    ->sum(DB::raw('quantity - sold_quantity'));
 
                 if ($availableStock < $item['quantity']) {
                     return back()->withErrors([
@@ -278,9 +284,13 @@ class SaleController extends Controller
 
                 // Ambil batch purchase_items yang belum expired dan masih punya stok, diurutkan dari yang paling awal (FIFO)
                 $purchases = $product->purchaseItems()
-                    ->whereDate('expiry_date', '>', now())
+                    ->where(function ($q) {
+                        $q->whereDate('expiry_date', '>', now())
+                            ->orWhereNull('expiry_date'); // biar batch NULL ikut
+                    })
                     ->whereColumn('sold_quantity', '<', 'quantity')
-                    ->orderBy('expiry_date') // FIFO: barang lama dijual lebih dulu
+                    ->orderByRaw('CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END') // expired date duluan, null di belakang
+                    ->orderBy('expiry_date') // FIFO
                     ->get();
 
                 foreach ($purchases as $purchaseItem) {
@@ -486,9 +496,43 @@ class SaleController extends Controller
 
     public function destroy(Sale $sale)
     {
-        $sale->delete();
-        return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus.');
+        DB::beginTransaction();
+
+        try {
+            foreach ($sale->saleItems as $saleItem) {
+                $qtyToReturn = $saleItem->quantity;
+
+                // Ambil semua batch purchase_items untuk produk ini yang pernah terjual
+                $batches = PurchaseItem::where('product_id', $saleItem->product_id)
+                    ->where('sold_quantity', '>', 0)
+                    ->orderBy('expiry_date', 'asc') // FIFO
+                    ->get();
+
+                foreach ($batches as $batch) {
+                    if ($qtyToReturn <= 0)
+                        break;
+
+                    $deduct = min($batch->sold_quantity, $qtyToReturn);
+
+                    $batch->decrement('sold_quantity', $deduct);
+
+                    $qtyToReturn -= $deduct;
+                }
+            }
+
+            // Hapus saleItems dan sale
+            $sale->saleItems()->delete();
+            $sale->delete();
+
+            DB::commit();
+
+            return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menghapus penjualan: ' . $e->getMessage());
+        }
     }
+
 
     public function generateReport(Request $request)
     {
@@ -541,7 +585,7 @@ class SaleController extends Controller
     public function exportPdf(Request $request)
     {
         $from = $request->from_date ?? now()->startOfMonth()->toDateString();
-        $to   = $request->to_date ?? now()->endOfMonth()->toDateString();
+        $to = $request->to_date ?? now()->endOfMonth()->toDateString();
 
         $query = Sale::with(['customer', 'saleItems.product']);
 

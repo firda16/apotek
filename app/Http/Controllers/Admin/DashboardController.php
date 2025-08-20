@@ -47,7 +47,16 @@ class DashboardController extends Controller
             $total_sales = SaleItem::count();
             $total_products = Product::count();
             $out_of_stock_products = Product::outOfStock()->count();
+
             $total_expired_products = PurchaseItem::whereDate('expiry_date', '<=', now())->count();
+            // $total_expired_products = PurchaseItem::whereDate('expiry_date', '<=', now())
+            //     ->whereRaw('(quantity - sold_quantity) > 0')
+            //     ->count();
+
+
+
+
+
             $today_sales = SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
 
             $latest_sales = SaleItem::with('product')

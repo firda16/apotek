@@ -4,10 +4,11 @@
     <!-- Logo -->
     <div class="header-left" style="padding-left: 15px;">
         <a href="{{ route('kasir.dashboard') }}" class="logo">
-            <img src="@if (!empty(AppSettings::get('logo'))) {{ asset('storage/' . AppSettings::get('logo')) }}
-			@else
-				{{ asset('assets/img/logo.png') }} @endif"
-                alt="Logo">
+            @if (!empty($setting?->image))
+                <img src="{{ asset($setting->image) }}" alt="Logo" height="50">
+            @else
+                <span>{{ $setting?->nama ?? 'Website' }}</span>
+            @endif
         </a>
         <a href="{{ route('kasir.dashboard') }}" class="logo logo-small">
             <img src="{{ asset('assets/img/logo-small.png') }}" alt="Logo" width="30" height="30">

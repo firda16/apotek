@@ -26,4 +26,11 @@ class SaleItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function purchaseItem()
+{
+    return $this->belongsTo(PurchaseItem::class, 'purchase_item_id');
+}
+
+
 }

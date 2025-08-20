@@ -189,7 +189,7 @@
                                                 <div class="input-group">
                                                     <span class="input-group-text">Rp</span>
                                                     <input type="number" name="purchase_items[0][unit_price]"
-                                                        class="form-control purchase-unit-price" readonly>
+                                                        class="form-control purchase-unit-price" required>
                                                 </div>
                                             </td>
                                             <td>
@@ -338,7 +338,7 @@
                 <td>
                     <div class="input-group">
                         <span class="input-group-text">Rp</span>
-                        <input type="number" name="purchase_items[${i}][unit_price]" class="form-control purchase-unit-price" readonly>
+                        <input type="number" name="purchase_items[${i}][unit_price]" class="form-control purchase-unit-price" required>
                     </div>
                 </td>
                 <td>

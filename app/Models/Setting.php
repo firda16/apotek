@@ -6,5 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-     protected $fillable = ['nama', 'alamat', 'telepon', 'email', 'image'];
+     protected $fillable = [
+          'nama',
+          'alamat',
+          'telepon',
+          'email',
+          'image'
+     ];
 }
