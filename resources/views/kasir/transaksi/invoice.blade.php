@@ -105,12 +105,15 @@
                     </td>
                     <td class="company-info">
                         {{-- <h3>Nama Toko</h3> --}}
-                        <img src="{{ public_path('assets/img/logo.png') }}" class="logo img-fluid"
-                            style="max-width: 150px;">
-
-                        <p>Jl. Contoh Alamat No. 123</p>
-                        <p>Telp: 0812-3456-7890</p>
-                        <p>Email: Apotek@gmail.com</p>
+                        @if (!empty($setting?->image))
+                            <img src="{{ public_path($setting->image) }}" alt="Logo" height="50">
+                        @else
+                            <span>{{ $setting?->nama ?? 'Website' }}</span>
+                        @endif
+                        <p>{{ $setting?->nama ?? '-' }}</p>
+                        <p>{{ $setting?->alamat ?? '-' }}</p>
+                        <p>Telp: {{ $setting?->telepon ?? '-' }}</p>
+                        <p>Email: {{ $setting?->email ?? '-' }}</p>
                     </td>
                 </tr>
             </table>
@@ -122,7 +125,7 @@
                 <td><strong>No. Telepon:</strong> {{ $sale->customer->telepon }}</td>
             </tr>
         </table>
-        
+
 
 
         <table class="items">
@@ -166,7 +169,7 @@
         </table>
 
         <div class="footer">
-            <p>Terima kasih atas pembelian Anda!</p>            
+            <p>Terima kasih atas pembelian Anda!</p>
         </div>
     </div>
 </body>

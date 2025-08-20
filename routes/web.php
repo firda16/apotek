@@ -141,7 +141,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('backup/download/{file_name?}', [HistoryController::class, 'download'])->name('backup.download');
     Route::delete('backup/delete/{file_name?}', [HistoryController::class, 'destroy'])->where('file_name', '(.*)')->name('backup.destroy');
 
-    Route::get('settings', [SettingController::class, 'index'])->name('settings');
+    // Route::get('settings', [SettingController::class, 'index'])->name('settings');
+    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
+    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+
 
     Route::get('customer-autocomplete', function (Illuminate\Http\Request $request) {
         $term = $request->term;

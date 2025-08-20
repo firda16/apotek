@@ -4,26 +4,47 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use QCod\AppSettings\SavesSettings;
+use App\Models\Setting;
 
 class SettingController extends Controller
 {
-    use SavesSettings;
+    public function edit()
+    {
+        // Ambil row pertama (default setting)
+        $setting = Setting::first();
+
+        return view('admin.settings.edit', compact('setting'));
+    }
 
     public function update(Request $request)
     {
-        $settings = $request->except(['_token', 'logo']);
+        $request->validate([
+            'nama'    => 'required|string|max:255',
+            'alamat'  => 'nullable|string|max:255',
+            'telepon' => 'nullable|string|max:20',
+            'email'   => 'nullable|email|max:255',
+            'image'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-        // Simpan logo jika ada upload
-        if ($request->hasFile('logo')) {
-            $logo = $request->file('logo')->store('logos', 'public');
-            $settings['logo'] = $logo;
+        $setting = Setting::first();
+
+        if (!$setting) {
+            $setting = new Setting();
         }
 
-        foreach ($settings as $key => $value) {
-            app('settings')->set($key, $value);
+        $setting->nama    = $request->nama;
+        $setting->alamat  = $request->alamat;
+        $setting->telepon = $request->telepon;
+        $setting->email   = $request->email;
+
+        if ($request->hasFile('image')) {
+            $fileName = time() . '.' . $request->image->extension();
+            $request->image->move(public_path('uploads/settings'), $fileName);
+            $setting->image = 'uploads/settings/' . $fileName;
         }
 
-        return back()->with('success', 'Settings berhasil diperbarui!');
+        $setting->save();
+
+        return redirect()->route('settings.edit')->with('success', 'Pengaturan berhasil diperbarui!');
     }
 }

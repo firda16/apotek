@@ -182,14 +182,14 @@
                                             </td>
                                             <td>
                                                 <input type="number" name="purchase_items[0][quantity]"
-                                                    class="form-control purchase-quantity" min="1" required>
+                                                    class="form-control purchase-quantity" value="1" min="1" required>
                                             </td>
                                             <td>
                                                 {{-- Diubah: Menghapus step="0.01" --}}
                                                 <div class="input-group">
                                                     <span class="input-group-text">Rp</span>
                                                     <input type="number" name="purchase_items[0][unit_price]"
-                                                        class="form-control purchase-unit-price" required>
+                                                        class="form-control purchase-unit-price" readonly>
                                                 </div>
                                             </td>
                                             <td>
@@ -333,12 +333,12 @@
                     </select>
                 </td>
                 <td>
-                    <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" min="1" required>
+                    <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" value="1" min="1" required>
                 </td>
                 <td>
                     <div class="input-group">
                         <span class="input-group-text">Rp</span>
-                        <input type="number" name="purchase_items[${i}][unit_price]" class="form-control purchase-unit-price" required>
+                        <input type="number" name="purchase_items[${i}][unit_price]" class="form-control purchase-unit-price" readonly>
                     </div>
                 </td>
                 <td>

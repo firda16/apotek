@@ -4,11 +4,13 @@
     <!-- Logo -->
     <div class="header-left" style="padding-left: 15px;">
         <a href="{{ route('dashboard') }}" class="logo">
-            <img src="@if (!empty(AppSettings::get('logo'))) {{ asset('storage/' . AppSettings::get('logo')) }}
-			@else
-				{{ asset('assets/img/logo.png') }} @endif"
-                alt="Logo">
+            @if (!empty($setting?->image))
+                <img src="{{ asset($setting->image) }}" alt="Logo" height="50">
+            @else
+                <span>{{ $setting?->nama ?? 'Website' }}</span>
+            @endif
         </a>
+
         <a href="{{ route('dashboard') }}" class="logo logo-small">
             <img src="{{ asset('assets/img/logo-small.png') }}" alt="Logo" width="30" height="30">
         </a>
@@ -184,46 +186,46 @@
             </li>
             <!-- Menu Pengguna -->
             <!--
-                    <li class="nav-item dropdown has-arrow">
-                        <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                            {{-- <span class="user-img">
+                        <li class="nav-item dropdown has-arrow">
+                            <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                                {{-- <span class="user-img">
                         <img class="rounded-circle"
                             src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
                             width="31" alt="Avatar">                   
                     </span> --}}
-                            <span class="user-img">
-                                <i class="fe fe-user" style="font-size: 25px;"></i>
-                            </span>
-                        </a>
-                        <div class="dropdown-menu">
-                            <div class="user-header">
-                                {{-- <div class="avatar avatar-sm">
+                                <span class="user-img">
+                                    <i class="fe fe-user" style="font-size: 25px;"></i>
+                                </span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <div class="user-header">
+                                    {{-- <div class="avatar avatar-sm">
                             <img src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
                                 alt="Foto Pengguna" class="avatar-img rounded-circle">
                         </div> --}}
-                                <div class="col">
-                                    <div class="user-text">
-                                        <h5>{{ auth()->user()->name }}</h5>
-                                    </div>
-                                    <div class="user-text">
-                                        <small>Role: {{ auth()->user()->role }}</small>
+                                    <div class="col">
+                                        <div class="user-text">
+                                            <h5>{{ auth()->user()->name }}</h5>
+                                        </div>
+                                        <div class="user-text">
+                                            <small>Role: {{ auth()->user()->role }}</small>
+                                        </div>
                                     </div>
                                 </div>
+
+                                {{-- <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a> --}}
+                                {{-- <a class="dropdown-item" href="{{ route('settings') }}">Pengaturan</a> --}}
+
+
+                                <a href="javascript:void(0)" class="dropdown-item">
+                                    <form action="{{ route('logout') }}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn">Keluar</button>
+                                    </form>
+                                </a>
                             </div>
-
-                            {{-- <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a> --}}
-                            {{-- <a class="dropdown-item" href="{{ route('settings') }}">Pengaturan</a> --}}
-
-
-                            <a href="javascript:void(0)" class="dropdown-item">
-                                <form action="{{ route('logout') }}" method="post">
-                                    @csrf
-                                    <button type="submit" class="btn">Keluar</button>
-                                </form>
-                            </a>
-                        </div>
-                    </li>
-                -->
+                        </li>
+                    -->
 
             <!-- /Menu Pengguna -->
 
