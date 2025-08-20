@@ -12,17 +12,28 @@
         .title { margin-top: 10px; font-size: 14px; font-weight: bold; text-decoration: underline; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #444; padding: 6px; font-size: 10px; }
+        th, td { border: 1px solid #444; padding: 6px; font-size: 10px; vertical-align: top; }
         th { background: #f2f2f2; text-align: center; font-size: 11px; }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
 
         .footer { margin-top: 30px; text-align: right; font-size: 11px; }
         .total-row td { background: #fafafa; font-weight: bold; }
+
+        /* Style untuk daftar item agar tidak ada bullet/nomor */
+        .item-list {
+            padding-left: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+        .item-list li {
+            margin-bottom: 3px; /* Memberi sedikit jarak antar item */
+        }
     </style>
 </head>
 <body>
 
+{{-- BAGIAN HEADER INI SAMA SEPERTI KODE ASLI ANDA --}}
 <div class="header">
     <img src="{{ public_path('assets/img/logo.png') }}" alt="Logo Apotek">
     <h2>Apotek Sehat Sentosa</h2>
@@ -36,41 +47,52 @@
         <tr>
             <th>No</th>
             <th>Tanggal</th>
+            <th>No. Invoice</th>
             <th>Pelanggan</th>
-            <th>Telepon</th>
+            <th>No Telepon</th>
             <th>Metode</th>
-            <th>Produk</th>
-            <th>Qty</th>
-            <th>Harga</th>
-            <th>Subtotal</th>
+            <th>Detail Produk</th>
             <th>Diskon</th>
             <th>Total</th>
         </tr>
     </thead>
     <tbody>
         @php $no=1; @endphp
-        @foreach($sales as $sale)
-            @foreach($sale->saleItems as $item)
-            <tr>
-                <td class="text-center">{{ $no++ }}</td>
-                <td class="text-center">{{ \Carbon\Carbon::parse($sale->created_at)->format('d-m-Y') }}</td>
-                <td>{{ $sale->customer->nama ?? '-' }}</td>
-                <td class="text-center">{{ $sale->customer->telepon ?? '-' }}</td>
-                <td class="text-center">{{ $sale->payment_method ?? '-' }}</td>
-                <td>{{ $item->product->name ?? '-' }}</td>
-                <td class="text-center">{{ $item->quantity }}</td>
-                <td class="text-right">Rp{{ number_format($item->price,0,',','.') }}</td>
-                <td class="text-right">Rp{{ number_format($item->subtotal,0,',','.') }}</td>
-                <td class="text-center">{{ $sale->discount ?? 0 }}%</td>
-                <td class="text-right">Rp{{ number_format($sale->total_price,0,',','.') }}</td>
-            </tr>
-            @endforeach
-        @endforeach
+        @forelse($sales as $sale)
+        <tr>
+            <td class="text-center">{{ $no++ }}</td>
+            <td class="text-center">{{ \Carbon\Carbon::parse($sale->created_at)->format('d-m-Y') }}</td>
+            {{-- KOLOM NOMOR INVOICE DITAMBAHKAN --}}
+            <td>{{ $sale->invoice_number ?? '-' }}</td>
+            <td>{{ $sale->customer->nama ?? '-' }}</td>
+            <td>{{ $sale->customer->telepon ?? '-' }}</td>
+            <td class="text-center">{{ $sale->payment_method ?? '-' }}</td>
+            <td>
+                <ul class="item-list">
+                    @foreach($sale->saleItems as $item)
+                        {{-- HARGA SATUAN & SUBTOTAL DITAMBAHKAN DI SINI --}}
+                        <li>
+                            {{ $item->product->name ?? 'N/A' }} <br>
+                            <em>({{ $item->quantity }} x Rp{{ number_format($item->unit_price, 0, ',', '.') }}) = <strong>Rp{{ number_format($item->quantity * $item->unit_price, 0, ',', '.') }}</strong></em>
+                        </li>
+                    @endforeach
+                </ul>
+            </td>
+            <td class="text-center">{{ $sale->discount ?? 0 }}%</td>
+            <td class="text-right">Rp{{ number_format($sale->total_price, 0, ',', '.') }}</td>
+        </tr>
+        @empty
+        <tr>
+            {{-- Colspan disesuaikan menjadi 8 --}}
+            <td colspan="9" class="text-center">Tidak ada data penjualan pada periode ini.</td>
+        </tr>
+        @endforelse
     </tbody>
     <tfoot>
         <tr class="total-row">
-            <td colspan="10" class="text-right">Total Pendapatan</td>
-            <td class="text-right">Rp{{ number_format($totalPendapatan,0,',','.') }}</td>
+            {{-- Colspan disesuaikan menjadi 7 --}}
+            <td colspan="8" class="text-right"><strong>Total Pendapatan</strong></td>
+            <td class="text-right"><strong>Rp{{ number_format($totalPendapatan, 0, ',', '.') }}</strong></td>
         </tr>
     </tfoot>
 </table>
