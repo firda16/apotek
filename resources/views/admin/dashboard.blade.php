@@ -170,7 +170,7 @@
         <!-- Produk Tersedia -->
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <a href="{{ route('products.index') }}"
+                <a href="{{ route('products.available') }}"
                     class="text-decoration-none {{ route_is('products.*') ? 'active' : '' }}">
                     <div class="card-body">
                         <div class="dash-widget-header">
