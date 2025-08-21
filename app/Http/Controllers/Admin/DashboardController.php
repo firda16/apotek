@@ -33,11 +33,11 @@ class DashboardController extends Controller
             $total_pengeluaran_hari_ini = PurchaseItem::whereDate('created_at', Carbon::today())->sum('total_price');
             $total_pendapatan_hari_ini = SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
 
-            $total_pengeluaran_bulan_ini = PurchaseItem::whereMonth('created_at', Carbon::now()->month)
+            $total_pengeluaran_bulan_ini = Purchase::whereMonth('created_at', Carbon::now()->month)
                 ->whereYear('created_at', Carbon::now()->year)
                 ->sum('total_price');
 
-            $total_pendapatan_bulan_ini = SaleItem::whereMonth('created_at', Carbon::now()->month)
+            $total_pendapatan_bulan_ini = Sale::whereMonth('created_at', Carbon::now()->month)
                 ->whereYear('created_at', Carbon::now()->year)
                 ->sum('total_price');
 
@@ -71,7 +71,21 @@ class DashboardController extends Controller
                 ->take(10)
                 ->get();
 
-            $stok_produk = Product::where('stock', '>', 0)->count();
+            // $stok_produk = Product::where('stock', '>', 0)->count();
+            $stok_produk = Product::with([
+                'category',
+                'purchaseItems' => function ($query) {
+                    $query->whereDate('expiry_date', '>', now())
+                        ->whereColumn('quantity', '>', 'sold_quantity')
+                        ->orWhereNull('expiry_date');
+                }
+            ])
+            ->whereHas('purchaseItems', function ($query) {
+                    $query->whereDate('expiry_date', '>', now())
+                        ->whereColumn('quantity', '>', 'sold_quantity')
+                        ->orWhereNull('expiry_date');
+                })
+            ->count();
 
             $pieChart = new Chart;
             $pieChart->labels(['Total Pembelian', 'Total Pemasok', 'Total Penjualan', 'Total Produk']);
