@@ -60,12 +60,19 @@ class SaleCompleted extends Notification
 
     public function toDatabase(object $notifiable): array
     {
+        $url = match ($notifiable->role) {
+            'kasir' => route('kasir.transaksi.invoice', $this->sale_id),
+            'admin' => route('sales.invoice', $this->sale_id),
+            default => route('dashboard'), // fallback
+        };
+
         return [
             'title' => 'Penjualan Selesai',
             'message' => 'Penjualan dengan invoice #' . $this->invoice_number . ' berhasil',
-            'url' => route('kasir.transaksi.invoice', $this->sale_id),
+            'url' => $url,
         ];
     }
+
 
 
     /**
