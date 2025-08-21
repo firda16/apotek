@@ -66,7 +66,7 @@ class HistoryController extends Controller
             ->where('invoice_number', $invoice_number)
             ->firstOrFail();
 
-            // Tambahkan pengecekan role untuk mengarahkan ke view yang benar
+        // Tambahkan pengecekan role untuk mengarahkan ke view yang benar
         if (Auth::user()->role == 'admin') {
             return view('admin.history.show', compact('sale'));
         } elseif (Auth::user()->role == 'kasir') {
@@ -93,22 +93,26 @@ class HistoryController extends Controller
         $sales = $query->orderBy('created_at', 'desc')->get();
         $total_pendapatan = $sales->sum('total_price');
 
-        $tanggalMulai = $request->start_date ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'Awal';
-        $tanggalSelesai = $request->end_date ? \Carbon\Carbon::parse($request->end_date)->format('d M Y') : 'Akhir';
+        // !! PERUBAHAN DI SINI !!
+        // Langsung kirim tanggal dari request ke view.
+        // Biarkan view yang menangani logika tampilan.
+        $tanggalMulai = $request->start_date;
+        $tanggalSelesai = $request->end_date;
 
-        $pdf = Pdf::loadView('admin.history.penjualan_pdf', compact('sales', 'total_pendapatan', 'tanggalMulai', 'tanggalSelesai'));
+        // Data yang akan dikirim ke view
+        $data = compact('sales', 'total_pendapatan', 'tanggalMulai', 'tanggalSelesai');
 
-        // Tambahkan pengecekan role untuk memuat template PDF yang benar
-        if (Auth::user()->role == 'admin') {
-            $pdf = Pdf::loadView('admin.history.penjualan_pdf', compact('sales', 'total_pendapatan', 'tanggalMulai', 'tanggalSelesai'));
-        } elseif (Auth::user()->role == 'kasir') {
+        // Tentukan view berdasarkan role
+        $viewPath = 'admin.history.penjualan_pdf'; // Default untuk admin
+        if (Auth::user()->role == 'kasir') {
             // Pastikan Anda punya view PDF untuk kasir jika desainnya berbeda
-            // Jika sama, Anda bisa arahkan ke view yang sama dengan admin
-            $pdf = Pdf::loadView('kasir.history.penjualan_pdf', compact('sales', 'total_pendapatan', 'tanggalMulai', 'tanggalSelesai'));
+            $viewPath = 'kasir.history.penjualan_pdf';
         }
 
+        $pdf = Pdf::loadView($viewPath, $data);
         return $pdf->stream('laporan-penjualan-' . now()->format('d-m-Y') . '.pdf');
     }
+
 
 
 
@@ -218,9 +222,11 @@ class HistoryController extends Controller
             return $item->subtotal ?? ($item->quantity * $item->unit_price);
         });
 
-        // Simpan tanggal filter untuk ditampilkan di judul PDF
-        $tanggalMulai = $request->start_date ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'Awal';
-        $tanggalSelesai = $request->end_date ? \Carbon\Carbon::parse($request->end_date)->format('d M Y') : 'Akhir';
+        // !! PERUBAHAN DI SINI !!
+        // Langsung kirim tanggal dari request ke view.
+        // Biarkan view yang menangani logika tampilan.
+        $tanggalMulai = $request->start_date;
+        $tanggalSelesai = $request->end_date;
 
         // 4. Load view PDF dengan data yang sudah disiapkan
         $pdf = PDF::loadView('admin.history.pembelian_pdf', compact('purchases', 'totalPembelian', 'tanggalMulai', 'tanggalSelesai'));

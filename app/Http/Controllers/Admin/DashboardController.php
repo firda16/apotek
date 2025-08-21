@@ -159,8 +159,8 @@ class DashboardController extends Controller
         $title = 'kasir-dashboard';
 
         // Menghitung data pendapatan
-        $total_pendapatan_hari_ini = SaleItem::whereDate('created_at', Carbon::today())->sum('total_price');
-        $total_pendapatan_bulan_ini = SaleItem::whereMonth('created_at', Carbon::now()->month)
+        $total_pendapatan_hari_ini = Sale::whereDate('created_at', Carbon::today())->sum('total_price');
+        $total_pendapatan_bulan_ini = Sale::whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->sum('total_price');
 
