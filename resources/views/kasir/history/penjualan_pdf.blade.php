@@ -121,7 +121,7 @@
         <tr>
             <td style="width: 120px; text-align: center; vertical-align: middle;">
                 @if (!empty($setting?->image))
-                    <img src="{{ public_path($setting->image) }}" alt="Logo" height="50">
+                    <img src="{{ public_path($setting->image) }}" alt="Logo" style="height: 30; width: 100;">
                 @else
                     <span>{{ $setting?->nama ?? 'Website' }}</span>
                 @endif
@@ -140,9 +140,17 @@
     <div class="report-title">
         <h1>Laporan Riwayat Penjualan</h1>
         <p>Periode:
-            {{ \Carbon\Carbon::parse($tanggalMulai)->translatedFormat('l, d F Y') ?? '-' }}
+            @if ($tanggalMulai)
+                {{ \Carbon\Carbon::parse($tanggalMulai)->translatedFormat('l, d F Y') }}
+            @else
+                Awal
+            @endif
             s/d
-            {{ \Carbon\Carbon::parse($tanggalSelesai)->translatedFormat('l, d F Y') ?? '-' }}
+            @if ($tanggalSelesai)
+                {{ \Carbon\Carbon::parse($tanggalSelesai)->translatedFormat('l, d F Y') }}
+            @else
+                Akhir
+            @endif
         </p>
         <p>Metode Pembayaran:
             {{ request('payment_method') ?: 'Semua Metode' }}

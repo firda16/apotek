@@ -97,7 +97,7 @@
     {{-- BAGIAN HEADER INI SAMA SEPERTI KODE ASLI ANDA --}}
     <div class="header">
         @if (!empty($setting?->image))
-            <img src="{{ public_path($setting->image) }}" alt="Logo" height="50">
+            <img src="{{ public_path($setting->image) }}" alt="Logo" style="height: auto; width: auto;">
         @else
             <span>{{ $setting?->nama ?? 'Website' }}</span>
         @endif
