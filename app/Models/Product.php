@@ -63,11 +63,17 @@ class Product extends Model
     {
         return $query->with('purchaseItems')
             ->whereHas('purchaseItems', function ($q) {
-                $q->where('expiry_date', '>', now());
+                $q->where(function ($qq) {
+                    $qq->where('expiry_date', '>', now())
+                        ->orWhereNull('expiry_date');
+                });
             })
             ->whereDoesntHave('purchaseItems', function ($q) {
                 $q->whereRaw('(quantity - sold_quantity) > 0')
-                    ->where('expiry_date', '>', now());
+                    ->where(function ($qq) {
+                        $qq->where('expiry_date', '>', now())
+                            ->orWhereNull('expiry_date');
+                    });
             });
     }
 
