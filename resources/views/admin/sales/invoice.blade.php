@@ -110,7 +110,7 @@
                         {{-- <img src="{{ public_path('assets/img/logo.png') }}" class="logo img-fluid"
                             style="max-width: 150px;"> --}}
                         @if (!empty($setting?->image))
-                            <img src="{{ public_path($setting->image) }}" alt="Logo" height="50">
+                            <img src="{{ public_path($setting->image) }}" alt="Logo" style="height: 30; width: 100;">
                         @else
                             <span>{{ $setting?->nama ?? 'Website' }}</span>
                         @endif
