@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use Carbon\Carbon;
-use App\Models\Setting;
+use App\Models\User;
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -29,5 +30,6 @@ class AppServiceProvider extends ServiceProvider
         Carbon::setLocale('id');
         App::setLocale('id');
         View::share('setting', Setting::first());
+        View::share('user', User::first());
     }
 }
