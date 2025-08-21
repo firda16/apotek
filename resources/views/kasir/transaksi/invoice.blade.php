@@ -106,7 +106,7 @@
                     <td class="company-info">
                         {{-- <h3>Nama Toko</h3> --}}
                         @if (!empty($setting?->image))
-                            <img src="{{ public_path($setting->image) }}" alt="Logo" style="height: auto; width: auto;">
+                            <img src="{{ public_path($setting->image) }}" alt="Logo" style="height: 30; width: 100;">
                         @else
                             <span>{{ $setting?->nama ?? 'Website' }}</span>
                         @endif
