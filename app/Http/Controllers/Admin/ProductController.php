@@ -316,16 +316,22 @@ class ProductController extends Controller
             $products = Product::with([
                 'category',
                 'purchaseItems' => function ($query) {
-                    $query->whereDate('expiry_date', '>', now())
-                        ->whereColumn('quantity', '>', 'sold_quantity')
-                        ->orWhereNull('expiry_date');
+                    $query->whereColumn('quantity', '>', 'sold_quantity')
+                        ->where(function ($q) {
+                            $q->whereDate('expiry_date', '>', now())
+                                ->orWhereNull('expiry_date');
+                        });
                 }
             ])
                 ->whereHas('purchaseItems', function ($query) {
-                    $query->whereDate('expiry_date', '>', now())
-                        ->whereColumn('quantity', '>', 'sold_quantity')
-                        ->orWhereNull('expiry_date');
+                    $query->whereColumn('quantity', '>', 'sold_quantity')
+                        ->where(function ($q) {
+                            $q->whereDate('expiry_date', '>', now())
+                                ->orWhereNull('expiry_date');
+                        });
                 });
+
+
 
             return DataTables::of($products)
                 ->addIndexColumn()
