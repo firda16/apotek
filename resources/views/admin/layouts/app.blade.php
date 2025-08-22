@@ -7,9 +7,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name') }} - {{ ucfirst($title ?? '') }}</title>
-
-    <link rel="shortcut icon" type="image/x-icon"
-        href="{{ !empty(AppSettings::get('favicon')) ? asset('storage/' . AppSettings::get('favicon')) : asset('assets/img/favicon.png') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/fontawesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/feathericon.min.css') }}">
