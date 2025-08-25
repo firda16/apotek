@@ -58,7 +58,7 @@
                                 <tbody>
                                     @foreach ($sales as $key => $sale)
                                         <tr>
-                                            <td>{{ $key + 1 }}</td>                                            
+                                            <td>{{ $key + 1 }}</td>
                                             <td>{{ \Carbon\Carbon::parse($sale->created_at)->translatedFormat('l, d F Y') }}
                                             </td>
                                             <td>{{ $sale->customer->nama ?? '-' }}</td>
@@ -72,8 +72,7 @@
                                                 </ul>
                                             </td>
                                             <td>{{ $sale->discount ?? 0 }}%</td>
-                                            <td>{{ AppSettings::get('app_currency', 'Rp') }}
-                                                {{ number_format($sale->total_price, 0, ',', '.') }}</td>
+                                            <td>{{ formatRupiah($sale->total_price) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -156,8 +155,7 @@
                 buttons: [{
                     extend: 'collection',
                     text: 'Ekspor Data',
-                    buttons: [
-                        {
+                    buttons: [{
                             // extend: 'pdfHtml5',
                             title: 'LAPORAN PENJUALAN',
                             orientation: 'landscape',
