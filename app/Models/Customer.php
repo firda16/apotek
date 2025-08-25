@@ -15,7 +15,7 @@ class Customer extends Model
         'nama',
         'telepon',
         'email',
-        'address',
+        'alamat',
     ];
 
     // Jika kamu ingin menonaktifkan timestamps

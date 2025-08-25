@@ -26,8 +26,9 @@ class CustomerController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
+            'telepon' => 'nullable|string|max:20',
+            'eamil' => 'email|string|max:20',
+            'alamat' => 'nullable|string|max:255',
         ]);
 
         Customer::create($request->all());
