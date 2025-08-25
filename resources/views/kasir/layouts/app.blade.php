@@ -10,8 +10,8 @@
     {{-- <title>{{ config('app.name') }} - {{ ucfirst($title ?? '') }}</title> --}}
     <title> {{ $setting?->nama ?? 'Siapotik' }}</title>
     <!-- Favicon -->
-    @if (!empty($setting?->image))
-        <link rel="icon" type="image/png" href="{{ asset($setting->image) }}">
+    @if (!empty($setting?->favicon))
+        <link rel="icon" type="image/png" href="{{ asset($setting->favicon) }}">
     @else
         <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
     @endif

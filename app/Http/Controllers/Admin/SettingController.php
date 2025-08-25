@@ -24,6 +24,7 @@ class SettingController extends Controller
             'telepon' => 'nullable|string|max:20',
             'email'   => 'nullable|email|max:255',
             'image'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'favicon'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $setting = Setting::first();
@@ -41,6 +42,11 @@ class SettingController extends Controller
             $fileName = time() . '.' . $request->image->extension();
             $request->image->move(public_path('uploads/settings'), $fileName);
             $setting->image = 'uploads/settings/' . $fileName;
+        }
+        if ($request->hasFile('favicon')) {
+            $fileName = time() . '.' . $request->favicon->extension();
+            $request->favicon->move(public_path('uploads/settings'), $fileName);
+            $setting->favicon = 'uploads/settings/' . $fileName;
         }
 
         $setting->save();

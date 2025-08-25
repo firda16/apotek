@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> {{ $setting?->nama ?? 'belum ada nama website' }}</title>
-    @if (!empty($setting?->image))
-        <link rel="icon" type="image/png" href="{{ asset($setting->image) }}">
+    @if (!empty($setting?->favicon))
+        <link rel="icon" type="image/png" href="{{ asset($setting->favicon) }}">
     @else
         <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
     @endif
