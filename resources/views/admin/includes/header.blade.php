@@ -173,7 +173,7 @@
             </li>
             <!-- /Notifikasi -->
 
-            <li>
+            {{-- <li>
                 <a href="javascript:void(0)" class="dropdown-item">
                     <form action="{{ route('logout') }}" method="post">
                         @csrf
@@ -183,49 +183,51 @@
                         </button>
                     </form>
                 </a>
-            </li>
+            </li> --}}
             <!-- Menu Pengguna -->
-            <!--
-                        <li class="nav-item dropdown has-arrow">
-                            <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                                {{-- <span class="user-img">
-                        <img class="rounded-circle"
-                            src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
-                            width="31" alt="Avatar">                   
-                    </span> --}}
-                                <span class="user-img">
-                                    <i class="fe fe-user" style="font-size: 25px;"></i>
-                                </span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <div class="user-header">
-                                    {{-- <div class="avatar avatar-sm">
-                            <img src="{{ !empty(auth()->user()->avatar) ? asset('storage/users/' . auth()->user()->avatar) : asset('assets/img/avatar.png') }}"
-                                alt="Foto Pengguna" class="avatar-img rounded-circle">
-                        </div> --}}
-                                    <div class="col">
-                                        <div class="user-text">
-                                            <h5>{{ auth()->user()->name }}</h5>
-                                        </div>
-                                        <div class="user-text">
-                                            <small>Role: {{ auth()->user()->role }}</small>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- <a class="dropdown-item" href="{{ route('profile') }}">Profil Saya</a> --}}
-                                {{-- <a class="dropdown-item" href="{{ route('settings') }}">Pengaturan</a> --}}
 
 
-                                <a href="javascript:void(0)" class="dropdown-item">
-                                    <form action="{{ route('logout') }}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn">Keluar</button>
-                                    </form>
-                                </a>
-                            </div>
-                        </li>
-                    -->
+            <li class="nav-item dropdown has-arrow">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                    <span class="user-img">
+                        @if (!empty(auth()->user()->avatar))
+                            <img class="rounded-circle" src="{{ asset('storage/users/' . auth()->user()->avatar) }}"
+                                width="31" alt="Avatar">
+                        @else
+                            <i class="fe fe-user" style="font-size: 24px;"></i>
+                        @endif
+                    </span>
+
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+    <!-- User Info -->
+    <div class="user-header d-flex align-items-center p-3 border-bottom">
+        <div class="user-text">
+            <h6 class="mb-0">{{ auth()->user()->name }}</h6>
+            <small class="text-muted">Role: {{ auth()->user()->role }}</small>
+        </div>
+    </div>
+
+    <!-- Menu Items -->
+    <a class="dropdown-item" href="{{ route('profile') }}">
+        <i class="fe fe-user me-2 mr-2" style="font-size: 18px"></i> Profil Saya
+    </a>
+    <a class="dropdown-item" href="{{ route('settings.edit') }}">
+        <i class="fa fa-cog me-2 mr-2" style="font-size: 15px"></i> Pengaturan
+    </a>
+
+    <div class="dropdown-divider"></div>
+
+    <!-- Logout -->
+    <form action="{{ route('logout') }}" method="POST" class="m-0">
+        @csrf
+        <button type="submit" class="dropdown-item text-danger">
+            <i class="fe fe-log-out me-2"></i> Keluar
+        </button>
+    </form>
+</div>
+
+            </li>
 
             <!-- /Menu Pengguna -->
 

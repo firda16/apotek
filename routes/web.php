@@ -37,6 +37,11 @@ use App\Http\Controllers\Admin\Auth\ForgotPasswordController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});
+
 Route::get('', [DashboardController::class, 'Index']);
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -172,13 +177,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 // --- GRUP ROUTE KASIR ---
 // PERBAIKAN: Menambahkan prefix dan name pada grup
 Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'kasirDashboard'])->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // category
     Route::get('categories', [CategoryKasirController::class, 'index'])->name('categories.index');
     Route::get('categories/datatable', [CategoryKasirController::class, 'datatable'])->name('categories.datatable');
     // products
-    
+
     Route::get('/produk/expired/datatable', [ProductKasirController::class, 'expiredDatatable'])
         ->name('products.kadaluarsa.datatable');
     Route::get('produk', [ProductKasirController::class, 'index'])->name('products.index');
@@ -279,9 +284,9 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
 
 
 Route::middleware(['guest'])->group(function () {
-    Route::get('', function () {
-        return redirect()->route('dashboard');
-    });
+    // Route::get('', function () {
+    //     return redirect()->route('dashboard');
+    // });
 
     Route::get('login', [LoginController::class, 'index'])->name('login');
     Route::post('login', [LoginController::class, 'login']);

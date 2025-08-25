@@ -149,8 +149,8 @@
                     <form action="{{ route('logout') }}" method="post">
                         @csrf
                         <button type="submit" class="btn logout-btn">
-                            <i class="fe fe-logout" style="font-size: 20px;"></i>
-                            <p class="logout-text">Keluar</p>
+                            <i class="fe fe-logout" style="font-size: 24px;"></i>
+                            {{-- <p class="logout-text">Keluar</p> --}}
                         </button>
                     </form>
                 </a>

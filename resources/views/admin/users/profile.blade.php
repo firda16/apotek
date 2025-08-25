@@ -16,9 +16,14 @@
             <div class="profile-header">
                 <div class="row align-items-center">
                     <div class="col-auto profile-image">
-                        {{-- <a href="#">
-						<img class="rounded-circle" alt="Foto Pengguna" src="{{!empty(auth()->user()->avatar) ? asset('storage/users/'.auth()->user()->avatar): asset('assets/img/avatar.png')}}">
-					</a> --}}
+                        <a href="#">
+                            @if (!empty(auth()->user()->avatar))
+                                <img class="rounded-circle" alt="Foto Pengguna"
+                                    src="{{ asset('storage/users/' . auth()->user()->avatar) }}">
+                            @else
+                                <i class="fe fe-user" style="font-size: 24px;"></i>
+                            @endif
+                        </a>
                     </div>
                     <div class="col ml-md-n2 profile-user-info">
                         <h4 class="user-name mb-0">{{ auth()->user()->name }}</h4>
@@ -115,12 +120,12 @@
                                                             </select>
                                                         </div>
                                                     </div> --}}
-                                                    {{-- <div class="col-12">
+                                                    <div class="col-12">
                                                         <div class="form-group">
                                                             <label>Foto Pengguna</label>
                                                             <input type="file" class="form-control" name="avatar">
                                                         </div>
-                                                    </div> --}}
+                                                    </div>
                                                 </div>
                                                 <button type="submit" class="btn btn-primary btn-block">Simpan
                                                     Perubahan</button>

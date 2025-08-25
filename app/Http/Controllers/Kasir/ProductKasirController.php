@@ -41,109 +41,6 @@ class ProductKasirController extends Controller
         return view('kasir.products.index', compact('products'));
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:200',
-            'category_id' => 'required|exists:categories,id',
-            'unit' => 'required|string|max:50',
-            'price' => 'nullable|numeric|min:0',
-            'discount' => 'nullable|numeric|min:0',
-            'description' => 'nullable|string|max:255',
-        ]);
-
-        // Cek apakah nama dan satuan sudah ada
-
-        $nameExists = Product::where('name', $request->name)->exists();
-
-        $exists = Product::where('name', $request->name)
-            ->where('unit', $request->unit)
-            ->exists();
-
-        if ($exists) {
-            return back()->withInput()->withErrors([
-                'name' => 'Nama produk dan satuan sudah terdaftar.',
-                'unit' => 'Nama produk dan satuan sudah terdaftar.'
-            ]);
-        } elseif ($nameExists) {
-            return back()->withInput()->withErrors([
-                'name' => 'Nama produk sudah terdaftar.'
-            ]);
-        }
-
-        $price = $request->price;
-        if ($request->discount && $request->discount > 0) {
-            $price = $price - ($request->discount * $price);
-        }
-
-        Product::create([
-            'name' => $request->name,
-            'category_id' => $request->category_id,
-            'unit' => $request->unit,
-            'price' => $price,
-            'discount' => $request->discount,
-            'description' => $request->description,
-        ]);
-
-        return redirect()->route('products.index')->with(notify("Produk berhasil ditambahkan"));
-    }
-
-    public function edit(Product $product)
-    {
-        $title = 'Edit Produk';
-        $categories = Category::all();
-        return view('admin.products.edit', compact('product', 'categories'));
-    }
-
-    public function update(Request $request, Product $product)
-    {
-        $request->validate([
-            'name' => 'required|string|max:200',
-            'category_id' => 'required|exists:categories,id',
-            'unit' => 'required|string|max:50',
-            'price' => 'nullable|numeric|min:0',
-            'discount' => 'nullable|numeric|min:0',
-            'description' => 'nullable|string|max:255',
-        ]);
-
-        // Cek apakah nama dan satuan sudah ada (kecuali produk yang sedang diupdate)
-        $comboExists = Product::where('name', $request->name)
-            ->where('unit', $request->unit)
-            ->where('id', '!=', $product->id)
-            ->exists();
-
-        // Cek nama produk saja, kecuali produk yang sedang diupdate
-        $nameExists = Product::where('name', $request->name)
-            ->where('id', '!=', $product->id)
-            ->exists();
-
-        if ($comboExists) {
-            return back()->withInput()->withErrors([
-                'name' => 'Nama produk dan satuan sudah terdaftar.',
-                'unit' => 'Nama produk dan satuan sudah terdaftar.'
-            ]);
-        } elseif ($nameExists) {
-            return back()->withInput()->withErrors([
-                'name' => 'Nama produk sudah terdaftar.'
-            ]);
-        }
-
-        $price = $request->price;
-        if ($request->discount && $request->discount > 0) {
-            $price = $price - ($request->discount * $price);
-        }
-
-        $product->update([
-            'name' => $request->name,
-            'category_id' => $request->category_id,
-            'unit' => $request->unit,
-            'price' => $price,
-            'discount' => $request->discount,
-            'description' => $request->description,
-        ]);
-
-        return redirect()->route('products.index')->with(notify("Produk berhasil diperbarui"));
-    }
 
     public function expired()
     {
@@ -214,7 +111,8 @@ class ProductKasirController extends Controller
         return DataTables::of($filteredProducts)
             ->addIndexColumn()
             ->addColumn('category', fn($row) => $row->category->name ?? '-')
-            ->addColumn('price', fn($row) => (settings('app_currency') ?? 'Rp') . ' ' . number_format($row->price, 0, ',', '.'))
+            // ->addColumn('price', fn($row) => (settings('app_currency') ?? 'Rp') . ' ' . number_format($row->price, 0, ',', '.'))
+            ->addColumn('price', fn($row) => formatRupiah($row->price))
             ->addColumn('quantity', function ($row) use ($soonExpiryDays) {
                 $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
                     $expiry = \Carbon\Carbon::parse($item->expiry_date);
@@ -363,32 +261,6 @@ class ProductKasirController extends Controller
 
     //     return view('admin.products.outstock', compact('title', 'products'));
     // }
-
-    public function destroy(Product $product)
-    {
-        // Cek apakah semua batch produk sudah expired (expiry_date <= hari ini)
-        $allExpired = $product->purchaseItems->count() > 0 &&
-            $product->purchaseItems->every(function ($item) {
-                return \Carbon\Carbon::parse($item->expiry_date)->lte(now());
-            });
-
-        if (!$allExpired) {
-            return back()->with('error', 'Produk hanya bisa dihapus jika semua batch sudah kadaluarsa.');
-        }
-
-        $product->delete();
-        return redirect()->route('products.index')->with(notify('Produk berhasil dihapus'));
-    }
-
-    public function stockLog(Product $product)
-    {
-        $batches = $product->purchaseItems()
-            ->orderBy('expiry_date')
-            ->get();
-
-        return view('admin.products.stock_log', compact('product', 'batches'));
-    }
-
 
     public function stockReport(Request $request)
     {
@@ -542,24 +414,6 @@ class ProductKasirController extends Controller
             ->addColumn('description', fn($row) => $row->description)
             ->rawColumns(['unit_price', 'price'])
             ->make(true);
-    }
-
-
-
-    public function deleteExpired()
-    {
-        // Ambil semua batch yang sudah expired dan stoknya masih ada
-        $expiredItems = PurchaseItem::where('expiry_date', '<=', now())
-            ->whereRaw('quantity - sold_quantity > 0')
-            ->get();
-
-        foreach ($expiredItems as $item) {
-            // Jika ingin menghapus batch: hapus PurchaseItem
-            $item->delete();
-            // Jika ingin menghapus produk jika semua batch-nya sudah dihapus, tambahkan logika di sini
-        }
-
-        return back()->with('success', 'Semua produk kadaluarsa berhasil dihapus.');
     }
 
 }

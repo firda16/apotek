@@ -112,7 +112,7 @@
 
                 <a href="{{ $notif->data['url'] ?? '#' }}" class="list-group-item list-group-item-action py-3 {{ $isUnread ? 'unread' : '' }}">
                     <div class="d-flex align-items-center">
-                        <div class="me-3">
+                        <div class="me-3 mr-4">
                             <div class="icon-shape {{ $iconBgClass }}">
                                 <i class="fe {{ $iconClass }} fs-4 {{ $iconColorClass }}"></i>
                             </div>
