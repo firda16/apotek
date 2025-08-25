@@ -37,8 +37,12 @@
                         @endif
                         <div class="mb-3">
                             <label for="invoice_number">No Invoice <span class="text-danger">*</span></label>
-                            <input type="text" name="invoice_number" id="invoice_number" class="form-control @error('invoice_number') is-invalid @enderror"
+                            <input type="text" name="invoice_number" id="invoice_number"
+                                class="form-control @error('invoice_number') is-invalid @enderror"
                                 value="{{ old('invoice_number', $purchase->invoice_number) }}" required>
+                            <small id="invoice-warning" class="text-danger" style="display:none;">
+                                Nomor invoice sudah ada
+                            </small>
                             @error('invoice_number')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -149,9 +153,13 @@
                         <div class="mb-3 mt-3">
                             <label for="status">Status</label>
                             <select name="status" id="status" class="form-control">
-                                <option value="pending" {{ old('status', $purchase->status) == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="selesai" {{ old('status', $purchase->status) == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                <option value="dibatalkan" {{ old('status', $purchase->status) == 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                                <option value="pending"
+                                    {{ old('status', $purchase->status) == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="selesai"
+                                    {{ old('status', $purchase->status) == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="dibatalkan"
+                                    {{ old('status', $purchase->status) == 'dibatalkan' ? 'selected' : '' }}>Dibatalkan
+                                </option>
 
                             </select>
                         </div>
@@ -173,6 +181,33 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
+        $(document).ready(function() {
+            $('#invoice_number').on('input', function() {
+                let invoiceNumber = $(this).val();
+
+                if (invoiceNumber.trim() === '') {
+                    $('#invoice-warning').hide();
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route('check.invoice') }}',
+                    type: 'GET',
+                    data: {
+                        invoice_number: invoiceNumber
+                    },
+                    success: function(res) {
+                        if (res.exists) {
+                            $('#invoice-warning').show();
+                        } else {
+                            $('#invoice-warning').hide();
+                        }
+                    }
+                });
+            });
+        });
+
+
         function initializeSelect2() {
             $('.select2').select2();
         }
@@ -211,7 +246,7 @@
 
             $(document).on('change', '.product-select', function() {
                 const selectedProductId = $(this).val();
-                const row = $(this).closest('tr');               
+                const row = $(this).closest('tr');
             });
 
             $(document).on('input', '.purchase-quantity, .purchase-unit-price', function() {
@@ -225,7 +260,7 @@
                         <select name="purchase_items[${i}][product_id]" class="form-control product-select select2">
                             ${productsOptions}
                         </select>
-                    </td>                    
+                    </td>
                     <td>
                         <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" min="1" required>
                     </td>

@@ -72,8 +72,8 @@
                                                 </ul>
                                             </td>
                                             <td>{{ $sale->discount ?? 0 }}%</td>
-                                            <td>{{ AppSettings::get('app_currency', 'Rp') }}
-                                                {{ number_format($sale->total_price, 0, ',', '.') }}</td>
+                                            <td>{{ formatRupiah($sale->total_price) }}</td>
+
                                         </tr>
                                     @endforeach
                                 </tbody>

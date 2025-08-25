@@ -212,7 +212,7 @@
                                             class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <input type="text" name="nama_customer"
+                                        <input type="text" name="nama_customer" id="nama_customer"
                                             value="{{ old('nama_customer', $customer->nama) }}" class="form-control"
                                             placeholder="Masukkan nama pelanggan" required>
                                     </div>
@@ -223,7 +223,7 @@
                                     <label class="form-label">Nomor Telepon <span class="required-asterisk">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                        <input type="text" name="nomor_telepon"
+                                        <input type="text" id="telepon_customer" name="nomor_telepon"
                                             value="{{ old('nomor_telepon', $customer->telepon) }}" class="form-control"
                                             placeholder="Contoh: 0876 5245 8976" required>
                                     </div>
@@ -251,8 +251,7 @@
                                                 class="form-select select2" required>
                                                 <option disabled value="">Pilih Produk</option>
                                                 @foreach ($products as $product)
-                                                    <option value="{{ $product->id }}"
-                                                        {{-- {{ $product->available_stock <= 0 ? 'disabled' : '' }} --}}
+                                                    <option value="{{ $product->id }}" {{-- {{ $product->available_stock <= 0 ? 'disabled' : '' }} --}}
                                                         data-category="{{ $product->category->name ?? '-' }}"
                                                         data-price="{{ $product->price }}"
                                                         {{ $item->product_id == $product->id ? 'selected' : '' }}>
@@ -448,6 +447,71 @@
 @push('page-js')
     <script>
         let index = 1;
+
+
+        $(function() {
+
+            $('.select-product').select2({
+                placeholder: "Cari Produk",
+                allowClear: false,
+                width: '100%'
+            });
+
+            $('#telepon_customer').on('input', function() {
+                let phone = $(this).val();
+                let name = $('#nama_customer').val();
+                if (phone.length > 0 && name.length > 0) {
+                    $.ajax({
+                        url: "{{ url('customer-check-phone') }}",
+                        data: {
+                            phone: phone,
+                            name: name
+                        },
+                        success: function(res) {
+                            $('#phone-warning').remove();
+                            if (res.exists) {
+                                $('#telepon_customer').after(
+                                    '<div id="phone-warning" class="text-danger mt-1">Nomor telepon ini sudah terdaftar atas nama <strong>' +
+                                    res.real_name +
+                                    '</strong>. Silakan cek kembali nama pelanggan!</div>'
+                                );
+                            }
+                        }
+                    });
+                } else {
+                    $('#phone-warning').remove();
+                }
+            });
+            $('#nama_customer').on('input', function() {
+                $('#telepon_customer').trigger('input');
+            });
+            $("#nama_customer").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ url('customer-autocomplete') }}",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response($.map(data, function(item) {
+                                return {
+                                    label: item.nama,
+                                    value: item.nama,
+                                    telepon: item.telepon
+                                };
+                            }));
+                        }
+                    });
+                },
+                select: function(event, ui) {
+                    $("#telepon_customer").val(ui.item.telepon);
+                }
+            });
+
+            // Panggil fungsi ini saat halaman dimuat
+            updateProductOptions();
+        });
+
 
         // Tambah produk
         $('#add-product').click(function() {
