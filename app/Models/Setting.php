@@ -11,6 +11,7 @@ class Setting extends Model
           'alamat',
           'telepon',
           'email',
-          'image'
+          'image',
+          'favicon',
      ];
 }
