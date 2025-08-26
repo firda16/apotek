@@ -64,10 +64,14 @@
                                             <td>{{ $sale->customer->nama ?? '-' }}</td>
                                             <td>{{ $sale->customer->telepon ?? '-' }}</td>
                                             <td>{{ $sale->payment_method ?? '-' }}</td>
-                                            <td>
+                                             <td>
                                                 <ul>
                                                     @foreach ($sale->saleItems as $item)
-                                                        <li>{{ $item->product->name ?? '-' }} ({{ $item->quantity }}x)</li>
+                                                        <li>
+                                                            {{ $item->product->name ?? '-' }}
+                                                            ({{ $item->quantity }}x)
+                                                            - {{ formatRupiah($item->unit_price) }}
+                                                        </li>
                                                     @endforeach
                                                 </ul>
                                             </td>

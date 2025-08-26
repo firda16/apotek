@@ -48,7 +48,7 @@
                                         {{-- <input class="form-control" type="number"
                                             value="{{ $supplier->phone ?? old('phone') }}" name="phone"> --}}
                                         <input class="form-control @error('phone') is-invalid @enderror" id="phone"
-                                            type="number" name="phone" value="{{ old('phone', $supplier->phone) }}">
+                                            type="tel" name="phone" value="{{ old('phone', $supplier->phone) }}">
                                         @error('phone')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror

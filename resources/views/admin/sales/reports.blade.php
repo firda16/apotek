@@ -67,10 +67,15 @@
                                             <td>
                                                 <ul>
                                                     @foreach ($sale->saleItems as $item)
-                                                        <li>{{ $item->product->name ?? '-' }} ({{ $item->quantity }}x)</li>
+                                                        <li>
+                                                            {{ $item->product->name ?? '-' }}
+                                                            ({{ $item->quantity }}x)
+                                                            - {{ formatRupiah($item->unit_price) }}
+                                                        </li>
                                                     @endforeach
                                                 </ul>
                                             </td>
+
                                             <td>{{ $sale->discount ?? 0 }}%</td>
                                             <td>{{ formatRupiah($sale->total_price) }}</td>
 
@@ -181,7 +186,7 @@
                                     .css('font-size', '10pt')
                                     .prepend(
                                         '<h3 style="text-align:center; margin-bottom:20px;">LAPORAN PENJUALAN</h3>'
-                                        );
+                                    );
                                 $(win.document.body).find('table')
                                     .addClass('table table-bordered')
                                     .css('font-size', 'inherit');

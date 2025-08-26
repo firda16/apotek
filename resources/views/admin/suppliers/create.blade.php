@@ -47,7 +47,7 @@
 
                                         <label>Nomor Telepon<span class="text-danger">*</span></label>
                                         <input class="form-control @error('phone') is-invalid @enderror" id="phone"
-                                            type="number" name="phone" value="{{ old('phone') }}">
+                                            type="tel" name="phone" value="{{ old('phone') }}">
                                         @error('phone')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror

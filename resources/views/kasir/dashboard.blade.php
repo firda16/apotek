@@ -81,7 +81,7 @@
                         </div>
                     </div>
                     <div class="dash-widget-info">
-                        <h6 class="text-muted">Total Penjualan</h6>
+                        <h6 class="text-muted">Total Produk yang Terjual</h6>
                         <div class="progress progress-sm">
                             <div class="progress-bar bg-primary w-50"></div>
                         </div>
