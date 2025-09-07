@@ -4,6 +4,60 @@
 
 @push('page-css')
     <link rel="stylesheet" href="{{ asset('assets/plugins/chart.js/Chart.min.css') }}">
+
+    <style>
+        .card {
+            min-height: 160px;
+            /* samain tinggi semua card */
+        }
+
+        .card .form-select-sm {
+            font-size: 12px;
+            padding: 2px 6px;
+        }
+
+        /* Kustomisasi Dropdown Filter */
+        .filter-dropdown {
+            background-color: #f8f9fa;
+            /* Warna latar sedikit abu-abu */
+            border: 1px solid #dee2e6;
+            /* Border lebih soft */
+            border-radius: 20px;
+            /* Membuat sudut sangat tumpul (pill shape) */
+            font-size: 12px;
+            /* Ukuran font */
+            padding: 4px 30px 4px 12px; /* Atas, Kanan, Bawah, Kiri */
+
+            /* Padding internal */
+            -webkit-appearance: none;
+            /* Menghilangkan tampilan default di Chrome/Safari */
+            -moz-appearance: none;
+            /* Menghilangkan tampilan default di Firefox */
+            appearance: none;
+            /* Menghilangkan tampilan default */
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            /* Menambahkan ikon panah kustom */
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 16px 12px;
+            transition: all 0.2s ease-in-out;
+            /* Animasi transisi halus */
+        }
+
+        .filter-dropdown:hover {
+            border-color: #007bff;
+            /* Ganti warna border saat cursor di atasnya */
+            cursor: pointer;
+        }
+
+        .filter-dropdown:focus {
+            outline: none;
+            /* Hilangkan outline biru saat diklik */
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            /* Ganti dengan shadow yang lebih soft */
+            border-color: #80bdff;
+        }
+    </style>
 @endpush
 
 @push('page-header')
@@ -144,7 +198,7 @@
                 </a>
             </div>
         </div> --}}
-        <div class="col-xl-3 col-sm-6 col-12">
+        {{-- <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
                 <a class="{{ route_is('sales.*') ? 'active' : '' }}" href="{{ route('sales.index') }}">
                     <div class="card-body">
@@ -166,7 +220,43 @@
                     </div>
                 </a>
             </div>
+        </div> --}}
+        <div class="col-xl-3 col-sm-6 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <a class="{{ route_is('sales.*') ? 'active' : '' }}" href="{{ route('sales.index') }}">
+                            <div class="dash-widget-header">
+                                <span class="dash-widget-icon text-success border-success">
+                                    <i class="fe fe-folder"></i>
+                                </span>
+                                <div class="dash-count text-dark ml-3">
+                                    <h3>{{ $total_sales }}</h3>
+                                </div>
+                            </div>
+                        </a>
+                        {{-- <select name="filter_sales" onchange="this.form.submit()" class="form-select form-select-sm">
+                        </select> --}}
+
+
+                        <form method="GET" action="{{ route('dashboard') }}">
+                            <select name="filter_sales" onchange="this.form.submit()" class="filter-dropdown">
+                                <option value="today" {{ $filter_sales == 'today' ? 'selected' : '' }}>Hari ini</option>
+                                <option value="month" {{ $filter_sales == 'month' ? 'selected' : '' }}>Bulan ini</option>
+                                <option value="all" {{ $filter_sales == 'all' ? 'selected' : '' }}>Semua</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="dash-widget-success mt-2">
+                        <h6 class="text-muted">Total Produk yang terjual</h6>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar bg-success w-50"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <!-- Produk Tersedia -->
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
@@ -193,7 +283,8 @@
         {{-- stok habis --}}
         <div class="col-xl-3 col-sm-6 col-12">
             <div class="card">
-                <a href="{{ route('outstock') }}" class="text-decoration-none {{ route_is('outstock') ? 'active' : '' }}">
+                <a href="{{ route('outstock') }}"
+                    class="text-decoration-none {{ route_is('outstock') ? 'active' : '' }}">
                     <div class="card-body">
                         <div class="dash-widget-header">
                             <span class="dash-widget-icon text-danger border-danger">

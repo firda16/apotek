@@ -50,9 +50,9 @@ class DashboardController extends Controller
             $total_categories = Category::count();
             $total_suppliers = Supplier::count();
             $total_pembelian_produk = PurchaseItem::count();
-            $total_sales = SaleItem::whereHas('sale', function ($query) {
-                $query->whereNull('deleted_at');
-            })->sum('quantity');
+            // $total_sales = SaleItem::whereHas('sale', function ($query) {
+            //     $query->whereNull('deleted_at');
+            // })->sum('quantity');
             $total_products = Product::count();
             $out_of_stock_products = Product::outOfStock()->count();
 
@@ -61,6 +61,30 @@ class DashboardController extends Controller
             //     ->whereRaw('(quantity - sold_quantity) > 0')
             //     ->count();
 
+            // $total_expired_products = Product::whereHas('purchaseItems', function ($q) {
+            //     $q->whereDate('expiry_date', '<=', now())
+            //         ->whereColumn('quantity', '>', 'sold_quantity');
+            // })->count();
+
+            // Total produk terjual (default semua waktu)
+            $filter_sales = request()->input('filter_sales', 'all'); // default 'all'
+
+            if ($filter_sales === 'today') {
+                $total_sales = SaleItem::whereHas('sale', function ($query) {
+                    $query->whereDate('created_at', Carbon::today())
+                        ->whereNull('deleted_at');
+                })->sum('quantity');
+            } elseif ($filter_sales === 'month') {
+                $total_sales = SaleItem::whereHas('sale', function ($query) {
+                    $query->whereMonth('created_at', Carbon::now()->month)
+                        ->whereYear('created_at', Carbon::now()->year)
+                        ->whereNull('deleted_at');
+                })->sum('quantity');
+            } else {
+                $total_sales = SaleItem::whereHas('sale', function ($query) {
+                    $query->whereNull('deleted_at');
+                })->sum('quantity');
+            }
 
 
 
@@ -130,7 +154,8 @@ class DashboardController extends Controller
                 'total_pendapatan_hari_ini',
                 'total_pengeluaran_hari_ini',
                 'total_pendapatan_bulan_ini',
-                'total_pengeluaran_bulan_ini'
+                'total_pengeluaran_bulan_ini',
+                'filter_sales' // <-- tambahan
             ));
         }
 
@@ -143,9 +168,29 @@ class DashboardController extends Controller
                 ->whereYear('created_at', Carbon::now()->year)
                 ->sum('total_price');
 
-            $total_sales = SaleItem::whereHas('sale', function ($query) {
-                $query->whereNull('deleted_at');
-            })->sum('quantity');
+            // $total_sales = SaleItem::whereHas('sale', function ($query) {
+            //     $query->whereNull('deleted_at');
+            // })->sum('quantity');
+
+            // Total produk terjual (default semua waktu)
+            $filter_sales = request()->input('filter_sales', 'all'); // default 'all'
+
+            if ($filter_sales === 'today') {
+                $total_sales = SaleItem::whereHas('sale', function ($query) {
+                    $query->whereDate('created_at', Carbon::today())
+                        ->whereNull('deleted_at');
+                })->sum('quantity');
+            } elseif ($filter_sales === 'month') {
+                $total_sales = SaleItem::whereHas('sale', function ($query) {
+                    $query->whereMonth('created_at', Carbon::now()->month)
+                        ->whereYear('created_at', Carbon::now()->year)
+                        ->whereNull('deleted_at');
+                })->sum('quantity');
+            } else {
+                $total_sales = SaleItem::whereHas('sale', function ($query) {
+                    $query->whereNull('deleted_at');
+                })->sum('quantity');
+            }
 
             $stok_produk = Product::whereHas('purchaseItems', function ($query) {
                 $query->whereColumn('quantity', '>', 'sold_quantity')
@@ -183,7 +228,8 @@ class DashboardController extends Controller
                 'stok_produk',
                 'out_of_stock_products',
                 'total_expired_products',
-                'latest_sales'
+                'latest_sales',
+                'filter_sales'
             ));
         }
     }
