@@ -226,7 +226,8 @@ class ProductController extends Controller
         return DataTables::of($filteredProducts)
             ->addIndexColumn()
             ->addColumn('category', fn($row) => $row->category->name ?? '-')
-            ->addColumn('price', fn($row) => (settings('app_currency') ?? 'Rp') . ' ' . number_format($row->price, 0, ',', '.'))
+            // ->addColumn('price', fn($row) => (settings('app_currency') ?? 'Rp') . ' ' . number_format($row->price, 0, ',', '.'))
+            ->addColumn('price', fn($row) => formatRupiah($row->price))
             ->addColumn('quantity', function ($row) use ($soonExpiryDays) {
                 $relevant = $row->purchaseItems->filter(function ($item) use ($soonExpiryDays) {
                     $expiry = \Carbon\Carbon::parse($item->expiry_date);
