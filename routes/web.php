@@ -2,6 +2,7 @@
 
 use App\Models\Customer;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\UserController;
@@ -307,7 +308,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('logout', [LogoutController::class, 'index'])->name('logout');
 });
 
+Route::get('/send-test-mail', function () {
+    Mail::raw('This is a test email from Laravel SMTP setup.', function ($message) {
+        $message->to('dwilestariazizah@gmail.com')
+                ->subject('Test Email');
+    });
 
+    return 'Test email sent!';
+});
 
 
 
