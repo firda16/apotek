@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ProductImport;
 use Yajra\DataTables\Facades\DataTables;
 use QCod\AppSettings\Setting\AppSettings;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -427,8 +428,8 @@ class ProductController extends Controller
                     $validItems = $product->purchaseItems()
                         ->whereDate('expiry_date', '>', now())
                         ->whereHas('purchase', function ($query) use ($startDate, $endDate) {
-                        $query->whereBetween('created_at', [$startDate, $endDate]);
-                    })
+                            $query->whereBetween('created_at', [$startDate, $endDate]);
+                        })
                         ->get();
 
                     $totalPurchased = $validItems->sum('quantity');
@@ -685,5 +686,55 @@ class ProductController extends Controller
         }
 
         return $pdf->stream("laporan-stok-" . ($type ?? 'all') . ".pdf");
+    }
+    public function import(Request $request)
+    {
+        // Validasi file
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        try {
+            // Jalankan proses import
+            Excel::import(new ProductImport, $request->file('file'));
+
+            // Notifikasi sukses
+            return back()->with('success', 'Import Berhasil! Data ganda dilewati, data baru masuk ke "Tanpa Kategori".');
+        } catch (\Exception $e) {
+            return back()->withErrors(['file' => 'Gagal import: ' . $e->getMessage()]);
+        }
+    }
+
+    public function destroyAll()
+    {
+        try {
+            // 1. Matikan pengecekan kunci asing (Foreign Key) biar bisa hapus paksa
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+            // 2. HAPUS SEMUA DATA SAMPAI AKAR-AKARNYA
+            // Urutan menghapus biar aman dan bersih
+
+            // A. Hapus Data Transaksi (Stok Masuk & Keluar)
+            PurchaseItem::truncate();  // Detail stok masuk
+            Purchase::truncate();      // Nota pembelian
+            SaleItem::truncate();      // Detail stok keluar
+            // Sale::truncate();       // Nota penjualan (Aktifkan jika model Sale ada)
+
+            // B. Hapus Data Master (Produk & Kategori)
+            Product::truncate();       // Data Produk
+            Category::truncate();      // Data Kategori
+
+            // 3. Buat ulang kategori default "Tanpa Kategori" (Penting buat import)
+            Category::create(['name' => 'Tanpa Kategori']);
+
+            // 4. Nyalakan lagi pengecekan kunci asing
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+            return back()->with('success', 'RESET TOTAL BERHASIL! Semua Produk, Stok, dan Riwayat Transaksi sudah 0 bersih.');
+        } catch (\Exception $e) {
+            // Jaga-jaga kalau error, tetap nyalakan foreign key check
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            return back()->withErrors(['error' => 'Gagal menghapus: ' . $e->getMessage()]);
+        }
     }
 }
