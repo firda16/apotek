@@ -2,7 +2,7 @@
 
 @push('page-css')
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-datetimepicker.min.css') }}">
-    <link href="https://cdn.jsdelivr.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 @endpush
 
 @push('page-header')
@@ -50,7 +50,7 @@
 
                         <div class="mb-3">
                             <label>Pemasok <span class="text-danger">*</span></label>
-                            <select class="select2 form-select form-control @error('supplier_id') is-invalid @enderror"
+                            <select class="form-select form-control @error('supplier_id') is-invalid @enderror"
                                 name="supplier_id" required>
                                 <option value="">-- Pilih Pemasok --</option>
                                 @foreach ($suppliers as $supplier)
@@ -75,8 +75,6 @@
                                     Transfer</option>
                                 <option value="QRIS" {{ old('payment_method') == 'QRIS' ? 'selected' : '' }}>QRIS
                                 </option>
-                                {{-- <option value="Ewallet" {{ old('payment_method') == 'Ewallet' ? 'selected' : '' }}>Ewallet
-                                </option> --}}
                             </select>
                             @error('payment_method')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -103,16 +101,15 @@
                                         @foreach (old('purchase_items') as $index => $item)
                                             <tr>
                                                 <td>
-                                                    <select name="purchase_items[{{ $index }}][product_id]"
-                                                        class="form-control product-select select2">
-                                                        <option disabled selected>-- Pilih Produk --</option>
-                                                        @foreach ($products as $product)
-                                                            <option value="{{ $product->id }}"
-                                                                {{ $item['product_id'] == $product->id ? 'selected' : '' }}>
-                                                                {{ $product->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
+                                                    <input type="text"
+                                                        name="purchase_items[{{ $index }}][product_name]"
+                                                        class="form-control product-autocomplete @error("purchase_items.{$index}.product_id") is-invalid @enderror"
+                                                        placeholder="Cari Produk..."
+                                                        value="{{ old("purchase_items.{$index}.product_name", \App\Models\Product::find($item['product_id'])->name ?? '') }}">
+                                                    <input type="hidden"
+                                                        name="purchase_items[{{ $index }}][product_id]"
+                                                        class="product-id"
+                                                        value="{{ old("purchase_items.{$index}.product_id") }}">
                                                     @error("purchase_items.{$index}.product_id")
                                                         <div class="text-danger small">{{ $message }}</div>
                                                     @enderror
@@ -151,7 +148,6 @@
                                                     @enderror
                                                 </td>
                                                 <td>
-                                                    {{-- Diubah: Menghapus step="0.01" --}}
                                                     <div class="input-group">
                                                         <input type="number"
                                                             name="purchase_items[{{ $index }}][total_price]"
@@ -172,20 +168,16 @@
                                     @else
                                         <tr>
                                             <td>
-                                                <select name="purchase_items[0][product_id]"
-                                                    class="form-control product-select select2">
-                                                    <option value="">-- Pilih Produk --</option>
-                                                    @foreach ($products as $product)
-                                                        <option value="{{ $product->id }}">{{ $product->name }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text" name="purchase_items[0][product_name]"
+                                                    class="form-control product-autocomplete" placeholder="Cari Produk...">
+                                                <input type="hidden" name="purchase_items[0][product_id]"
+                                                    class="product-id">
                                             </td>
                                             <td>
                                                 <input type="number" name="purchase_items[0][quantity]"
                                                     class="form-control purchase-quantity" value="1" min="1" required>
                                             </td>
                                             <td>
-                                                {{-- Diubah: Menghapus step="0.01" --}}
                                                 <div class="input-group">
                                                     <span class="input-group-text">Rp</span>
                                                     <input type="number" name="purchase_items[0][unit_price]"
@@ -204,7 +196,6 @@
                                             <td>
                                                 <div class="input-group">
                                                     <span class="input-group-text">Rp</span>
-                                                    {{-- Diubah: Menghapus step="0.01" --}}
                                                     <input type="number" name="purchase_items[0][total_price]"
                                                         class="form-control purchase-total_price" readonly>
                                                 </div>
@@ -224,7 +215,6 @@
                         <div class="row">
                             <div class="col-md-4 mt-3">
                                 <label for="total_price">Total Harga</label>
-                                {{-- Diubah: Menghapus step="0.01" --}}
                                 <div class="input-group">
                                     <span class="input-group-text">Rp</span>
                                     <input type="number" name="total_price" id="total_price" class="form-control"
@@ -257,7 +247,7 @@
 @push('page-js')
     <script src="{{ asset('assets/js/moment.min.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -286,25 +276,53 @@
             });
         });
 
-
-        function initializeSelect2() {
-            $('.select2').select2();
-        }
-
         let i = {{ old('purchase_items') ? count(old('purchase_items')) : 1 }};
 
-        const productsOptions = `
-        <option value="">-- Pilih Produk --</option>
-        @foreach ($products as $product)
-            <option value="{{ $product->id }}">{{ $product->name }}</option>
-        @endforeach
-    `;
+        function initializeAutocomplete(row) {
+            row.find('.product-autocomplete').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ route('products.search') }}", // Create this route
+                        dataType: "json",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function(event, ui) {
+                    row.find('.product-id').val(ui.item.id);
+                    row.find('.product-autocomplete').val(ui.item.value); // Set the selected value to the input
+                    const supplierId = $('select[name="supplier_id"]').val();
+                    if (supplierId) {
+                        $.ajax({
+                            url: '{{ url('/get-last-price') }}',
+                            method: 'GET',
+                            data: {
+                                supplier_id: supplierId,
+                                product_id: ui.item.id
+                            },
+                            success: function(res) {
+                                if (res.unit_price !== null) {
+                                    row.find('.purchase-unit-price').val(parseInt(res.unit_price));
+                                    calculatetotal_price(row);
+                                }
+                            }
+                        });
+                    }
+                    return false; // Prevent the default behavior of replacing the input's value
+                }
+            });
+        }
 
         function calculatetotal_price(row) {
             const quantity = parseInt(row.find('.purchase-quantity').val()) || 0;
             const unitPrice = parseInt(row.find('.purchase-unit-price').val()) || 0;
             const total_price = quantity * unitPrice;
-            row.find('.purchase-total_price').val(total_price); // Diubah: Menghapus .toFixed(2)
+            row.find('.purchase-total_price').val(total_price);
             updateTotalPrice();
         }
 
@@ -313,11 +331,11 @@
             $('.purchase-total_price').each(function() {
                 total += parseInt($(this).val()) || 0;
             });
-            $('#total_price').val(total); // Diubah: Menghapus .toFixed(2)
+            $('#total_price').val(total);
         }
 
         $(document).ready(function() {
-            initializeSelect2();
+            initializeAutocomplete($('#purchase-items').find('tr').first());
             updateTotalPrice();
 
             $(document).on('input', '.purchase-quantity, .purchase-unit-price', function() {
@@ -328,9 +346,8 @@
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
                 <td>
-                    <select name="purchase_items[${i}][product_id]" class="form-control product-select select2">
-                        ${productsOptions}
-                    </select>
+                    <input type="text" name="purchase_items[${i}][product_name]" class="form-control product-autocomplete" placeholder="Cari Produk...">
+                    <input type="hidden" name="purchase_items[${i}][product_id]" class="product-id">
                 </td>
                 <td>
                     <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" value="1" min="1" required>
@@ -361,19 +378,19 @@
                 </td>
             `;
                 document.getElementById('purchase-items').appendChild(newRow);
-                initializeSelect2();
+                initializeAutocomplete($(newRow));
                 i++;
                 updateTotalPrice();
             });
 
             document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-row')) {
-                    e.target.closest('tr').remove();
+                if ($(e.target).hasClass('remove-row') || $(e.target).parent().hasClass('remove-row')) {
+                    $(e.target).closest('tr').remove();
                     updateTotalPrice();
                 }
             });
 
-            $(document).on('change', '.product-select', function() {
+            $(document).on('change', '.product-id', function() {
                 const row = $(this).closest('tr');
                 const productId = $(this).val();
                 const supplierId = $('select[name="supplier_id"]').val();
@@ -390,7 +407,7 @@
                     success: function(res) {
                         if (res.unit_price !== null) {
                             row.find('.purchase-unit-price').val(parseInt(res
-                                .unit_price)); // Diubah: Menggunakan parseInt
+                                .unit_price));
                             calculatetotal_price(row);
                         }
                     }

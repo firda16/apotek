@@ -2,7 +2,7 @@
 
 @push('page-css')
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-datetimepicker.min.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 @endpush
 
 @push('page-header')
@@ -49,7 +49,7 @@
                         </div>
                         <div class="mb-3">
                             <label>Pemasok <span class="text-danger">*</span></label>
-                            <select class="select2 form-select form-control @error('supplier_id') is-invalid @enderror"
+                            <select class="form-select form-control @error('supplier_id') is-invalid @enderror"
                                 name="supplier_id" required>
                                 <option value="">-- Pilih Pemasok --</option>
                                 @foreach ($suppliers as $supplier)
@@ -100,16 +100,13 @@
                                     @foreach (old('purchase_items', $purchase->purchaseItems->toArray()) as $index => $item)
                                         <tr>
                                             <td>
-                                                <select name="purchase_items[{{ $index }}][product_id]"
-                                                    class="form-control product-select select2">
-                                                    <option value="">-- Pilih Produk --</option>
-                                                    @foreach ($products as $product)
-                                                        <option value="{{ $product->id }}"
-                                                            {{ $item['product_id'] == $product->id ? 'selected' : '' }}>
-                                                            {{ $product->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text"
+                                                    name="purchase_items[{{ $index }}][product_name]"
+                                                    class="form-control product-autocomplete" placeholder="Cari Produk..."
+                                                    value="{{ old("purchase_items.{$index}.product_name", \App\Models\Product::find($item['product_id'])->name ?? '') }}">
+                                                <input type="hidden"
+                                                    name="purchase_items[{{ $index }}][product_id]"
+                                                    class="product-id" value="{{ old("purchase_items.{$index}.product_id", $item['product_id']) }}">
                                             </td>
                                             <td>
                                                 <input type="number" name="purchase_items[{{ $index }}][quantity]"
@@ -117,7 +114,7 @@
                                                     value="{{ $item['quantity'] }}">
                                             </td>
                                             <td>
-                                                <input type="number" step="0.01"
+                                                <input type="number"
                                                     name="purchase_items[{{ $index }}][unit_price]"
                                                     class="form-control purchase-unit-price" required
                                                     value="{{ $item['unit_price'] }}">
@@ -128,7 +125,7 @@
                                                     class="form-control" value="{{ $item['expiry_date'] }}">
                                             </td>
                                             <td>
-                                                <input type="number" step="0.01"
+                                                <input type="number"
                                                     name="purchase_items[{{ $index }}][total_price]"
                                                     class="form-control purchase-total_price" readonly
                                                     value="{{ $item['total_price'] }}">
@@ -146,7 +143,7 @@
 
                         <div class="mb-3 mt-3">
                             <label for="total_price">Total Harga</label>
-                            <input type="number" step="0.01" name="total_price" id="total_price" class="form-control"
+                            <input type="number" name="total_price" id="total_price" class="form-control"
                                 readonly required value="{{ old('total_price', $purchase->total_price) }}">
                         </div>
 
@@ -178,7 +175,7 @@
 @push('page-js')
     <script src="{{ asset('assets/js/moment.min.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -208,27 +205,54 @@
         });
 
 
-        function initializeSelect2() {
-            $('.select2').select2();
-        }
-
         let i = {{ old('purchase_items') ? count(old('purchase_items')) : $purchase->purchaseItems->count() }};
 
-        const productCategoryMap = @json($products->mapWithKeys(fn($p) => [$p->id => $p->category_id]));
+        function initializeAutocomplete(row) {
+            row.find('.product-autocomplete').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ route('products.search') }}", // Create this route
+                        dataType: "json",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function(event, ui) {
+                    row.find('.product-id').val(ui.item.id);
+                    row.find('.product-autocomplete').val(ui.item.value); // Set the selected value to the input
+                    const supplierId = $('select[name="supplier_id"]').val();
+                    if (supplierId) {
+                        $.ajax({
+                            url: '{{ url('/get-last-price') }}',
+                            method: 'GET',
+                            data: {
+                                supplier_id: supplierId,
+                                product_id: ui.item.id
+                            },
+                            success: function(res) {
+                                if (res.unit_price !== null) {
+                                    row.find('.purchase-unit-price').val(parseInt(res.unit_price));
+                                    calculatetotal_price(row);
+                                }
+                            }
+                        });
+                    }
+                    return false; // Prevent the default behavior of replacing the input's value
+                }
+            });
+        }
 
-        const productsOptions = `@foreach ($products as $product)
-            <option value="{{ $product->id }}">{{ $product->name }}</option>
-        @endforeach`;
-
-        const categoriesOptions = `@foreach ($categories as $category)
-            <option value="{{ $category->id }}">{{ $category->name }}</option>
-        @endforeach`;
 
         function calculatetotal_price(row) {
             const quantity = parseFloat(row.find('.purchase-quantity').val()) || 0;
             const unitPrice = parseFloat(row.find('.purchase-unit-price').val()) || 0;
             const total_price = quantity * unitPrice;
-            row.find('.purchase-total_price').val(total_price.toFixed(2));
+            row.find('.purchase-total_price').val(total_price.toFixed(0)); // Keep as integer
             updateTotalPrice();
         }
 
@@ -237,17 +261,15 @@
             $('.purchase-total_price').each(function() {
                 total += parseFloat($(this).val()) || 0;
             });
-            $('#total_price').val(total.toFixed(2));
+            $('#total_price').val(total.toFixed(0)); // Keep as integer
         }
 
         $(document).ready(function() {
-            initializeSelect2();
-            updateTotalPrice();
-
-            $(document).on('change', '.product-select', function() {
-                const selectedProductId = $(this).val();
-                const row = $(this).closest('tr');
+            // Initialize autocomplete for existing rows
+            $('#purchase-items').find('tr').each(function() {
+                initializeAutocomplete($(this));
             });
+            updateTotalPrice();
 
             $(document).on('input', '.purchase-quantity, .purchase-unit-price', function() {
                 calculatetotal_price($(this).closest('tr'));
@@ -257,34 +279,58 @@
                 const newRow = `
                 <tr>
                     <td>
-                        <select name="purchase_items[${i}][product_id]" class="form-control product-select select2">
-                            ${productsOptions}
-                        </select>
+                        <input type="text" name="purchase_items[${i}][product_name]" class="form-control product-autocomplete" placeholder="Cari Produk...">
+                        <input type="hidden" name="purchase_items[${i}][product_id]" class="product-id">
                     </td>
                     <td>
                         <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" min="1" required>
                     </td>
                     <td>
-                        <input type="number" step="0.01" name="purchase_items[${i}][unit_price]" class="form-control purchase-unit-price" required>
+                        <input type="number" name="purchase_items[${i}][unit_price]" class="form-control purchase-unit-price" required>
                     </td>
                     <td>
                         <input type="date" name="purchase_items[${i}][expiry_date]" class="form-control">
                     </td>
                     <td>
-                        <input type="number" step="0.01" name="purchase_items[${i}][total_price]" class="form-control purchase-total_price" readonly>
+                        <input type="number" name="purchase_items[${i}][total_price]" class="form-control purchase-total_price" readonly>
                     </td>
                     <td>
                         <button type="button" class="btn btn-danger btn-sm remove-row">Hapus</button>
                     </td>
                 </tr>`;
                 $('#purchase-items').append(newRow);
-                initializeSelect2();
+                initializeAutocomplete($('#purchase-items').find('tr').last());
                 i++;
+                updateTotalPrice();
             });
 
             $(document).on('click', '.remove-row', function() {
                 $(this).closest('tr').remove();
                 updateTotalPrice();
+            });
+
+            $(document).on('change', '.product-id', function() {
+                const row = $(this).closest('tr');
+                const productId = $(this).val();
+                const supplierId = $('select[name="supplier_id"]').val();
+
+                if (!supplierId || !productId) return;
+
+                $.ajax({
+                    url: '{{ url('/get-last-price') }}',
+                    method: 'GET',
+                    data: {
+                        supplier_id: supplierId,
+                        product_id: productId
+                    },
+                    success: function(res) {
+                        if (res.unit_price !== null) {
+                            row.find('.purchase-unit-price').val(parseInt(res
+                                .unit_price));
+                            calculatetotal_price(row);
+                        }
+                    }
+                });
             });
         });
     </script>

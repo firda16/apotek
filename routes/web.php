@@ -94,6 +94,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
     Route::get('products/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
+    Route::get('/products/search', [PurchaseController::class, 'searchProducts'])->name('products.search');
     Route::post('products/import', [ProductController::class, 'import'])->name('products.import');
     Route::delete('products/delete-all', [ProductController::class, 'destroyAll'])->name('products.destroyAll');
     Route::resource('products', ProductController::class)->except('show');

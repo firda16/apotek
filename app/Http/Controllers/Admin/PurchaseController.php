@@ -513,6 +513,22 @@ HTML;
         return $pdf->stream('laporan-pembelian-' . now()->format('d-m-Y') . '.pdf');
     }
 
+    public function searchProducts(Request $request)
+    {
+        $term = $request->input('term');
+        $products = Product::where('name', 'like', '%' . $term . '%')
+            ->orWhere('product_code', 'like', '%' . $term . '%')
+            ->get(['id', 'name']);
+
+        $results = [];
+        foreach ($products as $product) {
+            $results[] = [
+                'id' => $product->id,
+                'value' => $product->name,
+            ];
+        }
+        return response()->json($results);
+    }
 
     public function checkInvoice(Request $request)
     {
@@ -523,13 +539,6 @@ HTML;
         return response()->json(['exists' => $exists]);
     }
 
-    // public function destroy(Request $request, Purchase $purchase)
-    // {
-    //     foreach ($purchase->purchaseItems as $item) {
-    //         Product::find($item->product_id)->decrement('stock', $item->quantity);
-    //     }
-    //     return redirect()->route('purchases.index')->with('success', 'Data pembelian berhasil dihapus.');
-    // }
     public function destroy(Purchase $purchase)
     {
         // Kembalikan stok sebelum hapus
