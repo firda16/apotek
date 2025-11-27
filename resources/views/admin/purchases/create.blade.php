@@ -11,6 +11,51 @@
         .quantity-column-width input.form-control {
             width: 100% !important; /* Make input fill the cell */
         }
+        .ui-autocomplete {
+            max-height: 250px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 9999;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .ui-menu-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .ui-menu-item:last-child {
+            border-bottom: none;
+        }
+        .ui-menu-item:hover {
+            background-color: #f5f5f5;
+        }
+        .product-autocomplete-item {
+            display: flex;
+            align-items: center;
+        }
+        .product-autocomplete-item img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        .product-autocomplete-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .product-autocomplete-details span {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .product-autocomplete-details .product-name {
+            font-weight: bold;
+            color: #333;
+        }
     </style>
 @endpush
 
@@ -291,7 +336,7 @@
             row.find('.product-autocomplete').autocomplete({
                 source: function(request, response) {
                     $.ajax({
-                        url: "{{ route('products.search') }}", // Create this route
+                        url: "{{ route('products.search') }}",
                         dataType: "json",
                         data: {
                             term: request.term
@@ -324,7 +369,19 @@
                     }
                     return false; // Prevent the default behavior of replacing the input's value
                 }
-            });
+            }).data("ui-autocomplete")._renderItem = function(ul, item) {
+                return $("<li>")
+                    .append(
+                        `<div class="product-autocomplete-item">
+                            <img src="${item.image ? item.image : '{{ asset('assets/img/medicine_no_picture.jpg') }}'}" alt="${item.value}" onerror="this.onerror=null;this.src='{{ asset('assets/img/medicine_no_picture.jpg') }}';">
+                            <div class="product-autocomplete-details">
+                                <span class="product-name">${item.value}</span>
+                                <span>Kode: ${item.code ? item.code : 'No Code'}</span>
+                            </div>
+                        </div>`
+                    )
+                    .appendTo(ul);
+            };
         }
 
         function calculatetotal_price(row) {

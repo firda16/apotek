@@ -518,13 +518,15 @@ HTML;
         $term = $request->input('term');
         $products = Product::where('name', 'like', '%' . $term . '%')
             ->orWhere('product_code', 'like', '%' . $term . '%')
-            ->get(['id', 'name']);
+            ->get(['id', 'name', 'product_code', 'image']);
 
         $results = [];
         foreach ($products as $product) {
             $results[] = [
                 'id' => $product->id,
                 'value' => $product->name,
+                'code' => $product->product_code,
+                'image' => $product->image ? asset('uploads/products/' . $product->image) : null,
             ];
         }
         return response()->json($results);
