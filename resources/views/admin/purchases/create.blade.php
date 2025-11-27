@@ -292,7 +292,7 @@
                         }
                     });
                 },
-                minLength: 2,
+                minLength: 1,
                 select: function(event, ui) {
                     row.find('.product-id').val(ui.item.id);
                     row.find('.product-autocomplete').val(ui.item.value); // Set the selected value to the input
