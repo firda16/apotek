@@ -18,6 +18,8 @@ class Product extends Model
         'price',
         // 'stock',
         'description',
+        'product_code', // <-- Tambahkan ini
+        'image',        // <-- Tambahkan ini
     ];
 
     // public function getAvailableStockAttribute()

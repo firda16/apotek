@@ -63,6 +63,8 @@ class ProductController extends Controller
             'price' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string|max:255',
+            'product_code' => 'required|string|unique:products,product_code',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Cek apakah nama dan satuan sudah ada
@@ -89,6 +91,17 @@ class ProductController extends Controller
             $price = $price - ($request->discount * $price);
         }
 
+        // 2. LOGIKA UPLOAD GAMBAR (BARU)
+        $imageName = null;
+        if ($request->hasFile('image')) {
+            // Buat nama file unik: time() + ekstensi asli
+            $imageName = time() . '.' . $request->image->extension();
+
+            // Simpan ke folder public/uploads/products
+            // Pastikan folder ini ada, atau dia akan otomatis dibuat
+            $request->image->move(public_path('uploads/products'), $imageName);
+        }
+
         Product::create([
             'name' => $request->name,
             'category_id' => $request->category_id,
@@ -96,6 +109,8 @@ class ProductController extends Controller
             'price' => $price,
             'discount' => $request->discount,
             'description' => $request->description,
+            'product_code' => $request->product_code,
+            'image' => $imageName, // Simpan nama filenya saja (atau null)
         ]);
 
         return redirect()->route('products.index')->with(notify("Produk berhasil ditambahkan"));
@@ -117,6 +132,8 @@ class ProductController extends Controller
             'price' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string|max:255',
+            'product_code' => 'required|string|unique:products,product_code,' . $product->id,
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Cek apakah nama dan satuan sudah ada (kecuali produk yang sedang diupdate)
@@ -146,6 +163,19 @@ class ProductController extends Controller
             $price = $price - ($request->discount * $price);
         }
 
+        // 1. LOGIKA GANTI GAMBAR (BARU)
+        $imageName = $product->image; // Pakai gambar lama dulu sebagai default
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada (agar server tidak penuh)
+            if ($product->image && file_exists(public_path('uploads/products/' . $product->image))) {
+                unlink(public_path('uploads/products/' . $product->image));
+            }
+
+            // Upload gambar baru
+            $imageName = time() . '.' . $request->image->extension();
+            $request->image->move(public_path('uploads/products'), $imageName);
+        }
+
         $product->update([
             'name' => $request->name,
             'category_id' => $request->category_id,
@@ -153,6 +183,8 @@ class ProductController extends Controller
             'price' => $price,
             'discount' => $request->discount,
             'description' => $request->description,
+            'product_code' => $request->product_code,
+            'image' => $imageName,
         ]);
 
         return redirect()->route('products.index')->with(notify("Produk berhasil diperbarui"));
@@ -527,6 +559,7 @@ class ProductController extends Controller
             $query->where(function ($q) use ($keywords) {
                 foreach ($keywords as $word) {
                     $q->where('name', 'like', "%{$word}%")
+                        ->orWhere('product_code', 'like', "%{$word}%") // <-- TAMBAH PENCARIAN KODE
                         ->orWhere('unit', 'like', "%{$word}%")
                         ->orWhereRaw("CAST(price AS CHAR) LIKE ?", ["%{$word}%"])
                         ->orWhere('description', 'like', "%{$word}%")
@@ -542,6 +575,16 @@ class ProductController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
+            // 1. KOLOM GAMBAR (BARU)
+        ->addColumn('image', function ($row) {
+            $url = $row->image ? asset('uploads/products/' . $row->image) : asset('assets/img/medicine_no_picture.jpg');
+            return '<img src="' . $url . '" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border:1px solid #eee;">';
+        })
+
+        // 2. KOLOM KODE PRODUK (BARU)
+        ->addColumn('product_code', function ($row) {
+            return $row->product_code ?? '-';
+        })
             ->addColumn('category', fn($row) => $row->category->name ?? '-')
             ->addColumn('unit_price', function ($row) {
                 $latestPurchaseItem = $row->purchaseItems->first();
@@ -565,7 +608,7 @@ class ProductController extends Controller
                     </form>';
                 return $edit . ' ' . $delete;
             })
-            ->rawColumns(['unit_price', 'price', 'action'])
+            ->rawColumns(['image', 'unit_price', 'price', 'action'])
             ->make(true);
     }
 
