@@ -403,9 +403,9 @@
                                 <div class="form-group">
                                     <label class="form-label">Status <span class="required-asterisk">*</span></label>
                                     <select name="status" id="status" class="form-control">
-                                        <option value="pending" {{ $sale->status == 'pending' ? 'selected' : '' }}>Pending
-                                        </option>
                                         <option value="selesai" {{ $sale->status == 'selesai' ? 'selected' : '' }}>Selesai
+                                        </option>
+                                        <option value="pending" {{ $sale->status == 'pending' ? 'selected' : '' }}>Pending
                                         </option>
                                         {{-- <option value="piutang" {{ $sale->status == 'piutang' ? 'selected' : '' }}>Piutang --}}
                                         </option>

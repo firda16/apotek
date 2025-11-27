@@ -150,10 +150,10 @@
                         <div class="mb-3 mt-3">
                             <label for="status">Status</label>
                             <select name="status" id="status" class="form-control">
-                                <option value="pending"
-                                    {{ old('status', $purchase->status) == 'pending' ? 'selected' : '' }}>Pending</option>
                                 <option value="selesai"
                                     {{ old('status', $purchase->status) == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="pending"
+                                    {{ old('status', $purchase->status) == 'pending' ? 'selected' : '' }}>Pending</option>
                                 <option value="dibatalkan"
                                     {{ old('status', $purchase->status) == 'dibatalkan' ? 'selected' : '' }}>Dibatalkan
                                 </option>
