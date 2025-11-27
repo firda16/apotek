@@ -605,7 +605,7 @@ class SaleKasirController extends Controller
                 $query->whereDate('expiry_date', '>', Carbon::today())
                     ->orWhereNull('expiry_date');
             })
-            ->select('id', 'name', 'price') // Select necessary columns
+            ->select('id', 'name', 'price', 'product_code', 'image') // Select necessary columns
             ->get()
             ->map(function ($product) {
                 // Calculate available stock
