@@ -282,6 +282,7 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
         return response()->json(['exists' => false]);
     });
 
+    Route::get('product-autocomplete', [SaleKasirController::class, 'productAutocomplete'])->name('product.autocomplete');
 
 
 });

@@ -247,31 +247,22 @@
                                         <div class="col-md-4">
                                             <label class="form-label">Produk <span
                                                     class="required-asterisk">*</span></label>
-                                            <select name="sale_items[{{ $index }}][nama_produk]"
-                                                class="form-select select2" required>
-                                                <option disabled value="">Pilih Produk</option>
-                                                @foreach ($products as $product)
-                                                    <option value="{{ $product->id }}" {{-- {{ $product->available_stock <= 0 ? 'disabled' : '' }} --}}
-                                                        data-category="{{ $product->category->name ?? '-' }}"
-                                                        data-price="{{ $product->price }}"
-                                                        {{ $item->product_id == $product->id ? 'selected' : '' }}>
-                                                        {{ $product->name }}
-                                                        -
-                                                        {{ $product->available_stock > 0 ? $product->available_stock : 'Stok Kosong' }}
-                                                        @if ($product->stock == 0)
-                                                            - [ stok kosong ]
-                                                        @endif
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <input type="text" name="sale_items[{{ $index }}][product_name]"
+                                                class="form-control product-autocomplete" value="{{ $item->product->name }}"
+                                                placeholder="Cari Produk" required>
+                                            <input type="hidden" name="sale_items[{{ $index }}][product_id]"
+                                                class="product-id" value="{{ $item->product_id }}">
                                         </div>
 
                                         <div class="col-md-2">
-                                            <label class="form-label">Jumlah <span
+                                            <small class="text-danger stock-warning d-none"
+                                                data-available-stock="{{ $item->product->available_stock }}">Jumlah lebih
+                                                dari stok tersedia</small> <br>
+                                            <label class="form-label mb-1">Jumlah <span
                                                     class="required-asterisk">*</span></label>
                                             <input type="number" name="sale_items[{{ $index }}][quantity]"
                                                 class="form-control quantity" required value="{{ $item->quantity }}"
-                                                min="1" placeholder="1">
+                                                min="1" placeholder="masukkan jumlah">
                                         </div>
 
                                         <div class="col-md-2">
@@ -445,18 +436,13 @@
 @endsection
 
 @push('page-js')
-    <script>
-        let index = 1;
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
+    <script>
+        let index = {{ $sale->saleItems->count() > 0 ? $sale->saleItems->count() : 1 }};
 
         $(function() {
-
-            $('.select-product').select2({
-                placeholder: "Cari Produk",
-                allowClear: false,
-                width: '100%'
-            });
-
             $('#telepon_customer').on('input', function() {
                 let phone = $(this).val();
                 let name = $('#nama_customer').val();
@@ -508,121 +494,141 @@
                 }
             });
 
-            // Panggil fungsi ini saat halaman dimuat
-            updateProductOptions();
+            initProductAutocomplete();
+            updateTotalPrice();
         });
 
+        function initProductAutocomplete() {
+            $('.product-autocomplete').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ url('product-autocomplete') }}",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response($.map(data, function(item) {
+                                return {
+                                    label: item.name + ' (' + item.available_stock +
+                                        ' in stock)',
+                                    value: item.name,
+                                    product_id: item.id,
+                                    stock: item.available_stock,
+                                    price: item.price
+                                };
+                            }));
+                        }
+                    });
+                },
+                select: function(event, ui) {
+                    const row = $(this).closest('.sale-items');
+                    row.find('.product-id').val(ui.item.product_id);
+                    row.find('.price').val(ui.item.price).trigger('input');
+                    row.find('.stock-warning').data('available-stock', ui.item.stock);
+                    checkStock(row);
+                },
+                change: function(event, ui) {
+                    if (!ui.item) {
+                        const row = $(this).closest('.sale-items');
+                        row.find('.product-id').val('');
+                        row.find('.price').val(0).trigger('input');
+                        row.find('.stock-warning').addClass('d-none');
+                    }
+                }
+            });
+        }
 
-        // Tambah produk
         $('#add-product').click(function() {
             let html = `
-        <div class="sale-items-card sale-items mt-4">
-            <div class="row align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label">Produk <span class="required-asterisk">*</span></label>
-                    <select name="sale_items[${index}][nama_produk]" class="form-select select2" required>
-                        <option disabled selected>Pilih Produk</option>
-                        @foreach ($products as $product)
-                            <option value="{{ $product->id }}"
-                                data-category="{{ $product->category->name ?? '-' }}"
-                                data-price="{{ $product->price }}">{{ $product->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Jumlah <span class="required-asterisk">*</span></label>
-                    <input type="number" name="sale_items[${index}][quantity]" class="form-control quantity" required value="1" min="1" placeholder="0">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Harga satuan <span class="required-asterisk">*</span></label>
-                    <div class="input-group">
-                        <span class="input-group-text">Rp</span>
-                        <input type="number" data-category="{{ $product->price }}" name="sale_items[${index}][unit_price]" class="form-control price" min="0" placeholder="0">
-                    </div>
-                </div>
+        <div class="card mb-3 p-3 sale-items-card sale-items shadow-sm border-0">
+            <div class="row g-3 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label">Subtotal</label>
+                    <label class="form-label mb-1">Produk <span class="required-asterisk">*</span></label>
+                    <input type="text" name="sale_items[${index}][product_name]"
+                        class="form-control product-autocomplete" placeholder="Cari Produk" required>
+                    <input type="hidden" name="sale_items[${index}][product_id]" class="product-id">
+                </div>
+
+                <div class="col-md-2">
+                     <small class="text-danger stock-warning d-none" data-available-stock="0">Jumlah lebih dari stok
+                                                tersedia</small> <br>
+                    <label class="form-label mb-1">Jumlah <span class="required-asterisk">*</span></label>
+                    <input type="number" name="sale_items[${index}][quantity]" class="form-control quantity" required value="1" min="1" placeholder="masukkan jumlah">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label mb-1">Harga Satuan <span class="required-asterisk">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text">Rp</span>
-                        <input type="number" name="sale_items[${index}][total_price]" class="form-control subtotal" disabled placeholder="0">
+                        <input type="number" name="sale_items[${index}][unit_price]" class="form-control price" required min="0" placeholder="0">
                     </div>
                 </div>
-                <div class="col-md-1 d-flex justify-content-center">
-                    <button type="button" class="btn btn-remove-product remove-product" title="Hapus produk">
+
+                <div class="col-md-3">
+                    <label class="form-label mb-1">Subtotal</label>
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input type="number" name="sale_items[${index}][total_price]" class="form-control subtotal" placeholder="0" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-2 d-flex justify-content-center">
+                    <button type="button" class="btn btn-outline-danger remove-product" title="Hapus produk">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
         </div>`;
+
             $('#sale-items-wrapper').append(html);
+            initProductAutocomplete();
             index++;
+            updateTotalPrice();
         });
 
-        $(document).on('change', 'select[name^="sale_items"]', function() {
-            const selected = $(this).find(':selected');
-            const price = selected.data('price') || 0;
-
-            const row = $(this).closest('.sale-items');
-            row.find('.price').val(price).trigger('input'); // supaya subtotal otomatis update
-        });
-
-        // Hapus produk
         $(document).on('click', '.remove-product', function() {
             $(this).closest('.sale-items').remove();
+            updateTotalPrice();
         });
 
-        // Hitung subtotal otomatis
         $(document).on('input', '.quantity, .price', function() {
             const row = $(this).closest('.sale-items');
+            checkStock(row);
+            updateSubtotal(row);
+            updateTotalPrice();
+        });
+
+        function checkStock(row) {
+            const availableStock = parseInt(row.find('.stock-warning').data('available-stock')) || 0;
+            const quantity = parseInt(row.find('.quantity').val()) || 0;
+            const stockWarningElement = row.find('.stock-warning');
+
+            if (quantity > availableStock && availableStock > 0) {
+                stockWarningElement.text(`Jumlah lebih dari stok tersedia (${availableStock} di stok)`).removeClass(
+                    'd-none');
+            } else if (availableStock === 0) {
+                stockWarningElement.text('Produk tidak tersedia').removeClass('d-none');
+            } else {
+                stockWarningElement.addClass('d-none');
+            }
+        }
+
+        function updateSubtotal(row) {
             const qty = parseFloat(row.find('.quantity').val()) || 0;
             const price = parseFloat(row.find('.price').val()) || 0;
             const subtotal = qty * price;
             row.find('.subtotal').val(subtotal);
-        });
+        }
 
-        // Hitung total semua subtotal
         function updateTotalPrice() {
             let total = 0;
             $('.subtotal').each(function() {
                 const val = parseFloat($(this).val()) || 0;
                 total += val;
             });
-
-            // Update tampilan
             $('.form-control.total_price').val(total);
-            $('.total-display.total_price').val('Rp ' + total.toLocaleString('id-ID'));
+            updateFinalTotal();
         }
-
-        // Jalankan fungsi saat kuantitas atau harga berubah
-        $(document).on('input', '.quantity, .price', function() {
-            const row = $(this).closest('.sale-items');
-            const qty = parseFloat(row.find('.quantity').val()) || 0;
-            const price = parseFloat(row.find('.price').val()) || 0;
-            const subtotal = qty * price;
-            row.find('.subtotal').val(subtotal);
-
-            updateTotalPrice();
-        });
-
-        // Jalankan ulang saat menghapus item
-        $(document).on('click', '.remove-product', function() {
-            $(this).closest('.sale-items').remove();
-            updateTotalPrice();
-        });
-
-        // Jalankan juga saat produk dipilih (karena harga bisa berubah)
-        $(document).on('change', 'select[name^="sale_items"]', function() {
-            const selected = $(this).find(':selected');
-            const price = selected.data('price') || 0;
-            const row = $(this).closest('.sale-items');
-            row.find('.price').val(price).trigger('input'); // Trigger input agar subtotal dan total update
-        });
-
-
-        $(document).on('change', 'select[name^="products"]', function() {
-            const category = $(this).find(':selected').data('category') || '-';
-            $(this).closest('.sale-items').find('.category').val(category);
-        });
 
         function updateFinalTotal() {
             let total = 0;
@@ -636,29 +642,20 @@
 
             let discountedTotal = total - (discount / 100 * total);
 
-            // Update tampilan display dan hidden input
             $('#final_total_display').val('Rp ' + discountedTotal.toLocaleString('id-ID'));
-            $('#final_total').val(discountedTotal); // <-- ini penting agar bisa ditangkap controller
+            $('#final_total').val(discountedTotal);
         }
 
-        // Trigger saat diskon berubah
         $(document).on('input', '#discount', function() {
             updateFinalTotal();
         });
 
-        // Integrasikan ke updateTotalPrice
-        function updateTotalPrice() {
-            let total = 0;
-            $('.subtotal').each(function() {
-                const val = parseFloat($(this).val()) || 0;
-                total += val;
-            });
-
-            $('.form-control.total_price').val(total);
-            updateFinalTotal(); // Update total setelah diskon juga
-        }
-        // Hitung total saat halaman pertama kali dimuat
-        $(document).ready(function() {
+        $(document).on('input', '.quantity, .price', function() {
+            const row = $(this).closest('.sale-items');
+            const qty = parseFloat(row.find('.quantity').val()) || 0;
+            const price = parseFloat(row.find('.price').val()) || 0;
+            const subtotal = qty * price;
+            row.find('.subtotal').val(subtotal);
             updateTotalPrice();
         });
     </script>
