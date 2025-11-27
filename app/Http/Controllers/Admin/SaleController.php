@@ -37,6 +37,8 @@ class SaleController extends Controller
             return [
                 'id' => $product->id,
                 'name' => $product->name,
+                'product_code' => $product->product_code,
+                'image' => $product->image,
                 'available_stock' => $product->available_stock,
                 'price' => $product->price,
             ];
