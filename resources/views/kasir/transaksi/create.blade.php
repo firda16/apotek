@@ -376,8 +376,8 @@
                             <div class="col-md-2">
                                 <label class="form-label">Status <span class="required-asterisk">*</span></label>
                                 <select name="status" id="status" class="form-control">
-                                    <option value="selesai">Selesai</option>
-                                    <option value="pending" selected>Pending</option>
+                                    <option value="selesai" selected>Selesai</option>
+                                    <option value="pending">Pending</option>
                                 </select>
                             </div>
                         </div>

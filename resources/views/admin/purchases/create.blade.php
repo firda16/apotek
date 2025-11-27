@@ -227,8 +227,8 @@
                             <div class="col-md-4 mt-3">
                                 <label for="status">Status</label>
                                 <select name="status" id="status" class="form-control">
-                                    <option value="selesai">Selesai</option>
-                                    <option value="pending" selected>Pending</option>
+                                    <option value="selesai" selected>Selesai</option>
+                                    <option value="pending">Pending</option>
                                 </select>
                             </div>
                         </div>
