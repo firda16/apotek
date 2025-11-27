@@ -175,6 +175,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     });
     Route::post('products/delete-expired', [ProductController::class, 'deleteExpired'])->name('products.deleteExpired');
 
+    Route::get('product-autocomplete', [SaleController::class, 'productAutocomplete'])->name('product.autocomplete');
 });
 
 // --- GRUP ROUTE KASIR ---
@@ -318,7 +319,3 @@ Route::get('/send-test-mail', function () {
 
     return 'Test email sent!';
 });
-
-
-
-

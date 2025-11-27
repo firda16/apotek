@@ -250,19 +250,9 @@
                                         <div class="col-md-3">
                                             <label class="form-label mb-1">Produk <span
                                                     class="required-asterisk">*</span></label>
-                                            <select name="sale_items[0][nama_produk]" class="form-select select-product"
-                                                required>
-                                                <option disabled selected>Pilih Produk</option>
-                                                @foreach ($products as $product)
-                                                    <option value="{{ $product->id }}"
-                                                        data-stock="{{ $product->available_stock }}"
-                                                        data-price="{{ $product->price }}"
-                                                        {{ $product->available_stock <= 0 ? 'disabled' : '' }}>
-                                                        {{ $product->name }} -
-                                                        {{ $product->available_stock > 0 ? $product->available_stock : 'Stok Kosong' }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <input type="text" name="sale_items[0][product_name]"
+                                                class="form-control product-autocomplete" placeholder="Cari Produk" required>
+                                            <input type="hidden" name="sale_items[0][product_id]" class="product-id">
                                         </div>
 
                                         <div class="col-md-2">
@@ -418,11 +408,6 @@
         let index = 1;
         $(function() {
 
-            $('.select-product').select2({
-                placeholder: "Cari Produk",
-                allowClear: false,
-                width: '100%'
-            });
 
             $('#telepon_customer').on('input', function() {
                 let phone = $(this).val();
@@ -476,38 +461,65 @@
             });
 
             // Panggil fungsi ini saat halaman dimuat
-            updateProductOptions();
+            // Initialize product autocomplete for existing rows
+            initProductAutocomplete();
         });
 
-        // Tambah produk
+        // Initialize product autocomplete function
+        function initProductAutocomplete() {
+            $('.product-autocomplete').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ url('product-autocomplete') }}",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response($.map(data, function(item) {
+                                return {
+                                    label: item.name + ' (' + item.available_stock + ' in stock)',
+                                    value: item.name,
+                                    product_id: item.id,
+                                    stock: item.available_stock,
+                                    price: item.price
+                                };
+                            }));
+                        }
+                    });
+                },
+                select: function(event, ui) {
+                    const row = $(this).closest('.sale-items');
+                    row.find('.product-id').val(ui.item.product_id);
+                    row.find('.price').val(ui.item.price).trigger('input');
+                    row.find('.stock-warning').data('available-stock', ui.item.stock);
+                    checkStock(row); // Initial stock check
+                },
+                change: function(event, ui) {
+                    // Clear product id and price if no valid product is selected
+                    if (!ui.item) {
+                        const row = $(this).closest('.sale-items');
+                        row.find('.product-id').val('');
+                        row.find('.price').val(0).trigger('input');
+                        row.find('.stock-warning').addClass('d-none');
+                    }
+                }
+            });
+        }
+
+        // Add product
         $('#add-product').click(function() {
-            setTimeout(() => {
-                $('.select-product').select2({
-                    placeholder: "Cari Produk",
-                    allowClear: false,
-                    width: '100%'
-                });
-            }, 100);
             let html = `
         <div class="card mb-3 p-3 sale-items-card sale-items shadow-sm border-0">
             <div class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label mb-1">Produk <span class="required-asterisk">*</span></label>
-                    <select name="sale_items[${index}][nama_produk]" class="form-select select-product" required>
-                        <option disabled selected>Pilih Produk</option>
-                        @foreach ($products as $product)
-                            <option value="{{ $product->id }}"
-                                data-stock="{{ $product->available_stock }}"
-                                data-price="{{ $product->price }}"
-                                {{ $product->available_stock <= 0 ? 'disabled' : '' }}>
-                                {{ $product->name }} - {{ $product->available_stock > 0 ? $product->available_stock : 'Stok Kosong' }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <input type="text" name="sale_items[${index}][product_name]"
+                        class="form-control product-autocomplete" placeholder="Cari Produk" required>
+                    <input type="hidden" name="sale_items[${index}][product_id]" class="product-id">
                 </div>
 
                 <div class="col-md-2">
-                     <small class="text-danger stock-warning d-none">Jumlah lebih dari stok
+                     <small class="text-danger stock-warning d-none" data-available-stock="0">Jumlah lebih dari stok
                                                 tersedia</small> <br>
                     <label class="form-label mb-1">Jumlah <span class="required-asterisk">*</span></label>
                     <input type="number" name="sale_items[${index}][quantity]" class="form-control quantity" required value="1" min="1" placeholder="masukkan jumlah">
@@ -538,89 +550,47 @@
         </div>`;
 
             $('#sale-items-wrapper').append(html);
-            updateProductOptions();
+            initProductAutocomplete(); // Initialize autocomplete for the new row
             index++;
+            updateTotalPrice(); // Update total price after adding a new row
         });
 
-
-        // Hapus produk
+        // Remove product
         $(document).on('click', '.remove-product', function() {
             $(this).closest('.sale-items').remove();
             updateTotalPrice();
-            // Panggil fungsi untuk memperbarui opsi produk setelah baris dihapus
-            updateProductOptions();
-
-            $('.select-product').select2({
-                placeholder: "Cari Produk",
-                allowClear: false,
-                width: '100%'
-            });
-
         });
 
-        // Fungsi untuk memperbarui opsi produk
-        function updateProductOptions() {
-            let selectedProducts = [];
-            // Kumpulkan semua ID produk yang sudah dipilih
-            $('.select-product').each(function() {
-                const selectedVal = $(this).val();
-                if (selectedVal) {
-                    selectedProducts.push(selectedVal);
-                }
-            });
-
-            // Iterasi semua dropdown produk
-            $('.select-product').each(function() {
-                const currentSelect = $(this);
-                const currentSelectedVal = currentSelect.val();
-
-                currentSelect.find('option').each(function() {
-                    const option = $(this);
-                    const optionVal = option.val();
-
-                    // Jika opsi produk ada di daftar produk yang sudah dipilih
-                    // dan bukan opsi yang saat ini sedang dipilih di dropdown ini,
-                    // maka nonaktifkan opsi tersebut.
-                    if (optionVal && selectedProducts.includes(optionVal) && optionVal !==
-                        currentSelectedVal) {
-                        option.prop('disabled', true);
-                    }
-                    // Jika opsi produk tidak ada di daftar produk yang sudah dipilih,
-                    // dan stoknya > 0, maka aktifkan opsi tersebut.
-                    else if (optionVal && !selectedProducts.includes(optionVal) && parseInt(option.data(
-                            'stock')) > 0) {
-                        option.prop('disabled', false);
-                    }
-                });
-            });
-        }
-
-
-        // Hitung subtotal otomatis
+        // Check stock and update subtotal when quantity or price changes
         $(document).on('input', '.quantity, .price', function() {
             const row = $(this).closest('.sale-items');
+            checkStock(row);
+            updateSubtotal(row);
+            updateTotalPrice();
+        });
+
+        function checkStock(row) {
+            const availableStock = parseInt(row.find('.stock-warning').data('available-stock')) || 0;
+            const quantity = parseInt(row.find('.quantity').val()) || 0;
+            const stockWarningElement = row.find('.stock-warning');
+
+            if (quantity > availableStock && availableStock > 0) {
+                stockWarningElement.text(`Jumlah lebih dari stok tersedia (${availableStock} di stok)`).removeClass('d-none');
+            } else if (availableStock === 0) {
+                stockWarningElement.text('Produk tidak tersedia').removeClass('d-none');
+            } else {
+                stockWarningElement.addClass('d-none');
+            }
+        }
+
+        function updateSubtotal(row) {
             const qty = parseFloat(row.find('.quantity').val()) || 0;
             const price = parseFloat(row.find('.price').val()) || 0;
             const subtotal = qty * price;
             row.find('.subtotal').val(subtotal);
-            updateTotalPrice();
-        });
+        }
 
-        $(document).on('input change', '.quantity, .select-product', function() {
-            let row = $(this).closest('.sale-items-card');
-            let selectedOption = row.find('.select-product option:selected');
-            let availableStock = parseInt(selectedOption.data('stock')) || 0;
-            let quantity = parseInt(row.find('.quantity').val()) || 0;
-
-            if (quantity > availableStock && availableStock > 0) {
-                row.find('.stock-warning').removeClass('d-none');
-            } else {
-                row.find('.stock-warning').addClass('d-none');
-            }
-        });
-
-
-        // Hitung total semua subtotal
+        // Calculate total of all subtotals
         function updateTotalPrice() {
             let total = 0;
             $('.subtotal').each(function() {
@@ -630,17 +600,6 @@
             $('.form-control.total_price').val(total);
             updateFinalTotal();
         }
-
-        // Jalankan juga saat produk dipilih (karena harga bisa berubah)
-        $(document).on('change', '.select-product', function() {
-            const selected = $(this).find(':selected');
-            const price = selected.data('price') || 0;
-            const row = $(this).closest('.sale-items');
-            row.find('.price').val(price).trigger('input'); // Trigger input agar subtotal dan total update
-
-            // Panggil fungsi untuk memperbarui opsi setelah pilihan berubah
-            updateProductOptions();
-        });
 
 
         function updateFinalTotal() {

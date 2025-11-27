@@ -22,6 +22,27 @@ use Yajra\DataTables\Facades\DataTables;
 
 class SaleController extends Controller
 {
+    public function productAutocomplete(Request $request)
+    {
+        $term = $request->term;
+        $products = Product::with('purchaseItems')
+            ->where('name', 'like', "%$term%")
+            ->whereHas('purchaseItems', function ($query) {
+                $query->whereDate('expiry_date', '>', Carbon::today())
+                    ->orWhereNull('expiry_date');
+            })
+            ->get();
+
+        $formattedProducts = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'available_stock' => $product->available_stock,
+                'price' => $product->price,
+            ];
+        });
+        return response()->json($formattedProducts);
+    }
 
     public function printInvoice(Sale $sale)
     {
@@ -166,7 +187,7 @@ class SaleController extends Controller
             'nama_customer' => 'required|string|max:255',
             'nomor_telepon' => 'required|string|max:20',
             'sale_items' => 'required|array|min:1',
-            'sale_items.*.nama_produk' => 'required|exists:products,id',
+            'sale_items.*.product_id' => 'required|exists:products,id',
             'sale_items.*.quantity' => 'required|numeric|min:1',
             'sale_items.*.unit_price' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0|max:100',
@@ -179,7 +200,7 @@ class SaleController extends Controller
         try {
             // 🔁 Cek stok & masa kedaluwarsa tiap produk
             foreach ($request->sale_items as $item) {
-                $product = Product::find($item['nama_produk']);
+                $product = Product::find($item['product_id']);
 
                 if (!$product) {
                     return back()->withErrors(['stok' => 'Produk tidak ditemukan.']);
@@ -268,18 +289,18 @@ class SaleController extends Controller
                 // ✅ Simpan item
                 SaleItem::create([
                     'sale_id' => $sale->id,
-                    'product_id' => $item['nama_produk'],
+                    'product_id' => $item['product_id'],
                     'quantity' => $item_quantity,
                     'unit_price' => $item_unit_price,
                     'discount' => 0,
                 ]);
 
                 // // ✅ Kurangi stok produk
-                // $product = Product::find($item['nama_produk']);
+                // $product = Product::find($item['product_id']);
                 // $product->stock -= $item_quantity;
                 // $product->save();
 
-                $product = Product::find($item['nama_produk']);
+                $product = Product::find($item['product_id']);
                 $remainingQty = $item_quantity;
 
                 // Ambil batch purchase_items yang belum expired dan masih punya stok, diurutkan dari yang paling awal (FIFO)
@@ -373,7 +394,7 @@ class SaleController extends Controller
             'nama_customer' => 'required|string|max:255',
             'nomor_telepon' => 'required|string|max:20',
             'sale_items' => 'required|array|min:1',
-            'sale_items.*.nama_produk' => 'required|exists:products,id',
+            'sale_items.*.product_id' => 'required|exists:products,id',
             'sale_items.*.quantity' => 'required|numeric|min:1',
             'sale_items.*.unit_price' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0|max:100',
@@ -389,7 +410,7 @@ class SaleController extends Controller
 
             // Loop untuk memproses setiap item baru dari request
             foreach ($request->sale_items as $item) {
-                $productId = $item['nama_produk'];
+                $productId = $item['product_id'];
                 $newQuantity = (int) $item['quantity'];
 
                 // Cek apakah item ini sudah ada di penjualan lama
@@ -442,7 +463,7 @@ class SaleController extends Controller
             $discounted_total = $overall_total_price * (1 - $discount_percentage / 100);
 
             // Hapus item lama yang tidak ada di request baru (jika ada)
-            $newProductIds = collect($request->sale_items)->pluck('nama_produk');
+            $newProductIds = collect($request->sale_items)->pluck('product_id');
             foreach ($oldSaleItems as $oldItem) {
                 if (!$newProductIds->contains($oldItem->product_id)) {
                     $purchaseItem = PurchaseItem::where('product_id', $oldItem->product_id)->first();
@@ -459,7 +480,7 @@ class SaleController extends Controller
             foreach ($request->sale_items as $item) {
                 SaleItem::create([
                     'sale_id' => $sale->id,
-                    'product_id' => $item['nama_produk'],
+                    'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'unit' => $item['unit'] ?? null,
                     'unit_price' => $item['unit_price'],
