@@ -3,6 +3,15 @@
 @push('page-css')
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-datetimepicker.min.css') }}">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        .quantity-column-width {
+            width: 80px;
+            min-width: 80px; /* Ensure it doesn't shrink too much */
+        }
+        .quantity-column-width input.form-control {
+            width: 100% !important; /* Make input fill the cell */
+        }
+    </style>
 @endpush
 
 @push('page-header')
@@ -89,7 +98,7 @@
                                 <thead>
                                     <tr>
                                         <th>Pilih Produk</th>
-                                        <th>Jumlah</th>
+                                        <th class="quantity-column-width">Jumlah</th>
                                         <th>Harga Beli Satuan</th>
                                         <th>Tanggal Kedaluwarsa</th>
                                         <th>Sub Total</th>
@@ -114,7 +123,7 @@
                                                         <div class="text-danger small">{{ $message }}</div>
                                                     @enderror
                                                 </td>
-                                                <td>
+                                                <td class="quantity-column-width">
                                                     <input type="number"
                                                         name="purchase_items[{{ $index }}][quantity]"
                                                         class="form-control purchase-quantity @error("purchase_items.{$index}.quantity") is-invalid @enderror"
@@ -173,7 +182,7 @@
                                                 <input type="hidden" name="purchase_items[0][product_id]"
                                                     class="product-id">
                                             </td>
-                                            <td>
+                                            <td class="quantity-column-width">
                                                 <input type="number" name="purchase_items[0][quantity]"
                                                     class="form-control purchase-quantity" value="1" min="1" required>
                                             </td>
@@ -349,7 +358,7 @@
                     <input type="text" name="purchase_items[${i}][product_name]" class="form-control product-autocomplete" placeholder="Cari Produk...">
                     <input type="hidden" name="purchase_items[${i}][product_id]" class="product-id">
                 </td>
-                <td>
+                <td class="quantity-column-width">
                     <input type="number" name="purchase_items[${i}][quantity]" class="form-control purchase-quantity" value="1" min="1" required>
                 </td>
                 <td>

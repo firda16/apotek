@@ -255,9 +255,8 @@
                                                 class="product-id" value="{{ $item->product_id }}">
                                         </div>
 
-                                        <div class="col-md-2">
-                                            <label class="form-label">Jumlah <span
-                                                    class="required-asterisk">*</span></label>
+                                        <div class="col-md-1">
+                                            <label class="form-label">Jumlah</label>
                                             <input type="number" name="sale_items[{{ $index }}][quantity]"
                                                 class="form-control quantity" required value="{{ $item->quantity }}"
                                                 min="1" placeholder="1">
@@ -524,10 +523,10 @@
                     <input type="hidden" name="sale_items[${index}][product_id]" class="product-id">
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-1">
                      <small class="text-danger stock-warning d-none" data-available-stock="0">Jumlah lebih dari stok
                                                 tersedia</small> <br>
-                    <label class="form-label mb-1">Jumlah <span class="required-asterisk">*</span></label>
+                    <label class="form-label mb-1">Jumlah</label>
                     <input type="number" name="sale_items[${index}][quantity]" class="form-control quantity" required value="1" min="1" placeholder="masukkan jumlah">
                 </div>
 

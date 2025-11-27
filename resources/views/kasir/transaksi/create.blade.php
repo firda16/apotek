@@ -249,15 +249,15 @@
                                             <label class="form-label mb-1">Produk <span
                                                     class="required-asterisk">*</span></label>
                                             <input type="text" name="sale_items[0][product_name]"
-                                                class="form-control product-autocomplete" placeholder="Cari Produk" required>
+                                                class="form-control product-autocomplete" placeholder="Cari Produk"
+                                                required>
                                             <input type="hidden" name="sale_items[0][product_id]" class="product-id">
                                         </div>
 
-                                        <div class="col-md-2">
+                                        <div class="col-md-1">
                                             <small class="text-danger stock-warning d-none">Jumlah lebih dari stok
                                                 tersedia</small> <br>
-                                            <label class="form-label mb-1">Jumlah <span
-                                                    class="required-asterisk">*</span></label>
+                                            <label class="form-label mb-1">Jumlah</label>
                                             <input type="number" name="sale_items[0][quantity]"
                                                 class="form-control quantity" required value="1" min="1"
                                                 placeholder="masukkan jumlah">
@@ -470,7 +470,8 @@
                         success: function(data) {
                             response($.map(data, function(item) {
                                 return {
-                                    label: item.name + ' (' + item.available_stock + ' in stock)',
+                                    label: item.name + ' (' + item.available_stock +
+                                        ' in stock)',
                                     value: item.name,
                                     product_id: item.id,
                                     stock: item.available_stock,
@@ -511,10 +512,10 @@
                     <input type="hidden" name="sale_items[${index}][product_id]" class="product-id">
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-1">
                      <small class="text-danger stock-warning d-none" data-available-stock="0">Jumlah lebih dari stok
                                                 tersedia</small> <br>
-                    <label class="form-label mb-1">Jumlah <span class="required-asterisk">*</span></label>
+                    <label class="form-label mb-1">Jumlah</label>
                     <input type="number" name="sale_items[${index}][quantity]" class="form-control quantity" required value="1" min="1" placeholder="masukkan jumlah">
                 </div>
 
@@ -568,7 +569,8 @@
             const stockWarningElement = row.find('.stock-warning');
 
             if (quantity > availableStock && availableStock > 0) {
-                stockWarningElement.text(`Jumlah lebih dari stok tersedia (${availableStock} di stok)`).removeClass('d-none');
+                stockWarningElement.text(`Jumlah lebih dari stok tersedia (${availableStock} di stok)`).removeClass(
+                    'd-none');
             } else if (availableStock === 0) {
                 stockWarningElement.text('Produk tidak tersedia').removeClass('d-none');
             } else {
