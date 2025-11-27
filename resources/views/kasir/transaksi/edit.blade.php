@@ -519,62 +519,64 @@
         });
         // Initialize product autocomplete function
         function initProductAutocomplete() {
-            $('.product-autocomplete').autocomplete({
-                source: function(request, response) {
-                    $.ajax({
-                        url: "{{ route('kasir.product.autocomplete') }}",
-                        data: {
-                            term: request.term
+            $('.product-autocomplete').each(function() {
+                // Only initialize if not already initialized
+                if (!$(this).data('ui-autocomplete')) {
+                    $(this).autocomplete({
+                        source: function(request, response) {
+                            $.ajax({
+                                url: "{{ route('kasir.product.autocomplete') }}",
+                                data: {
+                                    term: request.term
+                                },
+                                success: function(data) {
+                                    response($.map(data, function(item) {
+                                        return {
+                                            label: `<div>
+                                                        <img src="${item.image ? '/uploads/products/' + item.image : '{{ asset('assets/img/medicine_no_picture.jpg') }}'}" style="width: 30px; height: 30px; margin-right: 10px; object-fit: cover; vertical-align: middle;">
+                                                        <span style="vertical-align: middle;">${item.name} - ${item.product_code ? item.product_code : 'No Code'} (${item.available_stock} stok)</span>
+                                                    </div>`,
+                                            value: item.name,
+                                            product_id: item.id,
+                                            stock: item.available_stock,
+                                            price: item.price,
+                                            product_code: item.product_code,
+                                            image: item.image
+                                        };
+                                    }));
+                                }
+                            });
                         },
-                        success: function(data) {
-                            response($.map(data, function(item) {
-                                return {
-                                    label: item.name + ' (' + item.product_code + ') - Stok: ' + item.available_stock,
-                                    value: item.name,
-                                    product_id: item.id,
-                                    stock: item.available_stock,
-                                    price: item.price,
-                                    product_code: item.product_code,
-                                    image: item.image
-                                };
-                            }));
+                        minLength: 1,
+                        select: function(event, ui) {
+                            const row = $(this).closest('.sale-items');
+                            row.find('.product-id').val(ui.item.product_id);
+                            row.find('.price').val(ui.item.price).trigger('input');
+                            row.find('.quantity').trigger('input'); // Trigger quantity to check stock
+                            row.find('.stock-warning').data('available-stock', ui.item.stock);
+                            checkStock(row); // Initial stock check
+                            // Set the input field's value to the product name only
+                            $(this).val(ui.item.value);
+                            return false; // Prevent the default behavior of setting the label as value
+                        },
+                        change: function(event, ui) {
+                            // Clear product id and price if no valid product is selected
+                            if (!ui.item) {
+                                const row = $(this).closest('.sale-items');
+                                row.find('.product-id').val('');
+                                row.find('.price').val(0).trigger('input');
+                                row.find('.stock-warning').addClass('d-none');
+                                $(this).val(''); // Clear the input if no valid item is selected
+                            }
                         }
-                    });
-                },
-                minLength: 1,
-                select: function(event, ui) {
-                    const row = $(this).closest('.sale-items');
-                    row.find('.product-id').val(ui.item.product_id);
-                    row.find('.price').val(ui.item.price).trigger('input');
-                    row.find('.quantity').trigger('input'); // Trigger quantity to check stock
-                    row.find('.stock-warning').data('available-stock', ui.item.stock);
-                    checkStock(row); // Initial stock check
-                    // Set the input field's value to the product name only
-                    $(this).val(ui.item.value);
-                    return false; // Prevent the default behavior of setting the label as value
-                },
-                change: function(event, ui) {
-                    // Clear product id and price if no valid product is selected
-                    if (!ui.item) {
-                        const row = $(this).closest('.sale-items');
-                        row.find('.product-id').val('');
-                        row.find('.price').val(0).trigger('input');
-                        row.find('.stock-warning').addClass('d-none');
-                        $(this).val(''); // Clear the input if no valid item is selected
-                    }
+                    }).data("ui-autocomplete")._renderItem = function(ul, item) {
+                        // Custom rendering for each item in the autocomplete dropdown
+                        return $("<li>")
+                            .append("<div>" + item.label + "</div>")
+                            .appendTo(ul);
+                    };
                 }
-            }).data("ui-autocomplete")._renderItem = function(ul, item) {
-                // Custom rendering for each item in the autocomplete dropdown
-                return $("<li>")
-                    .append($("<div>").addClass("ui-menu-item-wrapper")
-                        .append(item.image ? `<img src="/uploads/products/${item.image}" class="product-autocomplete-image" alt="${item.value}">` : `<img src="{{ asset('assets/img/medicine_no_picture.jpg') }}" class="product-autocomplete-image" alt="No Image">`)
-                        .append($("<div>").addClass("product-autocomplete-details")
-                            .append($("<div>").addClass("product-autocomplete-name").text(item.value))
-                            .append($("<div>").addClass("product-autocomplete-code").text((item.product_code ? item.product_code : 'No Code') + ' - Stok: ' + item.stock))
-                        )
-                    )
-                    .appendTo(ul);
-            };
+            });
         }
 
         // Add product
