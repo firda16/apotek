@@ -461,8 +461,8 @@ class ProductController extends Controller
                     $validItems = $product->purchaseItems()
                         ->whereDate('expiry_date', '>', now())
                         ->whereHas('purchase', function ($query) use ($startDate, $endDate) {
-                            $query->whereBetween('created_at', [$startDate, $endDate]);
-                        })
+                        $query->whereBetween('created_at', [$startDate, $endDate]);
+                    })
                         ->get();
 
                     $totalPurchased = $validItems->sum('quantity');
@@ -577,15 +577,15 @@ class ProductController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             // 1. KOLOM GAMBAR (BARU)
-        ->addColumn('image', function ($row) {
-            $url = $row->image ? asset('uploads/products/' . $row->image) : asset('assets/img/medicine_no_picture.jpg');
-            return '<img src="' . $url . '" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border:1px solid #eee;">';
-        })
+            ->addColumn('image', function ($row) {
+                $url = $row->image ? asset('uploads/products/' . $row->image) : asset('assets/img/medicine_no_picture.png');
+                return '<img src="' . $url . '" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border:1px solid #eee;">';
+            })
 
-        // 2. KOLOM KODE PRODUK (BARU)
-        ->addColumn('product_code', function ($row) {
-            return $row->product_code ?? '-';
-        })
+            // 2. KOLOM KODE PRODUK (BARU)
+            ->addColumn('product_code', function ($row) {
+                return $row->product_code ?? '-';
+            })
             ->addColumn('category', fn($row) => $row->category->name ?? '-')
             ->addColumn('unit_price', function ($row) {
                 $latestPurchaseItem = $row->purchaseItems->first();

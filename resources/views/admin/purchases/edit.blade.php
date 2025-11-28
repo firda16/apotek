@@ -6,11 +6,15 @@
     <style>
         .quantity-column-width {
             width: 10px;
-            min-width: 10px; /* Ensure it doesn't shrink too much */
+            min-width: 10px;
+            /* Ensure it doesn't shrink too much */
         }
+
         .quantity-column-width input.form-control {
-            width: 100% !important; /* Make input fill the cell */
+            width: 100% !important;
+            /* Make input fill the cell */
         }
+
         .ui-autocomplete {
             max-height: 250px;
             overflow-y: auto;
@@ -20,23 +24,28 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             padding: 5px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
+
         .ui-menu-item {
             padding: 8px 12px;
             border-bottom: 1px solid #eee;
             cursor: pointer;
         }
+
         .ui-menu-item:last-child {
             border-bottom: none;
         }
+
         .ui-menu-item:hover {
             background-color: #f5f5f5;
         }
+
         .product-autocomplete-item {
             display: flex;
             align-items: center;
         }
+
         .product-autocomplete-item img {
             width: 40px;
             height: 40px;
@@ -44,14 +53,17 @@
             border-radius: 4px;
             object-fit: cover;
         }
+
         .product-autocomplete-details {
             display: flex;
             flex-direction: column;
         }
+
         .product-autocomplete-details span {
             font-size: 0.9em;
             color: #666;
         }
+
         .product-autocomplete-details .product-name {
             font-weight: bold;
             color: #333;
@@ -160,7 +172,8 @@
                                                     value="{{ old("purchase_items.{$index}.product_name", \App\Models\Product::find($item['product_id'])->name ?? '') }}">
                                                 <input type="hidden"
                                                     name="purchase_items[{{ $index }}][product_id]"
-                                                    class="product-id" value="{{ old("purchase_items.{$index}.product_id", $item['product_id']) }}">
+                                                    class="product-id"
+                                                    value="{{ old("purchase_items.{$index}.product_id", $item['product_id']) }}">
                                             </td>
                                             <td class="quantity-column-width">
                                                 <input type="number" name="purchase_items[{{ $index }}][quantity]"
@@ -197,8 +210,8 @@
 
                         <div class="mb-3 mt-3">
                             <label for="total_price">Total Harga</label>
-                            <input type="number" name="total_price" id="total_price" class="form-control"
-                                readonly required value="{{ old('total_price', $purchase->total_price) }}">
+                            <input type="number" name="total_price" id="total_price" class="form-control" readonly required
+                                value="{{ old('total_price', $purchase->total_price) }}">
                         </div>
 
                         <div class="mb-3 mt-3">
@@ -302,7 +315,7 @@
                 return $("<li>")
                     .append(
                         `<div class="product-autocomplete-item">
-                            <img src="${item.image ? item.image : '{{ asset('assets/img/medicine_no_picture.jpg') }}'}" alt="${item.value}" onerror="this.onerror=null;this.src='{{ asset('assets/img/medicine_no_picture.jpg') }}';">
+                            <img src="${item.image ? item.image : '{{ asset('assets/img/medicine_no_picture.png') }}'}" alt="${item.value}" onerror="this.onerror=null;this.src='{{ asset('assets/img/medicine_no_picture.png') }}';">
                             <div class="product-autocomplete-details">
                                 <span class="product-name">${item.value}</span>
                                 <span>Kode: ${item.code ? item.code : 'No Code'}</span>

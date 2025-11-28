@@ -6,11 +6,15 @@
     <style>
         .quantity-column-width {
             width: 80px;
-            min-width: 80px; /* Ensure it doesn't shrink too much */
+            min-width: 80px;
+            /* Ensure it doesn't shrink too much */
         }
+
         .quantity-column-width input.form-control {
-            width: 100% !important; /* Make input fill the cell */
+            width: 100% !important;
+            /* Make input fill the cell */
         }
+
         .ui-autocomplete {
             max-height: 250px;
             overflow-y: auto;
@@ -20,23 +24,28 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             padding: 5px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
+
         .ui-menu-item {
             padding: 8px 12px;
             border-bottom: 1px solid #eee;
             cursor: pointer;
         }
+
         .ui-menu-item:last-child {
             border-bottom: none;
         }
+
         .ui-menu-item:hover {
             background-color: #f5f5f5;
         }
+
         .product-autocomplete-item {
             display: flex;
             align-items: center;
         }
+
         .product-autocomplete-item img {
             width: 40px;
             height: 40px;
@@ -44,14 +53,17 @@
             border-radius: 4px;
             object-fit: cover;
         }
+
         .product-autocomplete-details {
             display: flex;
             flex-direction: column;
         }
+
         .product-autocomplete-details span {
             font-size: 0.9em;
             color: #666;
         }
+
         .product-autocomplete-details .product-name {
             font-weight: bold;
             color: #333;
@@ -229,7 +241,8 @@
                                             </td>
                                             <td class="quantity-column-width">
                                                 <input type="number" name="purchase_items[0][quantity]"
-                                                    class="form-control purchase-quantity" value="1" min="1" required>
+                                                    class="form-control purchase-quantity" value="1" min="1"
+                                                    required>
                                             </td>
                                             <td>
                                                 <div class="input-group">
@@ -373,7 +386,7 @@
                 return $("<li>")
                     .append(
                         `<div class="product-autocomplete-item">
-                            <img src="${item.image ? item.image : '{{ asset('assets/img/medicine_no_picture.jpg') }}'}" alt="${item.value}" onerror="this.onerror=null;this.src='{{ asset('assets/img/medicine_no_picture.jpg') }}';">
+                            <img src="${item.image ? item.image : '{{ asset('assets/img/medicine_no_picture.png') }}'}" alt="${item.value}" onerror="this.onerror=null;this.src='{{ asset('assets/img/medicine_no_picture.png') }}';">
                             <div class="product-autocomplete-details">
                                 <span class="product-name">${item.value}</span>
                                 <span>Kode: ${item.code ? item.code : 'No Code'}</span>

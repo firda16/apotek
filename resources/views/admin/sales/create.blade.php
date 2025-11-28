@@ -251,7 +251,8 @@
                                             <label class="form-label mb-1">Produk <span
                                                     class="required-asterisk">*</span></label>
                                             <input type="text" name="sale_items[0][product_name]"
-                                                class="form-control product-autocomplete" placeholder="Cari Produk" required>
+                                                class="form-control product-autocomplete" placeholder="Cari Produk"
+                                                required>
                                             <input type="hidden" name="sale_items[0][product_id]" class="product-id">
                                         </div>
 
@@ -264,7 +265,7 @@
                                                 placeholder="masukkan jumlah">
                                         </div>
 
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <label class="form-label mb-1">Harga Satuan <span
                                                     class="required-asterisk">*</span></label>
                                             <div class="input-group">
@@ -478,7 +479,7 @@
                                 response($.map(data, function(item) {
                                     return {
                                         label: `<div>
-                                                    <img src="${item.image ? '/uploads/products/' + item.image : '{{ asset('assets/img/medicine_no_picture.jpg') }}'}" style="width: 30px; height: 30px; margin-right: 10px; object-fit: cover; vertical-align: middle;">
+                                                    <img src="${item.image ? '/uploads/products/' + item.image : '{{ asset('assets/img/medicine_no_picture.png') }}'}" style="width: 30px; height: 30px; margin-right: 10px; object-fit: cover; vertical-align: middle;">
                                                     <span style="vertical-align: middle;">${item.name} - ${item.product_code ? item.product_code : 'No Code'} (${item.available_stock} stok)</span>
                                                 </div>`,
                                         value: item.name,
@@ -535,7 +536,7 @@
                     <input type="number" name="sale_items[${index}][quantity]" class="form-control quantity" required value="1" min="1" placeholder="masukkan jumlah">
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label class="form-label mb-1">Harga Satuan <span class="required-asterisk">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text">Rp</span>
@@ -585,7 +586,8 @@
             const stockWarningElement = row.find('.stock-warning');
 
             if (quantity > availableStock && availableStock > 0) {
-                stockWarningElement.text(`Jumlah lebih dari stok tersedia (${availableStock} di stok)`).removeClass('d-none');
+                stockWarningElement.text(`Jumlah lebih dari stok tersedia (${availableStock} di stok)`).removeClass(
+                    'd-none');
             } else if (availableStock === 0) {
                 stockWarningElement.text('Produk tidak tersedia').removeClass('d-none');
             } else {

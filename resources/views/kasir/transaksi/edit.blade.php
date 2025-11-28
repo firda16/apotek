@@ -163,6 +163,7 @@
             color: #6b7280;
             font-weight: 600;
         }
+
         .ui-autocomplete {
             max-height: 300px;
             overflow-y: auto;
@@ -171,8 +172,9 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
+
         .ui-menu-item {
             padding: 8px 12px;
             border-bottom: 1px solid #eee;
@@ -180,17 +182,21 @@
             display: flex;
             align-items: center;
         }
+
         .ui-menu-item:last-child {
             border-bottom: none;
         }
+
         .ui-menu-item:hover {
             background-color: #f5f5f5;
         }
+
         .ui-menu-item-wrapper {
             display: flex;
             align-items: center;
             width: 100%;
         }
+
         .product-autocomplete-image {
             width: 40px;
             height: 40px;
@@ -199,14 +205,17 @@
             object-fit: cover;
             flex-shrink: 0;
         }
+
         .product-autocomplete-details {
             display: flex;
             flex-direction: column;
         }
+
         .product-autocomplete-name {
             font-weight: 600;
             color: #333;
         }
+
         .product-autocomplete-code {
             font-size: 0.8em;
             color: #777;
@@ -310,7 +319,7 @@
                                                 min="1" placeholder="1">
                                         </div>
 
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <label class="form-label">Harga satuan <span
                                                     class="required-asterisk">*</span></label>
                                             <div class="input-group">
@@ -533,7 +542,7 @@
                                     response($.map(data, function(item) {
                                         return {
                                             label: `<div>
-                                                        <img src="${item.image ? '/uploads/products/' + item.image : '{{ asset('assets/img/medicine_no_picture.jpg') }}'}" style="width: 30px; height: 30px; margin-right: 10px; object-fit: cover; vertical-align: middle;">
+                                                        <img src="${item.image ? '/uploads/products/' + item.image : '{{ asset('assets/img/medicine_no_picture.png') }}'}" style="width: 30px; height: 30px; margin-right: 10px; object-fit: cover; vertical-align: middle;">
                                                         <span style="vertical-align: middle;">${item.name} - ${item.product_code ? item.product_code : 'No Code'} (${item.available_stock} stok)</span>
                                                     </div>`,
                                             value: item.name,
@@ -648,7 +657,8 @@
             const stockWarningElement = row.find('.stock-warning');
 
             if (quantity > availableStock && availableStock > 0) {
-                stockWarningElement.text(`Jumlah lebih dari stok tersedia (${availableStock} di stok)`).removeClass('d-none');
+                stockWarningElement.text(`Jumlah lebih dari stok tersedia (${availableStock} di stok)`).removeClass(
+                    'd-none');
             } else if (availableStock === 0) {
                 stockWarningElement.text('Produk tidak tersedia').removeClass('d-none');
             } else {
