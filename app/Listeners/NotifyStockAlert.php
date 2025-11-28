@@ -18,6 +18,7 @@ class NotifyStockAlert
     public function __construct()
     {
         //
+        
     }
 
     /**

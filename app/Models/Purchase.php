@@ -10,20 +10,34 @@ class Purchase extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product','category_id','supplier_id',
-        'cost_price','quantity','expiry_date',
-        'image'
+        'invoice_number',
+        'supplier_id',        
+        'product_id',
+        'payment_method',
+        'total_price',
+        'status',
+        'created_at',
+        'updated_at',
     ];
 
-    public function supplier(){
+    public function supplier()
+    {
         return $this->belongsTo(Supplier::class);
     }
-
-    public function category(){
-        return $this->belongsTo(Category::class);
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
-
-    public function purchaseProduct(){
-        return $this->hasOne(Product::class);
+    public function purchaseItems()
+    {
+        return $this->hasMany(PurchaseItem::class);
+    }
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+    public function items()
+    {
+        return $this->hasMany(PurchaseItem::class);
     }
 }

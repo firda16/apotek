@@ -1,23 +1,19 @@
 @extends('admin.layouts.app')
 
-<x-assets.datatables />  
-
 @push('page-css')
-	
 @endpush
 
 @push('page-header')
 <div class="col-sm-7 col-auto">
-	<h3 class="page-title">User</h3>
+	<h3 class="page-title">Pengguna</h3>
 	<ul class="breadcrumb">
-		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-		<li class="breadcrumb-item active">Users</li>
+		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dasbor</a></li>
+		<li class="breadcrumb-item active">Daftar Pengguna</li>
 	</ul>
 </div>
 <div class="col-sm-5 col">
-	<a href="{{route('users.create')}}" class="btn btn-primary float-right mt-2">Add User</a>
+	<a href="{{route('users.create')}}" class="btn btn-primary float-right mt-2">Tambah Pengguna</a>
 </div>
-
 @endpush
 
 @section('content')
@@ -26,45 +22,59 @@
 		<div class="card">
 			<div class="card-body">
 				<div class="table-responsive">
-					<table id="user-table" class="datatable table table-striped table-bordered table-hover table-center mb-0">
+					<table class="table table-striped table-bordered table-hover table-center mb-0">
 						<thead>
-							<tr style="boder:1px solid black;">
-								<th>Name</th>
+							<tr>
+								<th>No</th>
+								<th>Nama</th>
 								<th>Email</th>
-								<th>Role</th>
-								<th>Avatar</th>
-								<th>Created date</th>
-								<th class="text-center action-btn">Actions</th>
+								<th>Peran</th>
+								{{-- <th>Foto</th> --}}
+								<th>Tanggal Dibuat</th>
+								<th class="text-center action-btn">Aksi</th>
 							</tr>
 						</thead>
 						<tbody>
-							
+							@foreach ($users as $user)
+							<tr>
+								<td>{{ $users->firstItem() + $loop->index }}</td>
+								<td>{{ $user->name }}</td>
+								<td>{{ $user->email }}</td>
+								<td>{{ $user->role }}</td>
+								{{-- <td>
+								@if ($user->avatar && file_exists(public_path('storage/users/' . $user->avatar)))
+    <img src="{{ asset('storage/users/' . $user->avatar) }}" alt="Avatar" width="40" height="40">
+@else
+    <span class="text-muted">-</span>
+@endif
+
+
+								</td> --}}
+								<td>{{ $user->created_at->format('d M Y') }}</td>
+								<td class="text-center">
+									<a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></a>
+									<form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
+										@csrf
+										@method('DELETE')
+										<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus pengguna ini?')">
+											<i class="fas fa-trash"></i>
+										</button>
+									</form>
+								</td>
+							</tr>
+							@endforeach
 						</tbody>
 					</table>
+					{{-- Pagination jika datanya banyak --}}
+					{{-- <div class="mt-3">
+						{{ $users->links() }}
+					</div> --}}
+				</div>
+				<div class="mt-3">
+					{{ $users->links('pagination::bootstrap-5') }}
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 @endsection
-
-@push('page-js')
-<script>
-$(document).ready(function() {
-    var table = $('#user-table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{route('users.index')}}",
-        columns: [
-            {data: 'name', name: 'name'},
-            {data: 'email', name: 'email'},
-            {data: 'role', name: 'role'},
-			{data: 'avatar', name: 'avatar', orderable: false, searchable: false},
-            {data: 'created_at',name: 'created_at'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ]
-    });
-    
-});
-</script>
-@endpush

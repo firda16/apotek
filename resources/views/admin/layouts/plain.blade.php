@@ -1,20 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {{-- <title>{{ucfirst(AppSettings::get('app_name', 'App'))}} - {{ucfirst($title ?? '')}}</title>--}}
+    <title> {{ $setting?->nama ?? 'belum ada nama website' }}</title>
+    @if (!empty($setting?->favicon))
+        <link rel="icon" type="image/png" href="{{ asset($setting->favicon) }}">
+    @else
+        <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
+    @endif
+
+    {{-- <title>{{ucfirst(AppSettings::get('app_name', 'App'))}} - {{ucfirst($title ?? '')}}</title> --}}
     <!-- Favicon -->
-    {{-- <link rel="shortcut icon" type="image/x-icon" href="{{!empty(AppSettings::get('favicon')) ? asset('storage/'.AppSettings::get('favicon')) : asset('assets/img/favicon.png')}}">--}}
+    {{-- <link rel="shortcut icon" type="image/x-icon" href="{{!empty(AppSettings::get('favicon')) ? asset('storage/'.AppSettings::get('favicon')) : asset('assets/img/favicon.png')}}"> --}}
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{{asset('assets/css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
 
     <!-- Fontawesome CSS -->
-    <link rel="stylesheet" href="{{asset('assets/plugins/fontawesome/css/fontawesome.min.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/fontawesome.min.css') }}">
 
     <!-- Main CSS -->
-    <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <!-- Page CSS -->
     @stack('page-css')
     <!--[if lt IE 9]>
@@ -22,6 +30,7 @@
         <script src="assets/js/respond.min.js"></script>
     <![endif]-->
 </head>
+
 <body>
 
     <!-- Main Wrapper -->
@@ -30,8 +39,12 @@
             <div class="container">
                 <div class="loginbox">
                     <div class="login-left">
-                        <img class="img-fluid" src="{{ asset('assets/img/logo.png') }}" alt="Logo">
-                        {{--<img class="img-fluid" src="{{!empty(AppSettings::get('logo')) ? asset('storage/'.AppSettings::get('logo')): asset('assets/img/logo.png')}}" alt="Logo">--}}
+                        @if (!empty($setting?->image))
+                            <img src="{{ asset($setting->image) }}" alt="Logo" height="50">
+                        @else
+                            <span>{{ $setting?->nama ?? 'Website' }}</span>
+                        @endif
+                        {{-- <img class="img-fluid" src="{{!empty(AppSettings::get('logo')) ? asset('storage/'.AppSettings::get('logo')): asset('assets/img/logo.png')}}" alt="Logo"> --}}
                     </div>
                     <div class="login-right">
                         <div class="login-right-wrap">
@@ -51,14 +64,15 @@
 
 </body>
 <!-- jQuery -->
-<script src="{{asset('assets/js/jquery-3.2.1.min.js')}}"></script>
+<script src="{{ asset('assets/js/jquery-3.2.1.min.js') }}"></script>
 
 <!-- Bootstrap Core JS -->
-<script src="{{asset('assets/js/popper.min.js')}}"></script>
-<script src="{{asset('assets/js/bootstrap.min.js')}}"></script>
+<script src="{{ asset('assets/js/popper.min.js') }}"></script>
+<script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 
 <!-- Custom JS -->
-<script src="{{asset('assets/js/script.js')}}"></script>
+<script src="{{ asset('assets/js/script.js') }}"></script>
 <!-- Page JS -->
 @stack('page-js')
+
 </html>

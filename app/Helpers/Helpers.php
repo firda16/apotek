@@ -2,6 +2,15 @@
 
 use Illuminate\Support\Facades\Request;
 
+if (!function_exists('formatRupiah')) {
+    function formatRupiah($number, $withPrefix = true)
+    {
+        $formatted = number_format($number, 0, ',', '.');
+        return $withPrefix ? 'Rp ' . $formatted : $formatted;
+    }
+}
+
+
 if (!function_exists('route_is')) {
     /**
      * Mengecek apakah route saat ini cocok dengan salah satu dari nama route yang diberikan.

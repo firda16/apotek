@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+
 
 class UserController extends Controller
 {
@@ -16,45 +19,16 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    use ValidatesRequests;
+    // halaman users
     public function index(Request $request)
     {
-        $title = 'users';
-        if ($request->ajax()) {
-            $users = User::get();
-            return DataTables::of($users)
-                ->addIndexColumn()
-                ->addColumn('created_at', function ($category) {
-                    return date_format(date_create($category->created_at), "d M,Y");
-                })
-                ->addColumn('avatar', function ($user) {
-                    $src = asset('assets/img/avatar.png');
-                    if (!empty($user->avatar)) {
-                        $src = asset('storage/users/'.$user->avatar);
-                    }
-                    return '<img src="'.$src.'" class="avatar-img rounded-circle" width="50" />';
-                })
-                ->addColumn('role', function ($row) {
-                    foreach ($row->getRoleNames() as $role) {
-                        return '<span>'.$role.'</span>';
-                    }
-                })
-                ->addColumn('action', function ($row) {
-                    $editbtn = '<a href="'.route("users.edit", $row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fas fa-edit"></i></button></a>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('users.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fas fa-trash"></i></button></a>';
-                    if (!auth()->user()->hasPermissionTo('edit-user')) {
-                        $editbtn = '';
-                    }
-                    if (!auth()->user()->hasPermissionTo('destroy-user')) {
-                        $deletebtn = '';
-                    }
-                    $btn = $editbtn.' '.$deletebtn;
-                    return $btn;
-                })
-                ->rawColumns(['avatar','role','action'])
-                ->make(true);
-        }
+
+        $query = User::query();
+        $users = $query->orderBy('created_at', 'desc')->paginate(15);
+
         return view('admin.users.index', compact(
-            'title'
+             'users'
         ));
     }
 
@@ -65,9 +39,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        $title = 'create user';
-        $roles = Role::get();
-        return view('admin.users.create', compact('title','roles'));
+        $users = User::get();
+        return view('admin.users.create', compact('users'));
     }
 
     /**
@@ -96,13 +69,13 @@ class UserController extends Controller
             'email' => $request->email,
             'avatar' => $imageName,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
-        $user->assignRole($request->role);
         $notifiation = notify('user created successfully');
         return redirect()->route('users.index')->with($notifiation);
     }
 
-   
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -111,12 +84,9 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $title = "edit user";
-        $roles = Role::get();
-        return view('admin.users.edit',compact(
-            'title','roles','user'
-        ));
+    return view('admin.users.edit', compact('user'));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -127,7 +97,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $this->validate($request,[
+        $request->validate([
             'name'=>'required|max:100',
             'email'=>'required|email',
             'role'=>'required',
@@ -149,20 +119,18 @@ class UserController extends Controller
             'email' => $request->email,
             'avatar' => $imageName,
             'password' => $password,
+            'role' => $request->role,
         ]);
-        foreach($user->getRoleNames() as $userRole){
-            $user->removeRole($userRole);
-        }
-        $user->assignRole($request->role);
-        $notification = notify('user updated successfully');
+        $notification = notify('user update berhasil ');
         return redirect()->route('users.index')->with($notification);
     }
 
     public function profile(){
-        $title = 'user profile';
-        $roles = Role::get();
+        // $title = 'user profile';
+        $users = Auth::user();
+        $roles = User::getRoleOptions();
         return view('admin.users.profile',compact(
-            'title','roles'
+            'users','roles'
         ));
     }
 
@@ -184,7 +152,7 @@ class UserController extends Controller
             'email' => $request->email,
             'avatar' => $imageName,
         ]);
-        $notification = notify('profile updated successfully');
+        $notification = notify('profil berhasil diupdate');
         return redirect()->route('profile')->with($notification);
     }
 
@@ -204,7 +172,7 @@ class UserController extends Controller
         if ($verify_password) {
             $user->update(['password'=>Hash::make($request->password)]);
             $notification = notify('User password updated successfully!!!');
-            $logout = auth()->logout();
+            $logout = Auth::logout();
             return back()->with($notification, $logout);
         } elseif(!$verify_password) {
             $notification = notify("Incorrect Old Password!!!",'danger');
@@ -218,8 +186,10 @@ class UserController extends Controller
     * @param  \Illuminate\Http\Request $request
     * @return \Illuminate\Http\Response
     */
-    public function destroy(Request $request)
-    {
-        return User::findOrFail($request->id)->delete();
-    }
+    public function destroy($id)
+{
+    User::findOrFail($id)->delete();
+    return back()->with('success', 'User deleted successfully');
+}
+
 }

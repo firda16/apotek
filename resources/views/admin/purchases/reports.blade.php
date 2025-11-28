@@ -2,154 +2,194 @@
 
 <x-assets.datatables />
 
-
 @push('page-css')
-    
 @endpush
 
 @push('page-header')
-<div class="col-sm-7 col-auto">
-	<h3 class="page-title">Purchases Reports</h3>
-	<ul class="breadcrumb">
-		<li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-		<li class="breadcrumb-item active">Generate Purchase Reports</li>
-	</ul>
-</div>
-<div class="col-sm-5 col">
-	<a href="#generate_report" data-toggle="modal" class="btn btn-primary float-right mt-2">Generate Report</a>
-</div>
+    <div class="col-sm-7 col-auto">
+        <h3 class="page-title">Laporan Pembelian</h3>
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
+            <li class="breadcrumb-item active">Laporan Pembelian</li>
+        </ul>
+    </div>
+    <div class="col-sm-5 col">
+        <a href="#generate_report" data-toggle="modal" class="btn btn-primary float-right mt-2">Cetak Laporan</a>
+    </div>
 @endpush
 
 @section('content')
-    @isset($purchases)
-    <div class="row">
-        <div class="col-md-12">
-            <!-- Purchases reports-->
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="purchase-table" class="datatable table table-hover table-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Medicine Name</th>
-                                    <th>Category</th>
-                                    <th>Supplier</th>
-                                    <th>Purchase Cost</th>
-                                    <th>Quantity</th>
-                                    <th>Expire Date</th>                                </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ($purchases as $purchase)
-                                @if(!empty($purchase->supplier) && !empty($purchase->category))
-                                <tr>
-                                    <td>
-                                        <h2 class="table-avatar">
-                                            @if(!empty($purchase->image))
-                                            <span class="avatar avatar-sm mr-2">
-                                                <img class="avatar-img" src="{{asset('storage/purchases/'.$purchase->image)}}" alt="product image">
-                                            </span>
-                                            @endif
-                                            {{$purchase->product}}
-                                        </h2>
-                                    </td>
-                                    <td>{{$purchase->category->name}}</td>
-                                    <td>{{AppSettings::get('app_currency', '$')}}{{$purchase->price}}</td>
-                                    <td>{{$purchase->quantity}}</td>
-                                    <td>{{$purchase->supplier->name}}</td>
-                                    <td>{{date_format(date_create($purchase->expiry_date),"d M, Y")}}</td>
-                                </tr>
-                                @endif
-                            @endforeach                         
-                            </tbody>
-                        </table>
-                    </div>
+    @if (isset($pembelians) && count($pembelians))
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Periode:</strong>
+                    {{ request('from_date') ? date('d M Y', strtotime(request('from_date'))) : '-' }} -
+                    {{ request('to_date') ? date('d M Y', strtotime(request('to_date'))) : '-' }}
+                    <br>
+                    <strong>Metode Pembayaran:</strong>
+                    {{ request('payment_method') ?: 'Semua Metode' }}
+                </div>
+                <a href="{{ route('purchases.reports.pdf', request()->all()) }}" target="_blank"
+                    class="btn btn-danger mb-3">
+                    <i class="fa fa-file-pdf"></i> PDF
+                </a>
+
+                <div class="table-responsive">
+                    <table id="purchase-table" class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Tanggal</th>
+                                <th>No Invoice</th>
+                                <th>Nama Pemasok</th>
+                                <th>Metode Pembayaran</th>
+                                <th>Produk</th>
+                                <th>Kategori</th>
+                                <th>Jumlah</th>
+                                <th>Satuan</th>
+                                <th>Harga Satuan</th>
+                                <th>Total</th>
+                                <th>Tgl Expired</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $grandTotal = 0;
+                                $row = 1;
+                            @endphp
+                            @foreach ($pembelians as $pembelian)
+                                @foreach ($pembelian->purchaseItems as $item)
+                                    <tr>
+                                        <td>{{ $row++ }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($pembelian->created_at)->translatedFormat('l, d F Y') }}
+                                        </td>
+                                        <td>{{ $pembelian->invoice_number ?? '-' }}</td>
+                                        <td>{{ $pembelian->supplier->name ?? '-' }}</td>
+                                        <td>{{ $pembelian->payment_method ?? '-' }}</td>
+                                        <td>{{ $item->product->name ?? '-' }}</td>
+                                        <td>{{ $item->product->category->name ?? '-' }}</td>
+                                        <td>{{ $item->quantity }}</td>
+                                        <td>{{ $item->product->unit ?? '-' }}</td>
+                                        <td>Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($item->total_price, 0, ',', '.') }}</td>
+                                        <td>{{ $item->expiry_date ? date('d M Y', strtotime($item->expiry_date)) : '-' }}
+                                        </td>
+                                    </tr>
+                                    @php $grandTotal += $item->total_price; @endphp
+                                @endforeach
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <!-- /Purchases Report -->
         </div>
-    </div>
-    @endisset
+    @else
+    @endif
 
-
-    <!-- Generate Modal -->
+    <!-- Modal Buat Laporan -->
     <div class="modal fade" id="generate_report" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Generate Report</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h5 class="modal-title">Cetak Laporan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" action="{{route('purchases.report')}}">
+                    <form method="post" action="{{ route('purchases.report') }}">
                         @csrf
                         <div class="row form-row">
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label>From</label>
-                                            <input type="date" name="from_date" class="form-control from_date">
+                                            <label>Dari Tanggal</label>
+                                            <input type="date" name="from_date" class="form-control"
+                                                value="{{ request('from_date') }}">
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label>To</label>
-                                            <input type="date" name="to_date" class="form-control to_date">
+                                            <label>Sampai Tanggal</label>
+                                            <input type="date" name="to_date" class="form-control"
+                                                value="{{ request('to_date') }}">
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- Filter Metode Pembayaran --}}
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Metode Pembayaran</label>
+                                    <select name="payment_method" class="form-control">
+                                        <option value="">Semua Metode</option>
+                                        <option value="cash" {{ request('payment_method') == 'cash' ? 'selected' : '' }}>
+                                            Cash</option>
+                                        <option value="transfer"
+                                            {{ request('payment_method') == 'transfer' ? 'selected' : '' }}>Transfer
+                                        </option>
+                                        <option value="qris" {{ request('payment_method') == 'qris' ? 'selected' : '' }}>
+                                            QRIS</option>
+                                        {{-- Tambah metode lain jika ada --}}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block submit_report">Submit</button>
+                        <button type="submit" class="btn btn-primary btn-block">Tampilkan</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <!-- /Generate Modal -->
+    <!-- /Modal Buat Laporan -->
 @endsection
 
-
 @push('page-js')
-<script>
-    $(document).ready(function(){
-        $('#purchase-table').DataTable({
-            dom: 'Bfrtip',		
-            buttons: [
-                {
-                extend: 'collection',
-                text: 'Export Data',
-                buttons: [
-                    {
-                        extend: 'pdf',
-                        exportOptions: {
-                            columns: "thead th:not(.action-btn)"
+    <script>
+        $(document).ready(function() {
+            $('#purchase-table').DataTable({
+                dom: 'Bfrtip',
+                buttons: [{
+                    extend: 'collection',
+                    text: 'Ekspor Data',
+                    buttons: [
+                        // {
+                        //     extend: 'pdf',
+                        //     text: 'PDF',
+                        //     exportOptions: {
+                        //         columns: ':visible'
+                        //     }
+                        // },
+                        {
+                            extend: 'excel',
+                            text: 'Excel',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            text: 'CSV',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'print',
+                            text: 'Print',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
                         }
-                    },
-                    {
-                        extend: 'excel',
-                        exportOptions: {
-                            columns: "thead th:not(.action-btn)"
-                        }
-                    },
-                    {
-                        extend: 'csv',
-                        exportOptions: {
-                            columns: "thead th:not(.action-btn)"
-                        }
-                    },
-                    {
-                        extend: 'print',
-                        exportOptions: {
-                            columns: "thead th:not(.action-btn)"
-                        }
-                    }
-                ]
+                    ]
+                }],
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
                 }
-            ]
+            });
         });
-    });
-</script>
+    </script>
 @endpush

@@ -1,0 +1,237 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Purchase;
+use App\Models\Sale;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+
+class HistoryController extends Controller
+{
+    // ===================================================================================
+    // RIWAYAT PENJUALAN (BAGIAN YANG DIPERBARUI)
+    // ===================================================================================
+    public function penjualan(Request $request)
+    {
+        $title = 'Riwayat Penjualan';
+
+        // Cek apakah ada filter yang diterapkan
+        $filterApplied = !empty($request->query());
+
+        // Siapkan variabel default
+        $sales = new LengthAwarePaginator([], 0, 10); // Paginator kosong
+        $total_pendapatan = 0;
+
+        // Hanya jalankan query jika ada filter yang diterapkan dan diisi
+        if ($filterApplied && ($request->filled('start_date') || $request->filled('end_date') || $request->filled('payment_method'))) {
+            $query = Sale::with(['customer']); // Eager load relasi customer
+
+            // Terapkan filter tanggal
+            if ($request->filled('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            }
+            if ($request->filled('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+
+            // Terapkan filter metode pembayaran
+            if ($request->filled('payment_method')) {
+                $query->where('payment_method', $request->payment_method);
+            }
+
+            // Hitung total pendapatan dari hasil query yang sudah difilter
+            // Menggunakan sum() dari query builder jauh lebih efisien
+            $total_pendapatan = (clone $query)->sum('total_price');
+
+            // Lakukan pagination pada hasil akhir
+            $sales = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+        }
+
+        // Cek role user dan pilih view yang sesuai
+        if (Auth::user()->role == 'admin') {
+            return view('admin.history.penjualan', compact('title', 'sales', 'total_pendapatan', 'filterApplied'));
+        } elseif (Auth::user()->role == 'kasir') {
+            return view('kasir.history.penjualan', compact('title', 'sales', 'total_pendapatan', 'filterApplied'));
+        }
+    }
+
+    public function show($invoice_number)
+    {
+        $sale = Sale::with(['saleItems.product.category', 'customer'])
+            ->where('invoice_number', $invoice_number)
+            ->firstOrFail();
+
+        // Tambahkan pengecekan role untuk mengarahkan ke view yang benar
+        if (Auth::user()->role == 'admin') {
+            return view('admin.history.show', compact('sale'));
+        } elseif (Auth::user()->role == 'kasir') {
+            return view('kasir.history.show', compact('sale'));
+        }
+    }
+
+    // PENAMBAHAN: Fungsi baru untuk generate PDF Riwayat Penjualan
+    public function cetakPenjualanPDF(Request $request)
+    {
+        // Ambil data dengan relasi ke item produk
+        $query = Sale::with(['customer', 'saleItems.product']);
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        $sales = $query->orderBy('created_at', 'desc')->get();
+        $total_pendapatan = $sales->sum('total_price');
+
+        // !! PERUBAHAN DI SINI !!
+        // Langsung kirim tanggal dari request ke view.
+        // Biarkan view yang menangani logika tampilan.
+        $tanggalMulai = $request->start_date;
+        $tanggalSelesai = $request->end_date;
+
+        // Data yang akan dikirim ke view
+        $data = compact('sales', 'total_pendapatan', 'tanggalMulai', 'tanggalSelesai');
+
+        // Tentukan view berdasarkan role
+        $viewPath = 'admin.history.penjualan_pdf'; // Default untuk admin
+        if (Auth::user()->role == 'kasir') {
+            // Pastikan Anda punya view PDF untuk kasir jika desainnya berbeda
+            $viewPath = 'kasir.history.penjualan_pdf';
+        }
+
+        $pdf = Pdf::loadView($viewPath, $data);
+        return $pdf->stream('laporan-penjualan-' . now()->format('d-m-Y') . '.pdf');
+    }
+
+
+
+
+
+    // RIWAYAT PEMBELIAN
+    //    public function pembelian(Request $request)
+    // {
+    //     $title = 'Riwayat Pembelian';
+
+    //     $purchases = Purchase::with(['product', 'supplier', 'category'])
+    //         ->latest()
+    //         ->paginate(10)
+    //         ->through(function ($item) {
+    //             $jumlah = $item->quantity ?? 0;
+    //             $harga = $item->price ?? 0;
+    //             $diskon = $item->discount ?? 0;
+    //             $total = ($jumlah * $harga) - ($jumlah * $harga * $diskon / 100);
+
+    //             return [
+    //                 'tanggal' => $item->created_at ?? '-',
+    //                 'jenis' => 'Pembelian',
+    //                 'nama' => $item->supplier->name ?? '-',
+    //                 'kategori' => $item->category->name ?? '-',
+    //                 'produk' => $item->product ?? '-',
+    //                 'jumlah' => $jumlah,
+    //                 'satuan' => $item->unit ?? '-',
+    //                 'harga' => $harga,
+    //                 'diskon' => $diskon,
+    //                 'metode_pembayaran' => $item->payment_method ?? '-',
+    //                 'total_price' => $total,
+    //                 'expired_at' => $item->expiry_date
+    //                     ? date('d-m-Y', strtotime($item->expiry_date))
+    //                     : '-',
+    //             ];
+    //         })->withQueryString();
+
+    //     return view('admin.history.pembelian', compact('title', 'purchases'));
+    // }
+    // RIWAYAT PEMBELIAN (BAGIAN YANG DIPERBARUI TOTAL)
+    // ===================================================================================
+    public function pembelian(Request $request)
+    {
+        $title = 'Riwayat Pembelian';
+
+        // Cek apakah ada filter yang diterapkan
+        $filterApplied = $request->filled('start_date') || $request->filled('end_date') || $request->filled('payment_method');
+
+        $purchases = new LengthAwarePaginator([], 0, 10);
+        $totalPembelian = 0;
+
+        if ($filterApplied) {
+            $query = Purchase::with(['items.product.category', 'supplier']);
+
+            if ($request->filled('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            }
+
+            if ($request->filled('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+
+            if ($request->filled('payment_method')) {
+                $query->where('payment_method', $request->payment_method);
+            }
+
+            // Clone query untuk total
+            $totalQuery = clone $query;
+            $filteredPurchases = $totalQuery->get();
+
+            $totalPembelian = $filteredPurchases->flatMap->items->sum(function ($item) {
+                return $item->subtotal ?? ($item->quantity * $item->unit_price);
+            });
+
+            // Pagination
+            $purchases = $query->orderBy('created_at', 'desc')
+                ->paginate(10)
+                ->withQueryString();
+        }
+
+        return view('admin.history.pembelian', compact('title', 'purchases', 'totalPembelian', 'filterApplied'));
+    }
+
+
+    // ===================================================================================
+    // PENAMBAHAN: Fungsi baru untuk generate PDF Riwayat Pembelian
+    // ===================================================================================
+    public function cetakPembelianPDF(Request $request)
+    {
+        // 1. Logika filter disalin sama persis dari fungsi pembelian()
+        $query = Purchase::with(['items.product.category', 'supplier']);
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        // 2. Ambil SEMUA data yang terfilter (tanpa pagination)
+        $purchases = $query->orderBy('created_at', 'desc')->get();
+
+        // 3. Hitung totalnya agar konsisten
+        $totalPembelian = $purchases->flatMap->items->sum(function ($item) {
+            return $item->subtotal ?? ($item->quantity * $item->unit_price);
+        });
+
+        // !! PERUBAHAN DI SINI !!
+        // Langsung kirim tanggal dari request ke view.
+        // Biarkan view yang menangani logika tampilan.
+        $tanggalMulai = $request->start_date;
+        $tanggalSelesai = $request->end_date;
+
+        // 4. Load view PDF dengan data yang sudah disiapkan
+        $pdf = PDF::loadView('admin.history.pembelian_pdf', compact('purchases', 'totalPembelian', 'tanggalMulai', 'tanggalSelesai'));
+
+        // 5. Tampilkan PDF di browser
+        return $pdf->stream('laporan-pembelian-' . now()->format('d-m-Y') . '.pdf');
+    }
+}
